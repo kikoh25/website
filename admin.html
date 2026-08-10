@@ -526,7 +526,24 @@ async function api(method, path, body=null){
 async function platformApi(method, path, body=null){
   const opts={method,headers:{'Content-Type':'application/json','Authorization':`Bearer ${PLATFORM_TOKEN}`}};
   if(body) opts.body=JSON.stringify(body);
-  const r=await fetch(PLATFORM_API+path,opts);
+  let r=await fetch(PLATFORM_API+path,opts);
+  // Se 401, tenta renovar token
+  if(r.status===401){
+    try{
+      const creds=sessionStorage.getItem('nexus_creds');
+      if(creds){
+        const {u,p}=JSON.parse(creds);
+        const form=new FormData(); form.append('username',u); form.append('password',p);
+        const r2=await fetch(PLATFORM_API+'/token',{method:'POST',body:form});
+        if(r2.ok){
+          PLATFORM_TOKEN=(await r2.json()).access_token;
+          sessionStorage.setItem('nexus_platform_token',PLATFORM_TOKEN);
+          opts.headers['Authorization']=`Bearer ${PLATFORM_TOKEN}`;
+          r=await fetch(PLATFORM_API+path,opts);
+        }
+      }
+    }catch(e){}
+  }
   if(!r.ok) throw new Error(await r.text());
   return r.json();
 }
@@ -543,6 +560,7 @@ async function doLogin(){
     const r=await fetch(API+'/token',{method:'POST',body:form});
     if(!r.ok) throw new Error();
     TOKEN=(await r.json()).access_token;
+    sessionStorage.setItem('nexus_creds', JSON.stringify({u:user,p:pass}));
     try{
       const form2=new FormData(); form2.append('username',user); form2.append('password',pass);
       const r2=await fetch(PLATFORM_API+'/token',{method:'POST',body:form2});
