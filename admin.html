@@ -392,7 +392,7 @@
         <div class="alert alert-warn">⚠️ Suspender um tenant desativa o acesso imediatamente e invalida todas as sessões ativas.</div>
         <div class="table-wrap">
           <table>
-            <thead><tr><th>Tenant</th><th>Responsável</th><th>E-mail</th><th>Último acesso</th><th>Plano</th><th>Status</th><th>Ações</th></tr></thead>
+            <thead><tr><th>Tenant</th><th>Responsável</th><th>E-mail</th><th>Produto</th><th>Último acesso</th><th>Plano</th><th>Status</th><th>Ações</th></tr></thead>
             <tbody id="tbody-acessos"><tr><td colspan="7"><div class="loading"><div class="spinner"></div>Carregando...</div></td></tr></tbody>
           </table>
         </div>
@@ -583,8 +583,13 @@ document.querySelectorAll('.modal-backdrop').forEach(m=>m.addEventListener('clic
 
 // ── BADGE ──
 function badge(s){
-  const map={'Ativo':'badge-green','Trial':'badge-blue','Suspenso':'badge-yellow','Inativo':'badge-gray','Revogado':'badge-red','Pago':'badge-green','Pendente':'badge-yellow','Atrasado':'badge-red','Encerrado':'badge-gray','Pendente assinatura':'badge-yellow','Em renovação':'badge-blue','Configurando':'badge-blue','aberto':'badge-blue','em_andamento':'badge-purple','pendente':'badge-yellow','resolvido':'badge-green','fechado':'badge-gray','alta':'badge-red','critica':'badge-red','media':'badge-yellow','baixa':'badge-gray','completo':'badge-green','chamados':'badge-blue','inventario':'badge-purple'};
+  const map={'Ativo':'badge-green','Trial':'badge-blue','trial':'badge-blue','Suspenso':'badge-yellow','Inativo':'badge-gray','Revogado':'badge-red','Pago':'badge-green','Pendente':'badge-yellow','Atrasado':'badge-red','Encerrado':'badge-gray','Pendente assinatura':'badge-yellow','Em renovação':'badge-blue','Configurando':'badge-blue','aberto':'badge-blue','em_andamento':'badge-purple','pendente':'badge-yellow','resolvido':'badge-green','fechado':'badge-gray','alta':'badge-red','critica':'badge-red','media':'badge-yellow','baixa':'badge-gray','completo':'badge-green','chamados':'badge-blue','inventario':'badge-purple'};
   return `<span class="badge ${map[s]||'badge-gray'}">${s}</span>`;
+}
+
+function planName(p){
+  const map={trial:'Free',chamados:'Starter',completo:'Pro',inventario:'Inventário'};
+  return map[p]||p;
 }
 function filterTable(tableId,q){
   document.querySelectorAll(`#${tableId} tbody tr`).forEach(r=>{r.style.display=r.textContent.toLowerCase().includes(q.toLowerCase())?'':'none'});
@@ -616,19 +621,39 @@ async function saveCliente(){
 async function renderClientes(){
   const tb=document.getElementById('tbody-clientes');
   try{
-    const data=await api('GET','/clientes');
-    document.getElementById('badge-clientes').textContent=data?.length||0;
-    if(!data?.length){tb.innerHTML='<tr><td colspan="7"><div class="empty"><div class="empty-icon">🏢</div><div class="empty-text">Nenhum cliente cadastrado.</div></div></td></tr>';return}
-    tb.innerHTML=data.map(c=>`<tr>
-      <td><strong>${c.empresa}</strong>${c.cnpj?`<br><small style="color:var(--text-3)">${c.cnpj}</small>`:''}</td>
+    // Carregar clientes do admin + tenants da Nexus Platform
+    const [adminClientes, platformTenants] = await Promise.all([
+      api('GET','/clientes'),
+      platformApi('GET','/tenants').catch(()=>[])
+    ]);
+
+    // Combinar: tenants da platform que não estão no admin
+    const adminEmails = (adminClientes||[]).map(c=>c.email);
+    const platformRows = (platformTenants||[])
+      .filter(t=>!adminEmails.includes(t.email_admin))
+      .map(t=>({
+        id: 'platform_'+t.id, empresa: t.nome, cnpj: t.cnpj||'',
+        responsavel: '—', cargo: '', email: t.email_admin, telefone: t.telefone||'',
+        plano: planName(t.plano), status: t.ativo?'Ativo':'Suspenso',
+        criado_em: t.criado_em, origem: 'platform'
+      }));
+
+    const todos = [...(adminClientes||[]).map(c=>({...c,origem:'admin'})), ...platformRows];
+    document.getElementById('badge-clientes').textContent=todos.length;
+
+    if(!todos.length){tb.innerHTML='<tr><td colspan="7"><div class="empty"><div class="empty-icon">🏢</div><div class="empty-text">Nenhum cliente cadastrado.</div></div></td></tr>';return}
+    tb.innerHTML=todos.map(c=>`<tr>
+      <td><strong>${c.empresa}</strong>${c.cnpj?`<br><small style="color:var(--text-3)">${c.cnpj}</small>`:''}<br><span class="badge ${c.origem==='platform'?'badge-purple':'badge-gray'}" style="font-size:.6rem;margin-top:2px">${c.origem==='platform'?'Nexus Platform':'Admin'}</span></td>
       <td>${c.responsavel}${c.cargo?`<br><small style="color:var(--text-3)">${c.cargo}</small>`:''}</td>
       <td>${c.email}${c.telefone?`<br><small style="color:var(--text-3)">${c.telefone}</small>`:''}</td>
       <td>${badge(c.plano||'—')}</td>
       <td>${badge(c.status)}</td>
-      <td><small>${new Date(c.criado_em).toLocaleDateString('pt-BR')}</small></td>
+      <td><small>${c.criado_em?new Date(c.criado_em).toLocaleDateString('pt-BR'):'—'}</small></td>
       <td><div style="display:flex;gap:.3rem">
-        <button class="btn btn-warn btn-xs" onclick="toggleClienteStatus(${c.id},'${c.status}')">${c.status==='Suspenso'?'▶':'⏸'}</button>
-        <button class="btn btn-danger btn-xs" onclick="deleteCliente(${c.id})">🗑</button>
+        ${c.origem==='admin'?`
+          <button class="btn btn-warn btn-xs" onclick="toggleClienteStatus(${c.id},'${c.status}')">${c.status==='Suspenso'?'▶':'⏸'}</button>
+          <button class="btn btn-danger btn-xs" onclick="deleteCliente(${c.id})">🗑</button>
+        `:'<span style="color:var(--text-3);font-size:.72rem">Gerenciar em Nexus Platform</span>'}
       </div></td>
     </tr>`).join('');
   }catch(e){tb.innerHTML='<tr><td colspan="7"><div class="empty"><div class="empty-icon">⚠️</div><div class="empty-text">Erro ao carregar.</div></div></td></tr>'}
@@ -706,7 +731,7 @@ async function renderTenants(){
     tb.innerHTML=data.map(t=>`<tr style="cursor:pointer" onclick="loadTenantDetail('${t.id}','${t.nome}')">
       <td><strong>${t.nome}</strong><br><small style="color:var(--text-3);font-family:JetBrains Mono,monospace">${t.slug}</small></td>
       <td><small>${t.email_admin}</small></td>
-      <td>${badge(t.plano)}</td>
+      <td>${badge(planName(t.plano))}</td>
       <td>${t.total_usuarios||0}</td>
       <td>${t.total_tickets||0}</td>
       <td>${t.total_ativos||0}</td>
@@ -828,7 +853,7 @@ async function renderAcessos(){
       <td>${u?u.nome:'—'}</td>
       <td>${u?`<small>${u.email}</small>`:'—'}</td>
       <td><small style="font-family:JetBrains Mono,monospace">${u?.ultimo_login?new Date(u.ultimo_login).toLocaleString('pt-BR'):'Nunca'}</small></td>
-      <td>${badge(t.plano)}</td>
+      <td>${badge(planName(t.plano))}</td>
       <td>${t.ativo?'<span class="badge badge-green">Ativo</span>':'<span class="badge badge-red">Suspenso</span>'}</td>
       <td>${t.ativo
         ?`<button class="btn btn-danger btn-xs" onclick="toggleTenantPlatform('${t.id}',false)">🔒 Suspender</button>`
@@ -869,14 +894,14 @@ async function loadStats(){
   try{
     const [s,ps]=await Promise.all([api('GET','/stats'),platformApi('GET','/stats').catch(()=>null)]);
     if(s){
-      document.getElementById('stat-clientes').textContent=s.clientes_ativos;
       document.getElementById('stat-contratos').textContent=s.contratos_ativos;
       document.getElementById('stat-mrr').textContent='R$'+s.mrr.toLocaleString('pt-BR',{minimumFractionDigits:0});
-      document.getElementById('badge-clientes').textContent=s.total_clientes;
       document.getElementById('fin-mrr').textContent='R$'+s.mrr.toLocaleString('pt-BR',{minimumFractionDigits:0});
       document.getElementById('fin-contratos').textContent=s.contratos_ativos;
     }
     if(ps){
+      document.getElementById('stat-clientes').textContent=ps.tenants_ativos;
+      document.getElementById('badge-clientes').textContent=ps.tenants_total;
       document.getElementById('stat-tickets').textContent=ps.tickets_abertos;
       const slaEl=document.getElementById('stat-tickets-sla');
       if(ps.sla_violados>0){slaEl.textContent=`⚠️ ${ps.sla_violados} SLA violados`;slaEl.className='stat-delta down'}
