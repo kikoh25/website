@@ -1006,10 +1006,30 @@ function loadSection(id){
 function loadAll(){loadStats();renderAtividade('activity-dash')}
 
 // ── AUTO LOGIN ──
-window.addEventListener('load',()=>{
+window.addEventListener('load',async()=>{
   const t=sessionStorage.getItem('nexus_token');
   const pt=sessionStorage.getItem('nexus_platform_token');
-  if(t){TOKEN=t;PLATFORM_TOKEN=pt||'';document.getElementById('login-screen').style.display='none';document.getElementById('app').style.display='flex';loadAll()}
+  const creds=sessionStorage.getItem('nexus_creds');
+  if(t){
+    TOKEN=t;
+    // Sempre renova o token da platform no carregamento
+    if(creds){
+      try{
+        const {u,p}=JSON.parse(creds);
+        const form=new FormData(); form.append('username',u); form.append('password',p);
+        const r=await fetch(PLATFORM_API+'/token',{method:'POST',body:form});
+        if(r.ok){
+          PLATFORM_TOKEN=(await r.json()).access_token;
+          sessionStorage.setItem('nexus_platform_token',PLATFORM_TOKEN);
+        }
+      }catch(e){PLATFORM_TOKEN=pt||'';}
+    } else {
+      PLATFORM_TOKEN=pt||'';
+    }
+    document.getElementById('login-screen').style.display='none';
+    document.getElementById('app').style.display='flex';
+    loadAll();
+  }
 });
 </script>
 </body>
