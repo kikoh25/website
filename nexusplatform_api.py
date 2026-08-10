@@ -127,16 +127,34 @@ def update_tenant_status(tenant_id: str, data: TenantStatusUpdate, db: Session =
     db.commit()
     return {"ok": True, "ativo": data.ativo}
 
+LIMITES_PLANO = {
+    "trial":     {"max_tecnicos": 1,  "max_usuarios": 3,   "max_ativos": 5},
+    "chamados":  {"max_tecnicos": 2,  "max_usuarios": 20,  "max_ativos": 50},
+    "completo":  {"max_tecnicos": 5,  "max_usuarios": 100, "max_ativos": 300},
+    "inventario":{"max_tecnicos": 2,  "max_usuarios": 20,  "max_ativos": 200},
+}
+
 @app.patch("/tenants/{tenant_id}/plano")
 def update_tenant_plano(tenant_id: str, data: TenantPlanoUpdate, db: Session = Depends(get_db), user=Depends(get_current_user)):
-    campos = {"plano": data.plano, "id": tenant_id}
-    extras = ""
-    if data.max_tecnicos: campos["max_tecnicos"] = data.max_tecnicos; extras += ", max_tecnicos = :max_tecnicos"
-    if data.max_usuarios: campos["max_usuarios"] = data.max_usuarios; extras += ", max_usuarios = :max_usuarios"
-    if data.max_ativos:   campos["max_ativos"]   = data.max_ativos;   extras += ", max_ativos = :max_ativos"
-    db.execute(text(f"UPDATE tenants SET plano = :plano{extras}, atualizado_em = now() WHERE id = :id"), campos)
+    limites = LIMITES_PLANO.get(data.plano, {})
+    campos = {
+        "plano":        data.plano,
+        "max_tecnicos": data.max_tecnicos or limites.get("max_tecnicos", 1),
+        "max_usuarios": data.max_usuarios or limites.get("max_usuarios", 3),
+        "max_ativos":   data.max_ativos   or limites.get("max_ativos", 5),
+        "id": tenant_id
+    }
+    db.execute(text("""
+        UPDATE tenants SET
+            plano = :plano,
+            max_tecnicos = :max_tecnicos,
+            max_usuarios = :max_usuarios,
+            max_ativos = :max_ativos,
+            atualizado_em = now()
+        WHERE id = :id
+    """), campos)
     db.commit()
-    return {"ok": True, "plano": data.plano}
+    return {"ok": True, "plano": data.plano, "limites": limites}
 
 # ── USUARIOS ──
 @app.get("/tenants/{tenant_id}/usuarios")
