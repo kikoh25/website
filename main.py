@@ -15,7 +15,7 @@ import os
 SECRET_KEY = "nexusef@2026#supersecreto"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 480
-DATABASE_URL = "postgresql://nexus:Ivete@2019@#@localhost/nexusadmin"
+DATABASE_URL = "postgresql://nexus:Ivete%402019%40%23@localhost/nexusadmin"
 
 # ── DB ──
 engine = create_engine(DATABASE_URL)
