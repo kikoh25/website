@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Nexus Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Lora:wght@600;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --indigo:#1E1B4B;--indigo-deep:#0f0d2a;
+      --purple:#7C3AED;--purple-light:#9B5CF6;--purple-faint:rgba(124,58,237,0.08);
+      --white:#fff;--bg:#F5F4FF;--surface:#fff;
+      --border:#E8E6F8;--border-strong:#D0CCF0;
+      --text:#1A1A2E;--text-2:#5C5F8A;--text-3:#9094B0;
+      --green:#10B981;--green-bg:rgba(16,185,129,0.08);
+      --red:#EF4444;--red-bg:rgba(239,68,68,0.08);
+      --yellow:#F59E0B;--yellow-bg:rgba(245,158,11,0.08);
+      --blue:#3B82F6;--blue-bg:rgba(59,130,246,0.08);
+      --sidebar:220px;
+    }
+    html{scroll-behavior:smooth}
+    body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+
+    /* ── LOGIN ── */
+    #login-screen{
+      position:fixed;inset:0;z-index:1000;
+      background:linear-gradient(135deg,var(--indigo-deep) 0%,var(--indigo) 50%,#2D1B69 100%);
+      display:flex;align-items:center;justify-content:center;
+    }
+    #login-screen::before{
+      content:'';position:absolute;inset:0;
+      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='64'%3E%3Cpath d='M28 2 L54 17 L54 47 L28 62 L2 47 L2 17 Z' fill='none' stroke='rgba(124,58,237,0.07)' stroke-width='1'/%3E%3C/svg%3E");
+      background-size:56px 64px;pointer-events:none;
+    }
+    .login-box{
+      position:relative;z-index:1;
+      background:rgba(255,255,255,0.05);
+      border:1px solid rgba(255,255,255,0.12);
+      border-radius:20px;
+      padding:2.5rem;
+      width:100%;max-width:400px;
+      backdrop-filter:blur(16px);
+      box-shadow:0 24px 64px rgba(0,0,0,0.4);
+    }
+    .login-logo{display:flex;align-items:center;gap:.65rem;margin-bottom:2rem;justify-content:center}
+    .login-logo svg{width:40px;height:40px}
+    .login-logo-text{font-family:'Lora',serif;font-size:1.3rem;font-weight:700;color:#fff}
+    .login-logo-text span{color:#C4B5FD}
+    .login-title{font-family:'Lora',serif;font-size:1.5rem;font-weight:700;color:#fff;margin-bottom:.35rem;text-align:center}
+    .login-sub{font-size:.85rem;color:rgba(255,255,255,.5);text-align:center;margin-bottom:2rem}
+    .login-field{display:flex;flex-direction:column;gap:.4rem;margin-bottom:1rem}
+    .login-field label{font-size:.78rem;font-weight:600;color:rgba(255,255,255,.75);letter-spacing:.02em}
+    .login-field input{
+      background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);
+      border-radius:9px;padding:.8rem 1rem;color:#fff;
+      font-family:'Inter',sans-serif;font-size:.9rem;outline:none;
+      transition:border-color .2s;
+    }
+    .login-field input::placeholder{color:rgba(255,255,255,.3)}
+    .login-field input:focus{border-color:rgba(196,181,253,.6)}
+    .login-btn{
+      width:100%;background:var(--purple);color:#fff;border:none;
+      border-radius:9px;padding:.9rem;font-family:'Inter',sans-serif;
+      font-size:.95rem;font-weight:700;cursor:pointer;margin-top:.5rem;
+      transition:background .2s,transform .15s;
+      box-shadow:0 4px 16px rgba(124,58,237,.4);
+    }
+    .login-btn:hover{background:var(--purple-light);transform:translateY(-1px)}
+    .login-error{color:#FCA5A5;font-size:.82rem;text-align:center;margin-top:.75rem;display:none}
+
+    /* ── LAYOUT ── */
+    #app{display:none;min-height:100vh}
+
+    /* SIDEBAR */
+    .sidebar{
+      position:fixed;top:0;left:0;bottom:0;width:var(--sidebar);
+      background:var(--indigo-deep);
+      border-right:1px solid rgba(124,58,237,.15);
+      display:flex;flex-direction:column;z-index:50;
+      overflow-y:auto;
+    }
+    .sidebar-logo{
+      display:flex;align-items:center;gap:.6rem;
+      padding:1.5rem 1.25rem 1rem;
+      border-bottom:1px solid rgba(255,255,255,.06);
+    }
+    .sidebar-logo svg{width:32px;height:32px;flex-shrink:0}
+    .sidebar-logo-text{font-family:'Lora',serif;font-size:1rem;font-weight:700;color:#fff;line-height:1}
+    .sidebar-logo-text span{color:#C4B5FD}
+    .sidebar-logo-sub{font-size:.55rem;color:rgba(255,255,255,.3);letter-spacing:.15em;text-transform:uppercase;margin-top:2px}
+    .sidebar-badge{
+      font-family:'JetBrains Mono',monospace;font-size:.6rem;
+      background:rgba(124,58,237,.25);color:#C4B5FD;
+      border:1px solid rgba(124,58,237,.3);
+      padding:.2rem .5rem;border-radius:4px;margin-left:auto;
+    }
+    .sidebar-section{padding:.75rem 1rem .35rem;font-size:.62rem;font-weight:600;color:rgba(255,255,255,.25);letter-spacing:.12em;text-transform:uppercase}
+    .nav-item{
+      display:flex;align-items:center;gap:.75rem;
+      padding:.65rem 1.25rem;margin:1px .5rem;border-radius:8px;
+      color:rgba(255,255,255,.55);font-size:.85rem;font-weight:500;
+      cursor:pointer;transition:background .18s,color .18s;
+      border:none;background:transparent;width:calc(100% - 1rem);text-align:left;
+    }
+    .nav-item:hover{background:rgba(255,255,255,.06);color:rgba(255,255,255,.85)}
+    .nav-item.active{background:rgba(124,58,237,.2);color:#C4B5FD;font-weight:600}
+    .nav-item .nav-icon{font-size:1rem;width:20px;text-align:center;flex-shrink:0}
+    .nav-item .nav-badge{
+      margin-left:auto;background:var(--purple);color:#fff;
+      font-size:.62rem;font-weight:700;padding:.1rem .45rem;border-radius:100px;
+    }
+    .sidebar-footer{
+      margin-top:auto;padding:1rem;border-top:1px solid rgba(255,255,255,.06);
+    }
+    .logout-btn{
+      display:flex;align-items:center;gap:.65rem;
+      width:100%;padding:.6rem .75rem;border-radius:8px;
+      background:transparent;border:1px solid rgba(255,255,255,.08);
+      color:rgba(255,255,255,.4);font-size:.82rem;cursor:pointer;
+      transition:all .2s;font-family:'Inter',sans-serif;
+    }
+    .logout-btn:hover{background:rgba(239,68,68,.1);border-color:rgba(239,68,68,.3);color:#FCA5A5}
+
+    /* MAIN */
+    .main{margin-left:var(--sidebar);min-height:100vh;display:flex;flex-direction:column}
+    .topbar{
+      position:sticky;top:0;z-index:40;
+      background:rgba(245,244,255,.92);backdrop-filter:blur(12px);
+      border-bottom:1px solid var(--border);
+      padding:.85rem 2rem;
+      display:flex;align-items:center;justify-content:space-between;
+    }
+    .topbar-title{font-family:'Lora',serif;font-size:1.1rem;font-weight:700;color:var(--indigo)}
+    .topbar-right{display:flex;align-items:center;gap:1rem}
+    .topbar-user{
+      display:flex;align-items:center;gap:.6rem;
+      font-size:.82rem;color:var(--text-2);font-weight:500;
+    }
+    .user-avatar{
+      width:32px;height:32px;border-radius:50%;
+      background:linear-gradient(135deg,var(--purple),var(--purple-light));
+      display:flex;align-items:center;justify-content:center;
+      color:#fff;font-size:.75rem;font-weight:700;
+    }
+    .content{padding:2rem;flex:1}
+
+    /* ── CARDS STAT ── */
+    .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:2rem}
+    .stat-card{
+      background:var(--surface);border:1px solid var(--border);
+      border-radius:14px;padding:1.35rem 1.5rem;
+      transition:box-shadow .2s,transform .2s;
+    }
+    .stat-card:hover{box-shadow:0 4px 20px rgba(124,58,237,.08);transform:translateY(-1px)}
+    .stat-label{font-size:.75rem;font-weight:600;color:var(--text-3);letter-spacing:.04em;text-transform:uppercase;margin-bottom:.5rem}
+    .stat-value{font-family:'Lora',serif;font-size:2rem;font-weight:700;color:var(--indigo);line-height:1;margin-bottom:.35rem}
+    .stat-delta{font-size:.78rem;font-weight:500}
+    .stat-delta.up{color:var(--green)}.stat-delta.neutral{color:var(--text-3)}
+
+    /* ── TABLES ── */
+    .section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;flex-wrap:wrap;gap:.75rem}
+    .section-title-sm{font-family:'Lora',serif;font-size:1.1rem;font-weight:700;color:var(--indigo)}
+    .btn{
+      display:inline-flex;align-items:center;gap:.45rem;
+      padding:.55rem 1.1rem;border-radius:8px;font-size:.82rem;font-weight:600;
+      cursor:pointer;border:none;font-family:'Inter',sans-serif;transition:all .18s;
+    }
+    .btn-primary{background:var(--purple);color:#fff;box-shadow:0 2px 8px rgba(124,58,237,.3)}
+    .btn-primary:hover{background:var(--purple-light)}
+    .btn-ghost{background:transparent;color:var(--text-2);border:1px solid var(--border)}
+    .btn-ghost:hover{border-color:var(--purple);color:var(--purple)}
+    .btn-danger{background:var(--red-bg);color:var(--red);border:1px solid rgba(239,68,68,.2)}
+    .btn-danger:hover{background:var(--red);color:#fff}
+    .btn-sm{padding:.35rem .75rem;font-size:.75rem}
+    .search-bar{
+      display:flex;align-items:center;gap:.5rem;
+      background:var(--surface);border:1px solid var(--border);
+      border-radius:8px;padding:.5rem .85rem;
+    }
+    .search-bar input{border:none;outline:none;font-size:.85rem;color:var(--text);background:transparent;width:200px}
+    .table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:2rem}
+    table{width:100%;border-collapse:collapse}
+    thead{background:var(--bg)}
+    th{padding:.75rem 1.25rem;text-align:left;font-size:.72rem;font-weight:700;color:var(--text-3);letter-spacing:.06em;text-transform:uppercase;border-bottom:1px solid var(--border)}
+    td{padding:.9rem 1.25rem;font-size:.85rem;color:var(--text);border-bottom:1px solid var(--border)}
+    tr:last-child td{border-bottom:none}
+    tr:hover td{background:var(--purple-faint)}
+    .badge{
+      display:inline-flex;align-items:center;gap:.3rem;
+      padding:.25rem .65rem;border-radius:100px;font-size:.72rem;font-weight:600;
+    }
+    .badge-green{background:var(--green-bg);color:var(--green)}
+    .badge-red{background:var(--red-bg);color:var(--red)}
+    .badge-yellow{background:var(--yellow-bg);color:var(--yellow)}
+    .badge-blue{background:var(--blue-bg);color:var(--blue)}
+    .badge-gray{background:var(--bg);color:var(--text-3);border:1px solid var(--border)}
+    .badge::before{content:'';width:5px;height:5px;border-radius:50%;background:currentColor}
+
+    /* ── MODAL ── */
+    .modal-backdrop{
+      position:fixed;inset:0;background:rgba(15,13,42,.6);
+      backdrop-filter:blur(4px);z-index:200;display:none;
+      align-items:center;justify-content:center;padding:1rem;
+    }
+    .modal-backdrop.open{display:flex}
+    .modal{
+      background:var(--surface);border-radius:18px;
+      width:100%;max-width:540px;max-height:90vh;overflow-y:auto;
+      box-shadow:0 24px 64px rgba(0,0,0,.2);
+      animation:slideUp .25s ease;
+    }
+    @keyframes slideUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+    .modal-header{
+      display:flex;align-items:center;justify-content:space-between;
+      padding:1.5rem;border-bottom:1px solid var(--border);
+    }
+    .modal-title{font-family:'Lora',serif;font-size:1.1rem;font-weight:700;color:var(--indigo)}
+    .modal-close{background:transparent;border:none;font-size:1.2rem;cursor:pointer;color:var(--text-3);padding:.25rem;border-radius:6px}
+    .modal-close:hover{background:var(--bg);color:var(--text)}
+    .modal-body{padding:1.5rem}
+    .modal-footer{padding:1rem 1.5rem;border-top:1px solid var(--border);display:flex;gap:.75rem;justify-content:flex-end}
+    .form-group{display:flex;flex-direction:column;gap:.4rem;margin-bottom:1rem}
+    .form-group label{font-size:.78rem;font-weight:600;color:var(--text-2)}
+    .form-group input,.form-group select,.form-group textarea{
+      background:var(--bg);border:1px solid var(--border);
+      border-radius:8px;padding:.7rem .9rem;color:var(--text);
+      font-family:'Inter',sans-serif;font-size:.88rem;outline:none;
+      transition:border-color .2s;
+    }
+    .form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--purple)}
+    .form-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+    .form-group textarea{resize:vertical;min-height:80px}
+
+    /* ── VIEWS ── */
+    .view{display:none}.view.active{display:block}
+
+    /* Dashboard quick actions */
+    .quick-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:2rem}
+    .quick-card{
+      background:var(--surface);border:1px solid var(--border);border-radius:12px;
+      padding:1.25rem;text-align:center;cursor:pointer;
+      transition:all .2s;
+    }
+    .quick-card:hover{border-color:var(--purple);box-shadow:0 4px 16px rgba(124,58,237,.1);transform:translateY(-2px)}
+    .quick-icon{font-size:1.5rem;margin-bottom:.5rem}
+    .quick-label{font-size:.8rem;font-weight:600;color:var(--text-2)}
+
+    /* Activity */
+    .activity-list{display:flex;flex-direction:column;gap:0}
+    .activity-item{
+      display:flex;align-items:flex-start;gap:1rem;
+      padding:1rem 1.25rem;border-bottom:1px solid var(--border);
+    }
+    .activity-item:last-child{border-bottom:none}
+    .activity-dot{
+      width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:.35rem;
+    }
+    .activity-text{font-size:.85rem;color:var(--text);line-height:1.5}
+    .activity-time{font-size:.75rem;color:var(--text-3);margin-top:.2rem}
+
+    /* Tenant detail */
+    .detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem}
+    .detail-card{background:var(--bg);border-radius:10px;padding:1rem 1.25rem}
+    .detail-label{font-size:.72rem;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.3rem}
+    .detail-value{font-size:.9rem;font-weight:600;color:var(--text)}
+
+    /* Alerts */
+    .alert{
+      display:flex;align-items:flex-start;gap:.75rem;
+      padding:.85rem 1.1rem;border-radius:10px;margin-bottom:1rem;
+      font-size:.85rem;line-height:1.5;
+    }
+    .alert-warn{background:var(--yellow-bg);color:#92400E;border:1px solid rgba(245,158,11,.2)}
+    .alert-info{background:var(--blue-bg);color:#1E40AF;border:1px solid rgba(59,130,246,.2)}
+
+    /* Empty state */
+    .empty{text-align:center;padding:3rem 1rem}
+    .empty-icon{font-size:2.5rem;margin-bottom:.75rem}
+    .empty-text{font-size:.9rem;color:var(--text-3)}
+
+    /* Responsive */
+    @media(max-width:900px){
+      .stats-grid{grid-template-columns:1fr 1fr}
+      .quick-grid{grid-template-columns:1fr 1fr}
+    }
+    @media(max-width:600px){
+      :root{--sidebar:0px}
+      .sidebar{transform:translateX(-220px)}
+      .main{margin-left:0}
+      .stats-grid{grid-template-columns:1fr}
+    }
+  </style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">
+      <svg viewBox="0 0 40 46" fill="none"><path d="M20 2L38 12V34L20 44L2 34V12L20 2Z" fill="url(#lg)" stroke="rgba(196,181,253,0.3)" stroke-width="1"/><text x="20" y="29" text-anchor="middle" font-family="Lora,serif" font-size="14" font-weight="700" fill="white">N</text><defs><linearGradient id="lg" x1="2" y1="2" x2="38" y2="44"><stop offset="0%" stop-color="#7C3AED"/><stop offset="100%" stop-color="#4C1D95"/></linearGradient></defs></svg>
+      <div><div class="login-logo-text">Nexus<span>EF</span></div></div>
+    </div>
+    <div class="login-title">Painel Administrativo</div>
+    <div class="login-sub">Acesso restrito — Nexus EF Business</div>
+    <div class="login-field">
+      <label>Usuário</label>
+      <input type="text" id="login-user" placeholder="admin" autocomplete="username"/>
+    </div>
+    <div class="login-field">
+      <label>Senha</label>
+      <input type="password" id="login-pass" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"/>
+    </div>
+    <button class="login-btn" onclick="doLogin()">Entrar no painel</button>
+    <div class="login-error" id="login-error">Usuário ou senha incorretos.</div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <svg viewBox="0 0 40 46" fill="none"><path d="M20 2L38 12V34L20 44L2 34V12L20 2Z" fill="url(#sg)" stroke="rgba(196,181,253,0.2)" stroke-width="1"/><text x="20" y="29" text-anchor="middle" font-family="Lora,serif" font-size="14" font-weight="700" fill="white">N</text><defs><linearGradient id="sg" x1="2" y1="2" x2="38" y2="44"><stop offset="0%" stop-color="#7C3AED"/><stop offset="100%" stop-color="#4C1D95"/></linearGradient></defs></svg>
+      <div><div class="sidebar-logo-text">Nexus<span>EF</span></div><div class="sidebar-logo-sub">Admin</div></div>
+      <span class="sidebar-badge">v1.0</span>
+    </div>
+
+    <div class="sidebar-section">Principal</div>
+    <button class="nav-item active" onclick="showView('dashboard',this)"><span class="nav-icon">📊</span>Dashboard</button>
+    <button class="nav-item" onclick="showView('clientes',this)"><span class="nav-icon">🏢</span>Clientes<span class="nav-badge" id="badge-clientes">0</span></button>
+    <button class="nav-item" onclick="showView('contratos',this)"><span class="nav-icon">📄</span>Contratos</button>
+
+    <div class="sidebar-section">Produtos</div>
+    <button class="nav-item" onclick="showView('tenants',this)"><span class="nav-icon">🖥️</span>Nexus Platform</button>
+    <button class="nav-item" onclick="showView('leadnow',this)"><span class="nav-icon">⚡</span>LeadNow</button>
+
+    <div class="sidebar-section">Operação</div>
+    <button class="nav-item" onclick="showView('acessos',this)"><span class="nav-icon">🔑</span>Acessos</button>
+    <button class="nav-item" onclick="showView('financeiro',this)"><span class="nav-icon">💰</span>Financeiro</button>
+    <button class="nav-item" onclick="showView('atividade',this)"><span class="nav-icon">📋</span>Atividade</button>
+
+    <div class="sidebar-footer">
+      <button class="logout-btn" onclick="doLogout()">🚪 Sair do painel</button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+    <div class="topbar">
+      <div class="topbar-title" id="topbar-title">Dashboard</div>
+      <div class="topbar-right">
+        <div class="topbar-user">
+          <div class="user-avatar">E</div>
+          <span>Erick Ferreira</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- DASHBOARD -->
+      <div class="view active" id="view-dashboard">
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-label">Clientes ativos</div>
+            <div class="stat-value" id="stat-clientes">0</div>
+            <div class="stat-delta neutral">Total cadastrado</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Contratos vigentes</div>
+            <div class="stat-value" id="stat-contratos">0</div>
+            <div class="stat-delta neutral">Em andamento</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Tenants ativos</div>
+            <div class="stat-value" id="stat-tenants">0</div>
+            <div class="stat-delta neutral">Plataformas</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">MRR Estimado</div>
+            <div class="stat-value" id="stat-mrr">R$0</div>
+            <div class="stat-delta up">Receita mensal</div>
+          </div>
+        </div>
+
+        <div class="quick-grid">
+          <div class="quick-card" onclick="openModal('modal-cliente')">
+            <div class="quick-icon">➕</div>
+            <div class="quick-label">Novo cliente</div>
+          </div>
+          <div class="quick-card" onclick="openModal('modal-contrato')">
+            <div class="quick-icon">📄</div>
+            <div class="quick-label">Novo contrato</div>
+          </div>
+          <div class="quick-card" onclick="openModal('modal-tenant')">
+            <div class="quick-icon">🖥️</div>
+            <div class="quick-label">Novo tenant</div>
+          </div>
+          <div class="quick-card" onclick="showView('acessos',null)">
+            <div class="quick-icon">🔑</div>
+            <div class="quick-label">Gerenciar acessos</div>
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <div style="padding:1.25rem 1.5rem;border-bottom:1px solid var(--border)">
+            <div class="section-title-sm">Atividade recente</div>
+          </div>
+          <div class="activity-list" id="activity-list">
+            <div class="empty"><div class="empty-icon">📋</div><div class="empty-text">Nenhuma atividade ainda.</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CLIENTES -->
+      <div class="view" id="view-clientes">
+        <div class="section-header">
+          <div class="section-title-sm">Clientes</div>
+          <div style="display:flex;gap:.75rem;align-items:center">
+            <div class="search-bar"><span>🔍</span><input type="text" placeholder="Buscar cliente..." oninput="filterTable('tb-clientes',this.value)"/></div>
+            <button class="btn btn-primary" onclick="openModal('modal-cliente')">+ Novo cliente</button>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table id="tb-clientes">
+            <thead><tr><th>Empresa</th><th>Responsável</th><th>E-mail</th><th>Plano</th><th>Status</th><th>Desde</th><th>Ações</th></tr></thead>
+            <tbody id="tbody-clientes"><tr><td colspan="7"><div class="empty"><div class="empty-icon">🏢</div><div class="empty-text">Nenhum cliente cadastrado.</div></div></td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- CONTRATOS -->
+      <div class="view" id="view-contratos">
+        <div class="section-header">
+          <div class="section-title-sm">Contratos</div>
+          <button class="btn btn-primary" onclick="openModal('modal-contrato')">+ Novo contrato</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Cliente</th><th>Produto</th><th>Valor/mês</th><th>Início</th><th>Vencimento</th><th>Status</th><th>Ações</th></tr></thead>
+            <tbody id="tbody-contratos"><tr><td colspan="7"><div class="empty"><div class="empty-icon">📄</div><div class="empty-text">Nenhum contrato cadastrado.</div></div></td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- TENANTS NEXUS PLATFORM -->
+      <div class="view" id="view-tenants">
+        <div class="section-header">
+          <div class="section-title-sm">Nexus Platform — Tenants</div>
+          <button class="btn btn-primary" onclick="openModal('modal-tenant')">+ Novo tenant</button>
+        </div>
+        <div class="alert alert-info">ℹ️ Cada tenant é uma instância isolada do Nexus Platform para um cliente. Você controla plano, usuários e acesso aqui.</div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Cliente</th><th>Subdomínio</th><th>Plano</th><th>Usuários</th><th>Tickets/mês</th><th>Status</th><th>Ações</th></tr></thead>
+            <tbody id="tbody-tenants"><tr><td colspan="7"><div class="empty"><div class="empty-icon">🖥️</div><div class="empty-text">Nenhum tenant ativo.</div></div></td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- LEADNOW -->
+      <div class="view" id="view-leadnow">
+        <div class="section-header">
+          <div class="section-title-sm">LeadNow — Instâncias</div>
+          <button class="btn btn-primary" onclick="openModal('modal-leadnow')">+ Nova instância</button>
+        </div>
+        <div class="alert alert-info">ℹ️ Cada instância LeadNow é configurada por evento ou cliente. A IA usa a base de conhecimento específica de cada um.</div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Cliente</th><th>Evento</th><th>Base de conhecimento</th><th>Leads captados</th><th>Status</th><th>Ações</th></tr></thead>
+            <tbody id="tbody-leadnow"><tr><td colspan="6"><div class="empty"><div class="empty-icon">⚡</div><div class="empty-text">Nenhuma instância ativa.</div></div></td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ACESSOS -->
+      <div class="view" id="view-acessos">
+        <div class="section-header">
+          <div class="section-title-sm">Controle de Acessos</div>
+        </div>
+        <div class="alert alert-warn">⚠️ Revogar um acesso desativa imediatamente o login do cliente na plataforma.</div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Cliente</th><th>Produto</th><th>Último acesso</th><th>Plano</th><th>Status</th><th>Ações</th></tr></thead>
+            <tbody id="tbody-acessos"><tr><td colspan="6"><div class="empty"><div class="empty-icon">🔑</div><div class="empty-text">Nenhum acesso cadastrado.</div></div></td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- FINANCEIRO -->
+      <div class="view" id="view-financeiro">
+        <div class="section-header">
+          <div class="section-title-sm">Financeiro</div>
+          <button class="btn btn-primary" onclick="openModal('modal-financeiro')">+ Registrar receita</button>
+        </div>
+        <div class="stats-grid" style="grid-template-columns:repeat(3,1fr)">
+          <div class="stat-card"><div class="stat-label">MRR</div><div class="stat-value" id="fin-mrr">R$0</div><div class="stat-delta neutral">Receita mensal recorrente</div></div>
+          <div class="stat-card"><div class="stat-label">Contratos ativos</div><div class="stat-value" id="fin-contratos">0</div><div class="stat-delta neutral">Com receita</div></div>
+          <div class="stat-card"><div class="stat-label">A vencer (30 dias)</div><div class="stat-value" id="fin-vencer">0</div><div class="stat-delta neutral">Renovações</div></div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Cliente</th><th>Descrição</th><th>Valor</th><th>Data</th><th>Status</th></tr></thead>
+            <tbody id="tbody-financeiro"><tr><td colspan="5"><div class="empty"><div class="empty-icon">💰</div><div class="empty-text">Nenhum registro financeiro.</div></div></td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ATIVIDADE -->
+      <div class="view" id="view-atividade">
+        <div class="section-header"><div class="section-title-sm">Log de Atividades</div><button class="btn btn-ghost btn-sm" onclick="clearActivity()">Limpar log</button></div>
+        <div class="table-wrap">
+          <div class="activity-list" id="activity-full">
+            <div class="empty"><div class="empty-icon">📋</div><div class="empty-text">Nenhuma atividade registrada.</div></div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /content -->
+  </main>
+</div>
+
+<!-- MODAIS -->
+<!-- Cliente -->
+<div class="modal-backdrop" id="modal-cliente">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title">Novo cliente</div><button class="modal-close" onclick="closeModal('modal-cliente')">✕</button></div>
+    <div class="modal-body">
+      <div class="form-row"><div class="form-group"><label>Empresa *</label><input id="c-empresa" placeholder="Nome da empresa"/></div><div class="form-group"><label>CNPJ</label><input id="c-cnpj" placeholder="00.000.000/0000-00"/></div></div>
+      <div class="form-row"><div class="form-group"><label>Responsável *</label><input id="c-resp" placeholder="Nome do responsável"/></div><div class="form-group"><label>Cargo</label><input id="c-cargo" placeholder="Ex: Diretor de TI"/></div></div>
+      <div class="form-row"><div class="form-group"><label>E-mail *</label><input id="c-email" type="email" placeholder="email@empresa.com"/></div><div class="form-group"><label>Telefone</label><input id="c-tel" placeholder="(11) 99999-9999"/></div></div>
+      <div class="form-row"><div class="form-group"><label>Plano</label><select id="c-plano"><option>Starter</option><option>Professional</option><option>Enterprise</option><option>Customizado</option></select></div><div class="form-group"><label>Status</label><select id="c-status"><option>Ativo</option><option>Trial</option><option>Suspenso</option><option>Inativo</option></select></div></div>
+      <div class="form-group"><label>Observações</label><textarea id="c-obs" placeholder="Notas internas sobre o cliente..."></textarea></div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-ghost" onclick="closeModal('modal-cliente')">Cancelar</button><button class="btn btn-primary" onclick="saveCliente()">Salvar cliente</button></div>
+  </div>
+</div>
+
+<!-- Contrato -->
+<div class="modal-backdrop" id="modal-contrato">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title">Novo contrato</div><button class="modal-close" onclick="closeModal('modal-contrato')">✕</button></div>
+    <div class="modal-body">
+      <div class="form-row"><div class="form-group"><label>Cliente *</label><select id="ct-cliente"><option value="">Selecionar...</option></select></div><div class="form-group"><label>Produto</label><select id="ct-produto"><option>Nexus Platform</option><option>LeadNow</option><option>Desenvolvimento sob medida</option><option>Integração</option><option>Automação</option><option>Consultoria</option></select></div></div>
+      <div class="form-row"><div class="form-group"><label>Valor mensal (R$)</label><input id="ct-valor" type="number" placeholder="0,00"/></div><div class="form-group"><label>Tipo</label><select id="ct-tipo"><option>Recorrente mensal</option><option>Recorrente anual</option><option>Projeto único</option></select></div></div>
+      <div class="form-row"><div class="form-group"><label>Data início</label><input id="ct-inicio" type="date"/></div><div class="form-group"><label>Data vencimento</label><input id="ct-fim" type="date"/></div></div>
+      <div class="form-group"><label>Status</label><select id="ct-status"><option>Ativo</option><option>Pendente assinatura</option><option>Encerrado</option><option>Em renovação</option></select></div>
+      <div class="form-group"><label>Observações</label><textarea id="ct-obs" placeholder="Detalhes do contrato..."></textarea></div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-ghost" onclick="closeModal('modal-contrato')">Cancelar</button><button class="btn btn-primary" onclick="saveContrato()">Salvar contrato</button></div>
+  </div>
+</div>
+
+<!-- Tenant -->
+<div class="modal-backdrop" id="modal-tenant">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title">Novo tenant — Nexus Platform</div><button class="modal-close" onclick="closeModal('modal-tenant')">✕</button></div>
+    <div class="modal-body">
+      <div class="form-row"><div class="form-group"><label>Cliente *</label><select id="t-cliente"><option value="">Selecionar...</option></select></div><div class="form-group"><label>Subdomínio</label><input id="t-sub" placeholder="cliente.nexusplatform.com.br"/></div></div>
+      <div class="form-row"><div class="form-group"><label>Plano</label><select id="t-plano"><option>Starter (10 users)</option><option>Professional (50 users)</option><option>Enterprise (ilimitado)</option></select></div><div class="form-group"><label>Tickets/mês</label><input id="t-tickets" type="number" placeholder="500"/></div></div>
+      <div class="form-row"><div class="form-group"><label>Usuários incluídos</label><input id="t-users" type="number" placeholder="10"/></div><div class="form-group"><label>Status</label><select id="t-status"><option>Ativo</option><option>Trial</option><option>Suspenso</option><option>Revogado</option></select></div></div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-ghost" onclick="closeModal('modal-tenant')">Cancelar</button><button class="btn btn-primary" onclick="saveTenant()">Criar tenant</button></div>
+  </div>
+</div>
+
+<!-- LeadNow -->
+<div class="modal-backdrop" id="modal-leadnow">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title">Nova instância — LeadNow</div><button class="modal-close" onclick="closeModal('modal-leadnow')">✕</button></div>
+    <div class="modal-body">
+      <div class="form-row"><div class="form-group"><label>Cliente *</label><select id="ln-cliente"><option value="">Selecionar...</option></select></div><div class="form-group"><label>Nome do evento</label><input id="ln-evento" placeholder="Ex: FEBRABAN Tech 2026"/></div></div>
+      <div class="form-group"><label>Base de conhecimento</label><input id="ln-base" placeholder="URL ou nome do arquivo da base"/></div>
+      <div class="form-row"><div class="form-group"><label>Data início</label><input id="ln-inicio" type="date"/></div><div class="form-group"><label>Data fim</label><input id="ln-fim" type="date"/></div></div>
+      <div class="form-group"><label>Status</label><select id="ln-status"><option>Ativo</option><option>Configurando</option><option>Encerrado</option></select></div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-ghost" onclick="closeModal('modal-leadnow')">Cancelar</button><button class="btn btn-primary" onclick="saveLeadNow()">Criar instância</button></div>
+  </div>
+</div>
+
+<!-- Financeiro -->
+<div class="modal-backdrop" id="modal-financeiro">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title">Registrar receita</div><button class="modal-close" onclick="closeModal('modal-financeiro')">✕</button></div>
+    <div class="modal-body">
+      <div class="form-row"><div class="form-group"><label>Cliente *</label><select id="f-cliente"><option value="">Selecionar...</option></select></div><div class="form-group"><label>Valor (R$)</label><input id="f-valor" type="number" placeholder="0,00"/></div></div>
+      <div class="form-row"><div class="form-group"><label>Data</label><input id="f-data" type="date"/></div><div class="form-group"><label>Status</label><select id="f-status"><option>Pago</option><option>Pendente</option><option>Atrasado</option></select></div></div>
+      <div class="form-group"><label>Descrição</label><input id="f-desc" placeholder="Ex: Mensalidade Nexus Platform - Agosto"/></div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-ghost" onclick="closeModal('modal-financeiro')">Cancelar</button><button class="btn btn-primary" onclick="saveFinanceiro()">Registrar</button></div>
+  </div>
+</div>
+
+<script>
+// ── AUTH ──
+const ADMIN = {user:'erick',pass:'Nexus@2026#'};
+function doLogin(){
+  const u=document.getElementById('login-user').value.trim();
+  const p=document.getElementById('login-pass').value;
+  if(u===ADMIN.user&&p===ADMIN.pass){
+    document.getElementById('login-screen').style.display='none';
+    document.getElementById('app').style.display='flex';
+    loadAll();
+  } else {
+    document.getElementById('login-error').style.display='block';
+  }
+}
+function doLogout(){
+  document.getElementById('login-screen').style.display='flex';
+  document.getElementById('app').style.display='none';
+  document.getElementById('login-user').value='';
+  document.getElementById('login-pass').value='';
+}
+
+// ── STORAGE ──
+const DB={
+  get:k=>JSON.parse(localStorage.getItem('nexus_'+k)||'[]'),
+  set:(k,v)=>localStorage.setItem('nexus_'+k,JSON.stringify(v)),
+};
+
+// ── NAVIGATION ──
+function showView(id,btn){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('view-'+id).classList.add('active');
+  if(btn)btn.classList.add('active');
+  const titles={dashboard:'Dashboard',clientes:'Clientes',contratos:'Contratos',tenants:'Nexus Platform',leadnow:'LeadNow',acessos:'Controle de Acessos',financeiro:'Financeiro',atividade:'Log de Atividades'};
+  document.getElementById('topbar-title').textContent=titles[id]||id;
+  renderAll();
+}
+
+// ── MODALS ──
+function openModal(id){
+  populateSelects();
+  document.getElementById(id).classList.add('open');
+}
+function closeModal(id){document.getElementById(id).classList.remove('open')}
+document.querySelectorAll('.modal-backdrop').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open')}));
+
+// ── ACTIVITY ──
+function addActivity(text,color='var(--purple)'){
+  const acts=DB.get('activity');
+  acts.unshift({text,color,time:new Date().toLocaleString('pt-BR')});
+  if(acts.length>50)acts.pop();
+  DB.set('activity',acts);
+  renderActivity();
+}
+function clearActivity(){DB.set('activity',[]);renderActivity()}
+function renderActivity(){
+  const acts=DB.get('activity');
+  const el=document.getElementById('activity-list');
+  const elFull=document.getElementById('activity-full');
+  if(!acts.length){
+    const empty='<div class="empty"><div class="empty-icon">📋</div><div class="empty-text">Nenhuma atividade ainda.</div></div>';
+    el.innerHTML=empty;elFull.innerHTML=empty;return;
+  }
+  const html=acts.slice(0,20).map(a=>`<div class="activity-item"><div class="activity-dot" style="background:${a.color}"></div><div><div class="activity-text">${a.text}</div><div class="activity-time">${a.time}</div></div></div>`).join('');
+  el.innerHTML=html;elFull.innerHTML=html;
+}
+
+// ── STATUS BADGE ──
+function badge(s){
+  const map={
+    'Ativo':'badge-green','Trial':'badge-blue','Suspenso':'badge-yellow',
+    'Inativo':'badge-gray','Revogado':'badge-red','Pago':'badge-green',
+    'Pendente':'badge-yellow','Atrasado':'badge-red','Encerrado':'badge-gray',
+    'Pendente assinatura':'badge-yellow','Em renovação':'badge-blue','Configurando':'badge-blue'
+  };
+  return `<span class="badge ${map[s]||'badge-gray'}">${s}</span>`;
+}
+
+// ── CLIENTES ──
+function saveCliente(){
+  const empresa=document.getElementById('c-empresa').value.trim();
+  const resp=document.getElementById('c-resp').value.trim();
+  const email=document.getElementById('c-email').value.trim();
+  if(!empresa||!resp||!email){alert('Preencha os campos obrigatórios.');return}
+  const clientes=DB.get('clientes');
+  clientes.push({id:Date.now(),empresa,resp,cargo:document.getElementById('c-cargo').value,email,tel:document.getElementById('c-tel').value,cnpj:document.getElementById('c-cnpj').value,plano:document.getElementById('c-plano').value,status:document.getElementById('c-status').value,obs:document.getElementById('c-obs').value,desde:new Date().toLocaleDateString('pt-BR')});
+  DB.set('clientes',clientes);
+  addActivity(`Novo cliente cadastrado: <strong>${empresa}</strong>`,'var(--green)');
+  closeModal('modal-cliente');
+  document.querySelectorAll('#modal-cliente input,#modal-cliente select,#modal-cliente textarea').forEach(i=>i.value='');
+  renderAll();
+}
+function deleteCliente(id){
+  if(!confirm('Remover este cliente?'))return;
+  const c=DB.get('clientes').find(x=>x.id===id);
+  DB.set('clientes',DB.get('clientes').filter(x=>x.id!==id));
+  if(c)addActivity(`Cliente removido: <strong>${c.empresa}</strong>`,'var(--red)');
+  renderAll();
+}
+function renderClientes(){
+  const clientes=DB.get('clientes');
+  const tb=document.getElementById('tbody-clientes');
+  if(!clientes.length){tb.innerHTML='<tr><td colspan="7"><div class="empty"><div class="empty-icon">🏢</div><div class="empty-text">Nenhum cliente cadastrado.</div></div></td></tr>';return}
+  tb.innerHTML=clientes.map(c=>`<tr><td><strong>${c.empresa}</strong>${c.cnpj?`<br><small style="color:var(--text-3)">${c.cnpj}</small>`:''}</td><td>${c.resp}${c.cargo?`<br><small style="color:var(--text-3)">${c.cargo}</small>`:''}</td><td>${c.email}${c.tel?`<br><small style="color:var(--text-3)">${c.tel}</small>`:''}</td><td><span class="badge badge-blue">${c.plano}</span></td><td>${badge(c.status)}</td><td>${c.desde}</td><td><div style="display:flex;gap:.35rem"><button class="btn btn-ghost btn-sm" onclick="toggleStatus(${c.id})">⏸ Suspender</button><button class="btn btn-danger btn-sm" onclick="deleteCliente(${c.id})">🗑</button></div></td></tr>`).join('');
+}
+function toggleStatus(id){
+  const clientes=DB.get('clientes');
+  const c=clientes.find(x=>x.id===id);
+  if(!c)return;
+  c.status=c.status==='Suspenso'?'Ativo':'Suspenso';
+  DB.set('clientes',clientes);
+  addActivity(`Cliente <strong>${c.empresa}</strong> ${c.status==='Suspenso'?'suspenso':'reativado'}`,'var(--yellow)');
+  renderAll();
+}
+
+// ── CONTRATOS ──
+function saveContrato(){
+  const cliente=document.getElementById('ct-cliente').value;
+  const valor=document.getElementById('ct-valor').value;
+  if(!cliente){alert('Selecione um cliente.');return}
+  const contratos=DB.get('contratos');
+  const c=DB.get('clientes').find(x=>x.id==cliente);
+  contratos.push({id:Date.now(),clienteId:cliente,clienteNome:c?c.empresa:'',produto:document.getElementById('ct-produto').value,valor:parseFloat(valor)||0,tipo:document.getElementById('ct-tipo').value,inicio:document.getElementById('ct-inicio').value,fim:document.getElementById('ct-fim').value,status:document.getElementById('ct-status').value,obs:document.getElementById('ct-obs').value});
+  DB.set('contratos',contratos);
+  addActivity(`Contrato criado: <strong>${c?c.empresa:''}</strong> — ${document.getElementById('ct-produto').value}`,'var(--blue)');
+  closeModal('modal-contrato');
+  renderAll();
+}
+function renderContratos(){
+  const contratos=DB.get('contratos');
+  const tb=document.getElementById('tbody-contratos');
+  if(!contratos.length){tb.innerHTML='<tr><td colspan="7"><div class="empty"><div class="empty-icon">📄</div><div class="empty-text">Nenhum contrato cadastrado.</div></div></td></tr>';return}
+  tb.innerHTML=contratos.map(c=>`<tr><td><strong>${c.clienteNome}</strong></td><td>${c.produto}</td><td><strong>R$${c.valor.toFixed(2)}</strong><br><small style="color:var(--text-3)">${c.tipo}</small></td><td>${c.inicio||'—'}</td><td>${c.fim||'—'}</td><td>${badge(c.status)}</td><td><button class="btn btn-danger btn-sm" onclick="deleteContrato(${c.id})">🗑</button></td></tr>`).join('');
+}
+function deleteContrato(id){
+  if(!confirm('Remover este contrato?'))return;
+  DB.set('contratos',DB.get('contratos').filter(x=>x.id!==id));
+  addActivity('Contrato removido','var(--red)');
+  renderAll();
+}
+
+// ── TENANTS ──
+function saveTenant(){
+  const cliente=document.getElementById('t-cliente').value;
+  if(!cliente){alert('Selecione um cliente.');return}
+  const c=DB.get('clientes').find(x=>x.id==cliente);
+  const tenants=DB.get('tenants');
+  tenants.push({id:Date.now(),clienteId:cliente,clienteNome:c?c.empresa:'',sub:document.getElementById('t-sub').value,plano:document.getElementById('t-plano').value,tickets:document.getElementById('t-tickets').value,users:document.getElementById('t-users').value,status:document.getElementById('t-status').value});
+  DB.set('tenants',tenants);
+  addActivity(`Tenant criado para <strong>${c?c.empresa:''}</strong>`,'var(--purple)');
+  closeModal('modal-tenant');renderAll();
+}
+function renderTenants(){
+  const tenants=DB.get('tenants');
+  const tb=document.getElementById('tbody-tenants');
+  if(!tenants.length){tb.innerHTML='<tr><td colspan="7"><div class="empty"><div class="empty-icon">🖥️</div><div class="empty-text">Nenhum tenant ativo.</div></div></td></tr>';return}
+  tb.innerHTML=tenants.map(t=>`<tr><td><strong>${t.clienteNome}</strong></td><td><span style="font-family:JetBrains Mono,monospace;font-size:.8rem">${t.sub||'—'}</span></td><td><span class="badge badge-blue">${t.plano}</span></td><td>${t.users||'—'}</td><td>${t.tickets||'—'}</td><td>${badge(t.status)}</td><td><div style="display:flex;gap:.35rem"><button class="btn btn-ghost btn-sm" onclick="revokeAccess(${t.id},'tenants')">🔒 Revogar</button><button class="btn btn-danger btn-sm" onclick="deleteTenant(${t.id})">🗑</button></div></td></tr>`).join('');
+}
+function deleteTenant(id){
+  if(!confirm('Remover este tenant?'))return;
+  DB.set('tenants',DB.get('tenants').filter(x=>x.id!==id));
+  addActivity('Tenant removido','var(--red)');renderAll();
+}
+
+// ── LEADNOW ──
+function saveLeadNow(){
+  const cliente=document.getElementById('ln-cliente').value;
+  if(!cliente){alert('Selecione um cliente.');return}
+  const c=DB.get('clientes').find(x=>x.id==cliente);
+  const leadnow=DB.get('leadnow');
+  leadnow.push({id:Date.now(),clienteId:cliente,clienteNome:c?c.empresa:'',evento:document.getElementById('ln-evento').value,base:document.getElementById('ln-base').value,inicio:document.getElementById('ln-inicio').value,fim:document.getElementById('ln-fim').value,status:document.getElementById('ln-status').value,leads:0});
+  DB.set('leadnow',leadnow);
+  addActivity(`LeadNow configurado: <strong>${document.getElementById('ln-evento').value}</strong>`,'var(--purple)');
+  closeModal('modal-leadnow');renderAll();
+}
+function renderLeadNow(){
+  const leadnow=DB.get('leadnow');
+  const tb=document.getElementById('tbody-leadnow');
+  if(!leadnow.length){tb.innerHTML='<tr><td colspan="6"><div class="empty"><div class="empty-icon">⚡</div><div class="empty-text">Nenhuma instância ativa.</div></div></td></tr>';return}
+  tb.innerHTML=leadnow.map(l=>`<tr><td><strong>${l.clienteNome}</strong></td><td>${l.evento||'—'}</td><td><span style="font-size:.8rem;color:var(--text-3)">${l.base||'—'}</span></td><td><strong>${l.leads}</strong></td><td>${badge(l.status)}</td><td><button class="btn btn-danger btn-sm" onclick="deleteLeadNow(${l.id})">🗑</button></td></tr>`).join('');
+}
+function deleteLeadNow(id){
+  if(!confirm('Remover esta instância?'))return;
+  DB.set('leadnow',DB.get('leadnow').filter(x=>x.id!==id));
+  renderAll();
+}
+
+// ── ACESSOS ──
+function revokeAccess(id,type){
+  if(!confirm('Revogar acesso deste tenant?'))return;
+  const items=DB.get(type);
+  const item=items.find(x=>x.id===id);
+  if(item){item.status='Revogado';DB.set(type,items);addActivity(`Acesso revogado: <strong>${item.clienteNome}</strong>`,'var(--red)');}
+  renderAll();
+}
+function renderAcessos(){
+  const tenants=DB.get('tenants').map(t=>({...t,produto:'Nexus Platform'}));
+  const leadnow=DB.get('leadnow').map(l=>({...l,produto:'LeadNow'}));
+  const all=[...tenants,...leadnow];
+  const tb=document.getElementById('tbody-acessos');
+  if(!all.length){tb.innerHTML='<tr><td colspan="6"><div class="empty"><div class="empty-icon">🔑</div><div class="empty-text">Nenhum acesso cadastrado.</div></div></td></tr>';return}
+  tb.innerHTML=all.map(a=>`<tr><td><strong>${a.clienteNome}</strong></td><td>${a.produto}</td><td>—</td><td><span class="badge badge-blue">${a.plano||'—'}</span></td><td>${badge(a.status)}</td><td>${a.status!=='Revogado'?`<button class="btn btn-danger btn-sm" onclick="revokeAccess(${a.id},'${a.produto==='Nexus Platform'?'tenants':'leadnow'}')">🔒 Revogar</button>`:'<span style="color:var(--text-3);font-size:.8rem">Revogado</span>'}</td></tr>`).join('');
+}
+
+// ── FINANCEIRO ──
+function saveFinanceiro(){
+  const cliente=document.getElementById('f-cliente').value;
+  if(!cliente){alert('Selecione um cliente.');return}
+  const c=DB.get('clientes').find(x=>x.id==cliente);
+  const fin=DB.get('financeiro');
+  fin.push({id:Date.now(),clienteId:cliente,clienteNome:c?c.empresa:'',valor:parseFloat(document.getElementById('f-valor').value)||0,data:document.getElementById('f-data').value,status:document.getElementById('f-status').value,desc:document.getElementById('f-desc').value});
+  DB.set('financeiro',fin);
+  addActivity(`Receita registrada: <strong>${c?c.empresa:''}</strong> — R$${document.getElementById('f-valor').value}`,'var(--green)');
+  closeModal('modal-financeiro');renderAll();
+}
+function renderFinanceiro(){
+  const fin=DB.get('financeiro');
+  const tb=document.getElementById('tbody-financeiro');
+  if(!fin.length){tb.innerHTML='<tr><td colspan="5"><div class="empty"><div class="empty-icon">💰</div><div class="empty-text">Nenhum registro financeiro.</div></div></td></tr>';return}
+  tb.innerHTML=fin.map(f=>`<tr><td><strong>${f.clienteNome}</strong></td><td>${f.desc||'—'}</td><td><strong>R$${f.valor.toFixed(2)}</strong></td><td>${f.data||'—'}</td><td>${badge(f.status)}</td></tr>`).join('');
+}
+
+// ── STATS ──
+function renderStats(){
+  const clientes=DB.get('clientes');
+  const contratos=DB.get('contratos');
+  const tenants=DB.get('tenants');
+  const fin=DB.get('financeiro');
+  const mrr=contratos.filter(c=>c.status==='Ativo').reduce((s,c)=>s+c.valor,0);
+  const vencer=contratos.filter(c=>{if(!c.fim)return false;const d=new Date(c.fim);const n=new Date();const diff=(d-n)/(1000*60*60*24);return diff>=0&&diff<=30}).length;
+  document.getElementById('stat-clientes').textContent=clientes.filter(c=>c.status==='Ativo').length;
+  document.getElementById('stat-contratos').textContent=contratos.filter(c=>c.status==='Ativo').length;
+  document.getElementById('stat-tenants').textContent=tenants.filter(t=>t.status==='Ativo').length;
+  document.getElementById('stat-mrr').textContent='R$'+mrr.toLocaleString('pt-BR',{minimumFractionDigits:0});
+  document.getElementById('badge-clientes').textContent=clientes.length;
+  document.getElementById('fin-mrr').textContent='R$'+mrr.toLocaleString('pt-BR',{minimumFractionDigits:0});
+  document.getElementById('fin-contratos').textContent=contratos.filter(c=>c.status==='Ativo').length;
+  document.getElementById('fin-vencer').textContent=vencer;
+}
+
+// ── SELECTS ──
+function populateSelects(){
+  const clientes=DB.get('clientes');
+  const opts=clientes.map(c=>`<option value="${c.id}">${c.empresa}</option>`).join('');
+  ['ct-cliente','t-cliente','ln-cliente','f-cliente'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el)el.innerHTML='<option value="">Selecionar...</option>'+opts;
+  });
+}
+
+// ── FILTER ──
+function filterTable(tableId,q){
+  const rows=document.querySelectorAll(`#${tableId} tbody tr`);
+  rows.forEach(r=>{r.style.display=r.textContent.toLowerCase().includes(q.toLowerCase())?'':'none'});
+}
+
+// ── RENDER ALL ──
+function renderAll(){renderClientes();renderContratos();renderTenants();renderLeadNow();renderAcessos();renderFinanceiro();renderStats();renderActivity()}
+function loadAll(){renderAll()}
+</script>
+</body>
+</html>
