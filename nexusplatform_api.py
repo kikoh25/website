@@ -108,6 +108,22 @@ def update_tenant_status(tenant_id: str, data: TenantStatusUpdate, db: Session =
         UPDATE tenants SET ativo = :ativo, motivo_inativo = :motivo, atualizado_em = now()
         WHERE id = :id
     """), {"ativo": data.ativo, "motivo": data.motivo_inativo, "id": tenant_id})
+
+    # Se suspendendo, invalida todas as sessões dos usuários do tenant imediatamente
+    if not data.ativo:
+        usuarios = db.execute(text("SELECT id FROM users WHERE tenant_id = :tid"), {"tid": tenant_id}).fetchall()
+        for u in usuarios:
+            uid = str(u.id)
+            db.execute(text("""
+                DELETE FROM user_sessions
+                WHERE sess->'user'->>'id' = :uid
+            """), {"uid": uid})
+        # Também invalida por tenant_id direto
+        db.execute(text("""
+            DELETE FROM user_sessions
+            WHERE sess->'user'->>'tenant_id' = :tid
+        """), {"tid": tenant_id})
+
     db.commit()
     return {"ok": True, "ativo": data.ativo}
 
@@ -138,6 +154,14 @@ def toggle_user(tenant_id: str, user_id: str, db: Session = Depends(get_db), use
     if not row: raise HTTPException(404)
     novo = not row.ativo
     db.execute(text("UPDATE users SET ativo = :ativo, atualizado_em = now() WHERE id = :id"), {"ativo": novo, "id": user_id})
+
+    # Se suspendendo, invalida sessão do usuário imediatamente
+    if not novo:
+        db.execute(text("""
+            DELETE FROM user_sessions
+            WHERE sess->'user'->>'id' = :uid
+        """), {"uid": user_id})
+
     db.commit()
     return {"ok": True, "ativo": novo}
 
