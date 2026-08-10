@@ -590,15 +590,15 @@
         Da integração ao desenvolvimento completo — entregamos soluções de tecnologia que realmente funcionam no dia a dia da sua empresa, sem enrolação e com resultado mensurável.
       </p>
       <div class="hero-actions">
-        <a href="#produtos" class="btn-primary">Conheça nossos produtos</a>
-        <a href="#contato" class="btn-ghost">Fale com a gente</a>
+        <a href="/cadastro.html" class="btn-primary">🚀 Começar grátis agora</a>
+        <a href="#produtos" class="btn-ghost">Conhecer produtos</a>
       </div>
     </div>
     <div class="hero-visual">
       <div class="code-card">
         <div class="code-bar">
           <span></span><span></span><span></span>
-          
+          <span class="code-bar-title">nexus.config.js</span>
         </div>
         <div class="code-lines">
           <div class="code-line"><span class="ln">01</span><span><span class="kw">import</span> <span class="fn">nexus</span> <span class="kw">from</span> <span class="str">'@nexusef/core'</span></span></div>
@@ -634,6 +634,10 @@
     <p class="section-eyebrow reveal">Produtos</p>
     <h2 class="section-title reveal">Soluções próprias para<br>empresas que exigem mais</h2>
     <p class="section-sub reveal">Desenvolvemos produtos que resolvem problemas reais — com inteligência, autonomia e escala.</p>
+    <div style="margin-top:1.5rem" class="reveal">
+      <a href="/cadastro.html" style="display:inline-flex;align-items:center;gap:.5rem;background:var(--purple);color:#fff;padding:.75rem 1.75rem;border-radius:8px;font-weight:700;font-size:.9rem;text-decoration:none;box-shadow:0 4px 16px rgba(124,58,237,.3);transition:background .2s" onmouseover="this.style.background='#9B5CF6'" onmouseout="this.style.background='var(--purple)'">🚀 Criar conta grátis — Nexus Platform</a>
+      <span style="display:inline-block;margin-left:1rem;font-size:.78rem;color:var(--gray-600)">Sem cartão de crédito · Ambiente pronto em minutos</span>
+    </div>
 
     <div class="products-grid">
 
@@ -751,7 +755,8 @@
     <h2 class="section-title reveal">Pronto para transformar<br>sua operação?</h2>
     <p class="section-sub reveal">Conte o seu desafio. A gente analisa, propõe e executa — do diagnóstico à solução em produção.</p>
     <div class="cta-actions reveal">
-      <a href="https://wa.me/5511926461357?text=Olá! Vim pelo site da Nexus EF Business e gostaria de conversar sobre uma solução." class="btn-white" target="_blank">💬 Falar no WhatsApp</a>
+      <a href="/cadastro.html" class="btn-white">🚀 Criar conta grátis</a>
+      <a href="https://wa.me/5511926461357?text=Olá! Vim pelo site da Nexus EF Business e gostaria de conversar sobre uma solução." style="border:2px solid rgba(255,255,255,.5);color:#fff;padding:.9rem 2.25rem;border-radius:8px;font-weight:500;font-size:.95rem;text-decoration:none;transition:border-color .2s;display:inline-block" target="_blank">💬 Falar no WhatsApp</a>
     </div>
 
     <div class="contact-form reveal">
@@ -766,15 +771,9 @@
             <input type="email" id="email" placeholder="seu@email.com" required />
           </div>
         </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label for="empresa">Empresa</label>
-            <input type="text" id="empresa" placeholder="Nome da sua empresa" />
-          </div>
-          <div class="form-group">
-            <label for="telefone">Telefone</label>
-            <input type="tel" id="telefone" placeholder="(11) 99999-9999" />
-          </div>
+        <div class="form-group">
+          <label for="empresa">Empresa</label>
+          <input type="text" id="empresa" placeholder="Nome da sua empresa" />
         </div>
         <div class="form-group">
           <label for="mensagem">Como podemos ajudar?</label>
@@ -836,11 +835,10 @@
     msg.textContent = '';
 
     const data = {
-      access_key: '2b67364b-f462-479f-8dd8-db22e8d97688',
+      access_key: 'COLOQUE_SUA_CHAVE_WEB3FORMS_AQUI',
       name:    document.getElementById('nome').value,
       email:   document.getElementById('email').value,
       company: document.getElementById('empresa').value,
-      phone:   document.getElementById('telefone').value,
       message: document.getElementById('mensagem').value,
       to:      'kikoh25@hotmail.com',
       subject: 'Novo contato pelo site — Nexus EF Business',
