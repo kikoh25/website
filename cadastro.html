@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Criar conta grátis — Nexus Platform</title>
+  <link href="https://fonts.googleapis.com/css2?family=Lora:wght@600;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --indigo:#1E1B4B;--indigo-deep:#0f0d2a;
+      --purple:#7C3AED;--purple-light:#9B5CF6;
+      --white:#fff;--bg:#F7F6FF;
+      --border:#ECEAF8;--text:#18182A;--text-2:#52557A;--text-3:#9096B8;
+      --green:#10B981;--green-bg:rgba(16,185,129,0.08);
+      --red:#EF4444;
+    }
+    html{scroll-behavior:smooth}
+    body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+
+    /* NAV */
+    nav{background:rgba(30,27,75,0.96);backdrop-filter:blur(14px);border-bottom:1px solid rgba(124,58,237,0.18);padding:1rem 6%;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+    .nav-logo{display:flex;align-items:center;gap:.6rem;text-decoration:none}
+    .nav-logo svg{width:32px;height:32px}
+    .nav-logo-text{font-family:'Lora',serif;font-size:1.1rem;font-weight:700;color:#fff}
+    .nav-logo-text span{color:#C4B5FD}
+    .nav-link{font-size:.85rem;color:rgba(255,255,255,.65);text-decoration:none;transition:color .2s}
+    .nav-link:hover{color:#fff}
+
+    /* HERO */
+    .hero{background:linear-gradient(135deg,var(--indigo-deep) 0%,var(--indigo) 55%,#2D1B69 100%);padding:4rem 6% 5rem;text-align:center;position:relative;overflow:hidden}
+    .hero::before{content:'';position:absolute;inset:0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='64'%3E%3Cpath d='M28 2 L54 17 L54 47 L28 62 L2 47 L2 17 Z' fill='none' stroke='rgba(124,58,237,0.06)' stroke-width='1'/%3E%3C/svg%3E");background-size:56px 64px;pointer-events:none}
+    .hero-content{position:relative;z-index:1;max-width:640px;margin:0 auto}
+    .hero-badge{display:inline-flex;align-items:center;gap:.5rem;background:rgba(124,58,237,.15);border:1px solid rgba(196,181,253,.2);border-radius:100px;padding:.35rem 1rem;font-size:.75rem;font-weight:600;color:#C4B5FD;letter-spacing:.06em;margin-bottom:1.5rem;font-family:'JetBrains Mono',monospace}
+    .hero-badge::before{content:'';width:6px;height:6px;border-radius:50%;background:#C4B5FD;animation:pulse 2s infinite}
+    @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.8)}}
+    .hero h1{font-family:'Lora',serif;font-size:clamp(2rem,4vw,3rem);font-weight:700;color:#fff;line-height:1.2;letter-spacing:-.025em;margin-bottom:1rem}
+    .hero h1 em{font-style:normal;background:linear-gradient(90deg,#C4B5FD,#818CF8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+    .hero p{font-size:1rem;color:rgba(255,255,255,.7);line-height:1.75;max-width:480px;margin:0 auto}
+
+    /* PLANS */
+    .plans-section{padding:3rem 6%;max-width:1100px;margin:0 auto}
+    .plans-title{font-family:'Lora',serif;font-size:1.5rem;font-weight:700;color:var(--indigo);text-align:center;margin-bottom:.5rem}
+    .plans-sub{font-size:.88rem;color:var(--text-3);text-align:center;margin-bottom:2.5rem}
+    .plans-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.25rem;margin-bottom:2rem}
+    .plan-card{background:#fff;border:2px solid var(--border);border-radius:16px;padding:1.75rem;cursor:pointer;transition:all .2s;position:relative}
+    .plan-card:hover{border-color:var(--purple);box-shadow:0 8px 32px rgba(124,58,237,.12);transform:translateY(-2px)}
+    .plan-card.selected{border-color:var(--purple);box-shadow:0 8px 32px rgba(124,58,237,.15)}
+    .plan-card.selected::before{content:'✓ Selecionado';position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--purple);color:#fff;font-size:.68rem;font-weight:700;padding:.2rem .75rem;border-radius:100px;white-space:nowrap}
+    .plan-card.featured{border-color:var(--purple);background:linear-gradient(150deg,#0f0d2a,#1E1B4B)}
+    .plan-card.featured .plan-name{color:#fff}
+    .plan-card.featured .plan-price{color:#fff}
+    .plan-card.featured .plan-period{color:rgba(255,255,255,.5)}
+    .plan-card.featured .plan-desc{color:rgba(255,255,255,.55)}
+    .plan-card.featured .plan-feature{color:rgba(255,255,255,.72)}
+    .plan-card.featured .plan-feature svg{stroke:#C4B5FD}
+    .plan-badge{display:inline-block;background:rgba(124,58,237,.12);color:var(--purple);font-size:.65rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:.2rem .6rem;border-radius:4px;margin-bottom:.85rem;font-family:'JetBrains Mono',monospace}
+    .plan-card.featured .plan-badge{background:rgba(196,181,253,.15);color:#C4B5FD}
+    .plan-name{font-family:'Lora',serif;font-size:1.25rem;font-weight:700;color:var(--indigo);margin-bottom:.35rem}
+    .plan-price{font-family:'Lora',serif;font-size:2rem;font-weight:700;color:var(--indigo);line-height:1}
+    .plan-period{font-size:.78rem;color:var(--text-3);margin-bottom:1rem}
+    .plan-desc{font-size:.82rem;color:var(--text-2);line-height:1.6;margin-bottom:1.25rem;min-height:48px}
+    .plan-divider{border:none;border-top:1px solid var(--border);margin-bottom:1.1rem}
+    .plan-card.featured .plan-divider{border-color:rgba(255,255,255,.08)}
+    .plan-features{display:flex;flex-direction:column;gap:.5rem}
+    .plan-feature{display:flex;align-items:center;gap:.55rem;font-size:.8rem;color:var(--text-2)}
+    .plan-feature svg{width:14px;height:14px;flex-shrink:0;stroke:var(--green);stroke-width:2.5}
+    .plan-feature.no svg{stroke:var(--text-3)}
+    .plan-feature.no{color:var(--text-3)}
+    .plan-limit{display:inline-flex;align-items:center;gap:.3rem;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:.18rem .55rem;font-size:.7rem;font-weight:600;color:var(--text-2);font-family:'JetBrains Mono',monospace;margin-top:.25rem}
+
+    /* FORM */
+    .form-section{max-width:620px;margin:0 auto;padding:0 6% 4rem}
+    .form-card{background:#fff;border:1px solid var(--border);border-radius:20px;padding:2.5rem;box-shadow:0 4px 24px rgba(124,58,237,.06)}
+    .form-card-title{font-family:'Lora',serif;font-size:1.35rem;font-weight:700;color:var(--indigo);margin-bottom:.35rem}
+    .form-card-sub{font-size:.83rem;color:var(--text-3);margin-bottom:2rem}
+    .form-group{display:flex;flex-direction:column;gap:.38rem;margin-bottom:.9rem}
+    .form-group label{font-size:.75rem;font-weight:600;color:var(--text-2);display:flex;align-items:center;gap:.3rem}
+    .form-group label .req{color:var(--purple)}
+    .form-group input,.form-group select{background:var(--bg);border:1.5px solid var(--border);border-radius:9px;padding:.72rem 1rem;color:var(--text);font-family:'Inter',sans-serif;font-size:.875rem;outline:none;transition:border-color .2s,background .2s}
+    .form-group input:focus,.form-group select:focus{border-color:var(--purple);background:#fff}
+    .form-group input.error{border-color:var(--red)}
+    .form-row{display:grid;grid-template-columns:1fr 1fr;gap:.85rem}
+    .field-hint{font-size:.7rem;color:var(--text-3);margin-top:2px}
+    .field-error{font-size:.7rem;color:var(--red);margin-top:2px;display:none}
+
+    /* PLAN SELECTED SUMMARY */
+    .plan-summary{background:linear-gradient(135deg,rgba(124,58,237,.06),rgba(124,58,237,.02));border:1px solid rgba(124,58,237,.15);border-radius:10px;padding:1rem 1.25rem;margin-bottom:1.5rem;display:flex;align-items:center;justify-content:space-between;gap:.75rem;flex-wrap:wrap}
+    .plan-summary-name{font-weight:700;color:var(--indigo);font-size:.9rem}
+    .plan-summary-price{font-family:'JetBrains Mono',monospace;font-size:.82rem;color:var(--purple);font-weight:600}
+    .plan-summary-limits{font-size:.73rem;color:var(--text-3)}
+
+    /* SUBMIT */
+    .submit-btn{width:100%;background:var(--purple);color:#fff;border:none;border-radius:10px;padding:1rem;font-family:'Inter',sans-serif;font-size:.95rem;font-weight:700;cursor:pointer;margin-top:1rem;transition:background .2s,transform .15s;box-shadow:0 4px 16px rgba(124,58,237,.3);display:flex;align-items:center;justify-content:center;gap:.6rem}
+    .submit-btn:hover{background:var(--purple-light);transform:translateY(-1px)}
+    .submit-btn:disabled{opacity:.6;cursor:not-allowed;transform:none}
+    .terms{font-size:.72rem;color:var(--text-3);text-align:center;margin-top:.85rem;line-height:1.6}
+    .terms a{color:var(--purple);text-decoration:none}
+
+    /* SUCCESS */
+    #success-screen{display:none;text-align:center;padding:3rem 2rem}
+    .success-icon{font-size:3.5rem;margin-bottom:1rem}
+    .success-title{font-family:'Lora',serif;font-size:1.75rem;font-weight:700;color:var(--indigo);margin-bottom:.75rem}
+    .success-desc{font-size:.9rem;color:var(--text-2);line-height:1.75;max-width:440px;margin:0 auto 1.5rem}
+    .success-box{background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:1.25rem;margin:0 auto 2rem;max-width:400px;text-align:left}
+    .success-box-label{font-size:.7rem;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.35rem}
+    .success-box-value{font-family:'JetBrains Mono',monospace;font-size:.88rem;font-weight:600;color:var(--indigo)}
+    .btn-access{display:inline-flex;align-items:center;gap:.5rem;background:var(--purple);color:#fff;padding:.85rem 2rem;border-radius:9px;font-weight:700;font-size:.9rem;text-decoration:none;transition:background .2s;box-shadow:0 4px 16px rgba(124,58,237,.3)}
+    .btn-access:hover{background:var(--purple-light)}
+
+    /* SPINNER */
+    .spinner{width:18px;height:18px;border:2.5px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0}
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    /* SOCIAL PROOF */
+    .proof{display:flex;align-items:center;justify-content:center;gap:2rem;padding:1.5rem 6%;border-top:1px solid var(--border);flex-wrap:wrap}
+    .proof-item{display:flex;align-items:center;gap:.5rem;font-size:.8rem;color:var(--text-3)}
+    .proof-item svg{width:16px;height:16px;flex-shrink:0;stroke:var(--green);stroke-width:2.5}
+
+    @media(max-width:768px){.plans-grid{grid-template-columns:1fr}.form-row{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-logo">
+    <svg viewBox="0 0 40 46" fill="none"><path d="M20 2L38 12V34L20 44L2 34V12L20 2Z" fill="url(#ng)" stroke="rgba(196,181,253,0.25)" stroke-width="1"/><text x="20" y="29" text-anchor="middle" font-family="Lora,serif" font-size="14" font-weight="700" fill="white">N</text><defs><linearGradient id="ng" x1="2" y1="2" x2="38" y2="44"><stop offset="0%" stop-color="#7C3AED"/><stop offset="100%" stop-color="#4C1D95"/></linearGradient></defs></svg>
+    <div class="nav-logo-text">Nexus<span>EF</span> Platform</div>
+  </a>
+  <a href="/" class="nav-link">← Voltar ao site</a>
+</nav>
+
+<div class="hero">
+  <div class="hero-content">
+    <div class="hero-badge">Cadastro gratuito · Sem cartão de crédito</div>
+    <h1>Comece agora.<br>Seu helpdesk de TI<br><em>em minutos.</em></h1>
+    <p>Crie sua conta grátis e tenha tickets, inventário e SLA funcionando hoje. Sem burocracia, sem instalação.</p>
+  </div>
+</div>
+
+<!-- PLANOS -->
+<div class="plans-section">
+  <div class="plans-title">Escolha seu plano</div>
+  <div class="plans-sub">Comece grátis e faça upgrade quando precisar de mais.</div>
+
+  <div class="plans-grid">
+
+    <!-- FREE -->
+    <div class="plan-card selected" id="plan-free" onclick="selectPlan('free')">
+      <div class="plan-badge">Grátis para sempre</div>
+      <div class="plan-name">Free</div>
+      <div class="plan-price">R$0</div>
+      <div class="plan-period">para sempre · sem cartão</div>
+      <div class="plan-desc">Ideal para testar e para equipes muito pequenas de TI.</div>
+      <hr class="plan-divider"/>
+      <div class="plan-features">
+        <div class="plan-feature"><svg viewBox="0 0 24 24" fill="none"><polyline points="20 6 9 17 4 12"/></svg>1 técnico</div>
+        <div class="plan-feature"><svg viewBox="0 0 24 24" fill="none"><polyline points="20 6 9 17 4 12"/></svg>3 usuários/colaboradores</div>
+        <div class="plan-feature"><svg viewBox="0 0 24 24" fill="none"><polyline points="20 6 9 17 4 12"/></svg>10 tickets/mês</div>
+        <div class="plan-feature"><svg viewBox="0 0 24 24" fill="none"><polyline points="20 6 9 17 4 12"/></svg>5 ativos no inventário</div>
+        <div class="plan-feature"><svg viewBox="0 0 24 24" fill="none"><polyline points="20 6 9 17 4 12"/></svg>Portal do colaborador</div>
+        <div class="plan-feature no"><svg viewBox="0 0 24 24" fill="none"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>SLA e relatórios</div>
+        <div class="plan-feature no"><svg viewBox="0 0 24 24" fill="none"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Base de conhecimento</div>
+        <div class="plan-feature no"><svg viewBox="0 0 24 24" fill="none"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Integrações</div>
+      </div>
+    </div>
+
+    <!-- STARTER -->
+    <div class="plan-card featured" id="plan-starter" onclick="selectPlan('starter')">
+      <div class="plan-badge">⭐ Mais popular</div>
+      <div class="plan-name">Starter</div>
+      <div class="plan-price">R$149</div>
+      <div class="plan-period">/mês · cobrado mensalmente</div>
+      <div class="plan-desc">Para equipes de TI em crescimento que precisam de controle real.</div>
+      <hr class="plan-divider"/>
+      <div class="plan-features">
+        <div class="plan-feature"><svg viewBox="0 0 24 24" fill="none"><polyline points="20 6 9 17 4 12"/></svg>2 técnicos</div>
+        <div class="plan-feature"><svg viewBox="0 0 24 24" fill="none"><polyline points="20 6 9 17 4 12"/></svg>20 usuários/colaboradores</div>
+        <div class="plan-feature"><svg viewBox="0 0 24 24" fill="none"><polyline points="20 6 9 17 4 12"/></svg>100 tickets/mês</div>
+        <div class="plan-feature"><svg viewBox="0 0 24 24" fill="none"><polyline points="20 6 9 17 4 12"/></svg>50 ativos no inventário</div>
+        <div class="plan-feature"><svg viewBox="0 0 24 24" fill="none"><polyline points="20 6 9 17 4 12"/></svg>SLA configurável</div>
+        <div class="plan-feature"><svg viewBox="0 0 24 24" fill="none"><polyline points="20 6 9 17 4 12"/></svg>Base de conhecimento</div>
+        <div class="plan-feature"><svg viewBox="0 0 24 24" fill="none"><polyline points="20 6 9 17 4 12"/></svg>Relatórios completos</div>
+        <div class="plan-feature no"><svg viewBox="0 0 24 24" fill="none"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Integrações Slack/Teams</div>
+      </div>
+    </div>
+
+    <!-- PRO -->
+    <div class="plan-card" id="plan-pro" onclick="selectPlan('pro')">
+      <div class="plan-badge">Completo</div>
+      <div class="plan-name">Pro</div>
+      <div class="plan-price">R$349</div>
+      <div class="plan-period">/mês · cobrado mensalmente</div>
+      <div class="plan-desc">Para departamentos de TI maiores que precisam de automação e integrações.</div>
+      <hr class="plan-divider"/>
+      <div class="plan-features">
+        <div class="plan-feature"><svg viewBox="0 0 24 24" fill="none"><polyline points="20 6 9 17 4 12"/></svg>5 técnicos</div>
+        <div class="plan-feature"><svg viewBox="0 0 24 24" fill="none"><polyline points="20 6 9 17 4 12"/></svg>100 usuários/colaboradores</div>
+        <div class="plan-feature"><svg viewBox="0 0 24 24" fill="none"><polyline points="20 6 9 17 4 12"/></svg>500 tickets/mês</div>
+        <div class="plan-feature"><svg viewBox="0 0 24 24" fill="none"><polyline points="20 6 9 17 4 12"/></svg>300 ativos no inventário</div>
+        <div class="plan-feature"><svg viewBox="0 0 24 24" fill="none"><polyline points="20 6 9 17 4 12"/></svg>SLA avançado + alertas</div>
+        <div class="plan-feature"><svg viewBox="0 0 24 24" fill="none"><polyline points="20 6 9 17 4 12"/></svg>Base de conhecimento</div>
+        <div class="plan-feature"><svg viewBox="0 0 24 24" fill="none"><polyline points="20 6 9 17 4 12"/></svg>Relatórios + export PDF/Excel</div>
+        <div class="plan-feature"><svg viewBox="0 0 24 24" fill="none"><polyline points="20 6 9 17 4 12"/></svg>Slack, Teams, Google Chat</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- SOCIAL PROOF -->
+  <div class="proof">
+    <div class="proof-item"><svg viewBox="0 0 24 24" fill="none"><polyline points="20 6 9 17 4 12"/></svg>Sem cartão de crédito para o Free</div>
+    <div class="proof-item"><svg viewBox="0 0 24 24" fill="none"><polyline points="20 6 9 17 4 12"/></svg>Ambiente pronto em minutos</div>
+    <div class="proof-item"><svg viewBox="0 0 24 24" fill="none"><polyline points="20 6 9 17 4 12"/></svg>Cancele quando quiser</div>
+    <div class="proof-item"><svg viewBox="0 0 24 24" fill="none"><polyline points="20 6 9 17 4 12"/></svg>Suporte em português</div>
+  </div>
+</div>
+
+<!-- FORMULÁRIO -->
+<div class="form-section">
+  <div class="form-card">
+    <div id="form-screen">
+      <div class="form-card-title">Criar sua conta</div>
+      <div class="form-card-sub">Preencha os dados abaixo. Seu ambiente será criado automaticamente.</div>
+
+      <!-- Resumo do plano selecionado -->
+      <div class="plan-summary" id="plan-summary">
+        <div>
+          <div class="plan-summary-name" id="summary-name">Plano Free</div>
+          <div class="plan-summary-limits" id="summary-limits">1 técnico · 3 usuários · 10 tickets/mês · 5 ativos</div>
+        </div>
+        <div class="plan-summary-price" id="summary-price">R$0/mês</div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Nome da empresa <span class="req">*</span></label>
+          <input type="text" id="f-empresa" placeholder="Acme Tecnologia Ltda"/>
+          <div class="field-error" id="err-empresa">Campo obrigatório</div>
+        </div>
+        <div class="form-group">
+          <label>CNPJ <span class="req">*</span></label>
+          <input type="text" id="f-cnpj" placeholder="00.000.000/0001-00" maxlength="18"/>
+          <div class="field-error" id="err-cnpj">CNPJ inválido</div>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Seu nome <span class="req">*</span></label>
+          <input type="text" id="f-nome" placeholder="João Silva"/>
+        </div>
+        <div class="form-group">
+          <label>Cargo</label>
+          <input type="text" id="f-cargo" placeholder="Gerente de TI"/>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>E-mail profissional <span class="req">*</span></label>
+        <input type="email" id="f-email" placeholder="joao@empresa.com"/>
+        <div class="field-hint">Será seu login de acesso ao painel</div>
+        <div class="field-error" id="err-email">E-mail inválido</div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Senha <span class="req">*</span></label>
+          <input type="password" id="f-senha" placeholder="Mínimo 8 caracteres"/>
+          <div class="field-error" id="err-senha">Mínimo 8 caracteres</div>
+        </div>
+        <div class="form-group">
+          <label>Confirmar senha <span class="req">*</span></label>
+          <input type="password" id="f-senha2" placeholder="Repita a senha"/>
+          <div class="field-error" id="err-senha2">Senhas não coincidem</div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Telefone</label>
+        <input type="tel" id="f-tel" placeholder="(11) 99999-9999"/>
+      </div>
+
+      <div class="form-group">
+        <label>Identificador único (slug) <span class="req">*</span></label>
+        <input type="text" id="f-slug" placeholder="minha-empresa" oninput="formatSlug(this)"/>
+        <div class="field-hint">Será usado na URL do seu ambiente: <span id="slug-preview" style="color:var(--purple);font-family:JetBrains Mono,monospace;font-size:.7rem">minha-empresa.nexusplatform.com.br</span></div>
+        <div class="field-error" id="err-slug">Slug inválido ou já em uso</div>
+      </div>
+
+      <button class="submit-btn" id="submit-btn" onclick="submitForm()">
+        <span id="submit-text">Criar minha conta grátis</span>
+      </button>
+      <div class="terms">Ao criar sua conta você concorda com os <a href="#">Termos de Uso</a> e a <a href="#">Política de Privacidade</a> da Nexus EF Business.</div>
+    </div>
+
+    <!-- SUCCESS -->
+    <div id="success-screen">
+      <div class="success-icon">🎉</div>
+      <div class="success-title">Conta criada com sucesso!</div>
+      <div class="success-desc">Seu ambiente Nexus Platform está pronto. Acesse agora com as credenciais abaixo ou verifique seu e-mail.</div>
+      <div class="success-box">
+        <div class="success-box-label">URL do seu painel</div>
+        <div class="success-box-value" id="success-url">—</div>
+        <br/>
+        <div class="success-box-label" style="margin-top:.75rem">Login</div>
+        <div class="success-box-value" id="success-email">—</div>
+      </div>
+      <a href="#" class="btn-access" id="success-link">Acessar meu painel →</a>
+    </div>
+  </div>
+</div>
+
+<script>
+const PLATFORM_API = 'https://platform-api.nexusefbusiness.com.br';
+
+const PLANS = {
+  free:    {name:'Free',    price:'R$0/mês',    limits:'1 técnico · 3 usuários · 10 tickets/mês · 5 ativos',    btnText:'Criar minha conta grátis'},
+  starter: {name:'Starter', price:'R$149/mês',  limits:'2 técnicos · 20 usuários · 100 tickets/mês · 50 ativos', btnText:'Começar com Starter →'},
+  pro:     {name:'Pro',     price:'R$349/mês',  limits:'5 técnicos · 100 usuários · 500 tickets/mês · 300 ativos',btnText:'Começar com Pro →'},
+};
+
+let selectedPlan = 'free';
+
+function selectPlan(plan){
+  selectedPlan = plan;
+  document.querySelectorAll('.plan-card').forEach(c=>c.classList.remove('selected'));
+  document.getElementById('plan-'+plan).classList.add('selected');
+  document.getElementById('summary-name').textContent = 'Plano ' + PLANS[plan].name;
+  document.getElementById('summary-price').textContent = PLANS[plan].price;
+  document.getElementById('summary-limits').textContent = PLANS[plan].limits;
+  document.getElementById('submit-text').textContent = PLANS[plan].btnText;
+  document.getElementById('submit-btn').scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+function formatSlug(input){
+  input.value = input.value.toLowerCase().replace(/[^a-z0-9-]/g,'-').replace(/-+/g,'-').replace(/^-/,'');
+  document.getElementById('slug-preview').textContent = (input.value||'minha-empresa') + '.nexusplatform.com.br';
+}
+
+// CNPJ mask
+document.getElementById('f-cnpj').addEventListener('input', function(){
+  let v = this.value.replace(/\D/g,'');
+  if(v.length>14) v=v.slice(0,14);
+  v = v.replace(/^(\d{2})(\d)/,'$1.$2');
+  v = v.replace(/^(\d{2})\.(\d{3})(\d)/,'$1.$2.$3');
+  v = v.replace(/\.(\d{3})(\d)/,'.$1/$2');
+  v = v.replace(/(\d{4})(\d)/,'$1-$2');
+  this.value = v;
+});
+
+// Phone mask
+document.getElementById('f-tel').addEventListener('input', function(){
+  let v = this.value.replace(/\D/g,'');
+  if(v.length>11) v=v.slice(0,11);
+  if(v.length>10) v=v.replace(/^(\d{2})(\d{5})(\d{4})/,'($1) $2-$3');
+  else if(v.length>6) v=v.replace(/^(\d{2})(\d{4})(\d)/,'($1) $2-$3');
+  else if(v.length>2) v=v.replace(/^(\d{2})(\d)/,'($1) $2');
+  this.value = v;
+});
+
+// Auto-slug from empresa
+document.getElementById('f-empresa').addEventListener('blur', function(){
+  const slug = document.getElementById('f-slug');
+  if(!slug.value){
+    slug.value = this.value.toLowerCase()
+      .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+      .replace(/[^a-z0-9\s-]/g,'').trim()
+      .replace(/\s+/g,'-').replace(/-+/g,'-').slice(0,30);
+    formatSlug(slug);
+  }
+});
+
+function showError(id, show){
+  document.getElementById(id).style.display = show ? 'block' : 'none';
+}
+
+async function submitForm(){
+  const empresa = document.getElementById('f-empresa').value.trim();
+  const cnpj    = document.getElementById('f-cnpj').value.trim();
+  const nome    = document.getElementById('f-nome').value.trim();
+  const email   = document.getElementById('f-email').value.trim();
+  const senha   = document.getElementById('f-senha').value;
+  const senha2  = document.getElementById('f-senha2').value;
+  const slug    = document.getElementById('f-slug').value.trim();
+  const cargo   = document.getElementById('f-cargo').value.trim();
+  const tel     = document.getElementById('f-tel').value.trim();
+
+  let valid = true;
+  showError('err-empresa', !empresa); if(!empresa) valid=false;
+  showError('err-email', !email||!email.includes('@')); if(!email||!email.includes('@')) valid=false;
+  showError('err-senha', senha.length<8); if(senha.length<8) valid=false;
+  showError('err-senha2', senha!==senha2); if(senha!==senha2) valid=false;
+  showError('err-slug', !slug||slug.length<3); if(!slug||slug.length<3) valid=false;
+
+  if(!valid) return;
+
+  const btn = document.getElementById('submit-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner"></div> Criando seu ambiente...';
+
+  try{
+    const res = await fetch(PLATFORM_API + '/cadastro', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        empresa, cnpj, nome, email, senha, slug, cargo, telefone: tel,
+        plano: selectedPlan
+      })
+    });
+
+    const data = await res.json();
+
+    if(!res.ok){
+      if(data.detail?.includes('slug')) showError('err-slug', true);
+      throw new Error(data.detail || 'Erro ao criar conta');
+    }
+
+    // Sucesso
+    const url = `https://ti.nexusefbusiness.com.br`;
+    document.getElementById('success-url').textContent = url;
+    document.getElementById('success-email').textContent = email;
+    document.getElementById('success-link').href = url;
+    document.getElementById('form-screen').style.display = 'none';
+    document.getElementById('success-screen').style.display = 'block';
+
+  }catch(e){
+    btn.disabled = false;
+    btn.innerHTML = '<span id="submit-text">' + PLANS[selectedPlan].btnText + '</span>';
+    alert(e.message || 'Erro ao criar conta. Tente novamente.');
+  }
+}
+</script>
+</body>
+</html>
