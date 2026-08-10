@@ -238,3 +238,89 @@ def get_audit(tenant_id: str, limit: int = 50, db: Session = Depends(get_db), us
         ORDER BY al.criado_em DESC LIMIT :limit
     """), {"tid": tenant_id, "limit": limit}).fetchall()
     return [dict(r._mapping) for r in rows]
+
+# ── CADASTRO SELF-SERVICE ──
+class CadastroIn(BaseModel):
+    empresa: str
+    cnpj: Optional[str] = ""
+    nome: str
+    email: str
+    senha: str
+    slug: str
+    cargo: Optional[str] = ""
+    telefone: Optional[str] = ""
+    plano: str = "free"
+
+PLANOS = {
+    "free":    {"max_tecnicos": 1,  "max_usuarios": 3,   "max_ativos": 5,   "plano_ativo": True},
+    "starter": {"max_tecnicos": 2,  "max_usuarios": 20,  "max_ativos": 50,  "plano_ativo": True},
+    "pro":     {"max_tecnicos": 5,  "max_usuarios": 100, "max_ativos": 300, "plano_ativo": True},
+}
+
+@app.post("/cadastro", status_code=201)
+def cadastro(data: CadastroIn, db: Session = Depends(get_db)):
+    import re, bcrypt as _bcrypt
+
+    # Validações
+    if not data.empresa or not data.email or not data.senha or not data.slug:
+        raise HTTPException(400, "Campos obrigatórios não preenchidos")
+    if len(data.senha) < 8:
+        raise HTTPException(400, "Senha mínima de 8 caracteres")
+    if not re.match(r'^[a-z0-9][a-z0-9-]{1,28}[a-z0-9]$', data.slug):
+        raise HTTPException(400, "Slug inválido")
+    if data.plano not in PLANOS:
+        raise HTTPException(400, "Plano inválido")
+
+    # Verificar slug único
+    existing = db.execute(text("SELECT id FROM tenants WHERE slug = :slug"), {"slug": data.slug}).fetchone()
+    if existing:
+        raise HTTPException(400, "Este identificador já está em uso. Escolha outro.")
+
+    # Verificar email único
+    existing_email = db.execute(text("SELECT id FROM users WHERE email = :email"), {"email": data.email}).fetchone()
+    if existing_email:
+        raise HTTPException(400, "Este e-mail já está cadastrado.")
+
+    config = PLANOS[data.plano]
+
+    # Criar tenant
+    tenant_id = str(__import__('uuid').uuid4())
+    db.execute(text("""
+        INSERT INTO tenants (id, nome, slug, razao_social, cnpj, email_admin, telefone,
+                             plano, plano_ativo, max_tecnicos, max_usuarios, max_ativos,
+                             ativo, criado_em, atualizado_em)
+        VALUES (:id, :nome, :slug, :nome, :cnpj, :email, :tel,
+                :plano, :plano_ativo, :max_tec, :max_usr, :max_atv,
+                true, now(), now())
+    """), {
+        "id": tenant_id, "nome": data.empresa, "slug": data.slug,
+        "cnpj": data.cnpj, "email": data.email, "tel": data.telefone,
+        "plano": data.plano, "plano_ativo": config["plano_ativo"],
+        "max_tec": config["max_tecnicos"], "max_usr": config["max_usuarios"],
+        "max_atv": config["max_ativos"]
+    })
+
+    # Criar usuário admin
+    senha_hash = _bcrypt.hashpw(data.senha.encode(), _bcrypt.gensalt(12)).decode()
+    user_id = str(__import__('uuid').uuid4())
+    db.execute(text("""
+        INSERT INTO users (id, tenant_id, nome, email, senha_hash, role,
+                           cargo, telefone, ativo, email_verificado, criado_em, atualizado_em)
+        VALUES (:id, :tid, :nome, :email, :hash, 'admin',
+                :cargo, :tel, true, false, now(), now())
+    """), {
+        "id": user_id, "tid": tenant_id, "nome": data.nome,
+        "email": data.email, "hash": senha_hash,
+        "cargo": data.cargo, "tel": data.telefone
+    })
+
+    db.commit()
+
+    return {
+        "ok": True,
+        "tenant_id": tenant_id,
+        "slug": data.slug,
+        "plano": data.plano,
+        "email": data.email,
+        "message": "Conta criada com sucesso!"
+    }
