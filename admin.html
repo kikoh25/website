@@ -739,11 +739,10 @@ async function renderTenants(){
       <td><small>${t.criado_em?new Date(t.criado_em).toLocaleDateString('pt-BR'):'—'}</small></td>
       <td onclick="event.stopPropagation()"><div style="display:flex;gap:.3rem;flex-wrap:wrap">
         <select class="btn btn-ghost btn-xs" onchange="mudarPlano('${t.id}',this.value)" style="padding:.2rem .4rem">
-          <option value="">Plano</option>
-          <option value="inventario">Inventário</option>
-          <option value="chamados">Chamados</option>
-          <option value="completo">Completo</option>
-          <option value="trial">Trial</option>
+          <option value="">Mudar plano</option>
+          <option value="trial">Free</option>
+          <option value="chamados">Starter — R$149/mês</option>
+          <option value="completo">Pro — R$349/mês</option>
         </select>
         ${t.ativo
           ?`<button class="btn btn-danger btn-xs" onclick="toggleTenantPlatform('${t.id}',false)">🔒</button>`
