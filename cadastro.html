@@ -290,12 +290,7 @@
         <input type="tel" id="f-tel" placeholder="(11) 99999-9999"/>
       </div>
 
-      <div class="form-group">
-        <label>Identificador único (slug) <span class="req">*</span></label>
-        <input type="text" id="f-slug" placeholder="minha-empresa" oninput="formatSlug(this)"/>
-        <div class="field-hint">Será usado na URL do seu ambiente: <span id="slug-preview" style="color:var(--purple);font-family:JetBrains Mono,monospace;font-size:.7rem">minha-empresa.nexusplatform.com.br</span></div>
-        <div class="field-error" id="err-slug">Slug inválido ou já em uso</div>
-      </div>
+<input type="hidden" id="f-slug" value=""/>
 
       <button class="submit-btn" id="submit-btn" onclick="submitForm()">
         <span id="submit-text">Criar minha conta grátis</span>
@@ -371,13 +366,11 @@ document.getElementById('f-tel').addEventListener('input', function(){
 // Auto-slug from empresa
 document.getElementById('f-empresa').addEventListener('blur', function(){
   const slug = document.getElementById('f-slug');
-  if(!slug.value){
-    slug.value = this.value.toLowerCase()
-      .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
-      .replace(/[^a-z0-9\s-]/g,'').trim()
-      .replace(/\s+/g,'-').replace(/-+/g,'-').slice(0,30);
-    formatSlug(slug);
-  }
+  slug.value = this.value.toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+    .replace(/[^a-z0-9\s-]/g,'').trim()
+    .replace(/\s+/g,'-').replace(/-+/g,'-').slice(0,30)
+    + '-' + Date.now().toString().slice(-4);
 });
 
 function showError(id, show){
@@ -400,7 +393,7 @@ async function submitForm(){
   showError('err-email', !email||!email.includes('@')); if(!email||!email.includes('@')) valid=false;
   showError('err-senha', senha.length<8); if(senha.length<8) valid=false;
   showError('err-senha2', senha!==senha2); if(senha!==senha2) valid=false;
-  showError('err-slug', !slug||slug.length<3); if(!slug||slug.length<3) valid=false;
+
 
   if(!valid) return;
 
