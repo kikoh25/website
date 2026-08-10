@@ -284,11 +284,48 @@
         <div class="table-wrap"><table><thead><tr><th>Cliente</th><th>Produto</th><th>Valor/mês</th><th>Início</th><th>Vencimento</th><th>Status</th><th>Ações</th></tr></thead><tbody id="tbody-contratos"><tr><td colspan="7"><div class="loading"><div class="spinner"></div>Carregando...</div></td></tr></tbody></table></div>
       </div>
 
-      <!-- TENANTS -->
+      <!-- TENANTS NEXUS PLATFORM -->
       <div class="view" id="view-tenants">
-        <div class="section-header"><div class="section-title-sm">Nexus Platform — Tenants</div><button class="btn btn-primary" onclick="openModal('modal-tenant')">+ Novo tenant</button></div>
-        <div class="alert alert-info">ℹ️ Cada tenant é uma instância isolada do Nexus Platform. Controle plano, usuários e acesso aqui.</div>
-        <div class="table-wrap"><table><thead><tr><th>Cliente</th><th>Subdomínio</th><th>Plano</th><th>Usuários</th><th>Tickets/mês</th><th>Status</th><th>Ações</th></tr></thead><tbody id="tbody-tenants"><tr><td colspan="7"><div class="loading"><div class="spinner"></div>Carregando...</div></td></tr></tbody></table></div>
+        <div class="section-header">
+          <div class="section-title-sm">Nexus Platform — Tenants</div>
+          <button class="btn btn-primary" onclick="openModal('modal-tenant')">+ Novo tenant</button>
+        </div>
+
+        <!-- Stats da Platform -->
+        <div class="stats-grid" id="platform-stats" style="grid-template-columns:repeat(4,1fr);margin-bottom:1.5rem">
+          <div class="stat-card"><div class="stat-label">Tenants ativos</div><div class="stat-value" id="pt-ativos">—</div></div>
+          <div class="stat-card"><div class="stat-label">Usuários ativos</div><div class="stat-value" id="pt-usuarios">—</div></div>
+          <div class="stat-card"><div class="stat-label">Tickets abertos</div><div class="stat-value" id="pt-tickets">—</div></div>
+          <div class="stat-card"><div class="stat-label">SLA violados</div><div class="stat-value" id="pt-sla" style="color:var(--red)">—</div></div>
+        </div>
+
+        <div class="alert alert-info">ℹ️ Dados em tempo real do banco da Nexus Platform. Clique em um tenant para ver detalhes completos.</div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Tenant</th><th>Plano</th><th>Usuários</th><th>Tickets</th><th>Ativos</th><th>Status</th><th>Criado em</th><th>Ações</th></tr></thead>
+            <tbody id="tbody-tenants-platform"><tr><td colspan="8"><div class="loading"><div class="spinner"></div>Carregando da Nexus Platform...</div></td></tr></tbody>
+          </table>
+        </div>
+
+        <!-- Detalhe do tenant selecionado -->
+        <div id="tenant-detail" style="display:none">
+          <div class="section-header" style="margin-top:1rem">
+            <div class="section-title-sm" id="tenant-detail-title">Detalhes do Tenant</div>
+            <button class="btn btn-ghost btn-sm" onclick="document.getElementById('tenant-detail').style.display='none'">✕ Fechar</button>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem">
+            <div class="table-wrap">
+              <div style="padding:1rem 1.25rem;border-bottom:1px solid var(--border);font-weight:600;font-size:.85rem">👥 Usuários</div>
+              <table><thead><tr><th>Nome</th><th>E-mail</th><th>Perfil</th><th>Status</th><th>Ação</th></tr></thead>
+              <tbody id="tbody-tenant-usuarios"><tr><td colspan="5"><div class="loading"><div class="spinner"></div></div></td></tr></tbody></table>
+            </div>
+            <div class="table-wrap">
+              <div style="padding:1rem 1.25rem;border-bottom:1px solid var(--border);font-weight:600;font-size:.85rem">🎫 Últimos Tickets</div>
+              <table><thead><tr><th>#</th><th>Título</th><th>Status</th><th>Prioridade</th></tr></thead>
+              <tbody id="tbody-tenant-tickets"><tr><td colspan="4"><div class="loading"><div class="spinner"></div></div></td></tr></tbody></table>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- LEADNOW -->
@@ -396,7 +433,9 @@
 
 <script>
 const API = 'https://api.nexusefbusiness.com.br';
+const PLATFORM_API = 'https://platform-api.nexusefbusiness.com.br';
 let TOKEN = '';
+let PLATFORM_TOKEN = '';
 
 // ── TOAST ──
 function toast(msg, type='success'){
@@ -415,6 +454,14 @@ async function api(method, path, body=null){
   return r.json();
 }
 
+async function platformApi(method, path, body=null){
+  const opts={method, headers:{'Content-Type':'application/json','Authorization':`Bearer ${PLATFORM_TOKEN}`}};
+  if(body) opts.body=JSON.stringify(body);
+  const r=await fetch(PLATFORM_API+path, opts);
+  if(!r.ok) throw new Error(await r.text());
+  return r.json();
+}
+
 // ── AUTH ──
 async function doLogin(){
   const btn=document.getElementById('login-btn');
@@ -425,11 +472,23 @@ async function doLogin(){
   try{
     const form=new FormData();
     form.append('username',user); form.append('password',pass);
+
+    // Login Admin API
     const r=await fetch(API+'/token',{method:'POST',body:form});
     if(!r.ok) throw new Error();
     const data=await r.json();
     TOKEN=data.access_token;
+
+    // Login Platform API
+    const form2=new FormData();
+    form2.append('username',user); form2.append('password',pass);
+    try{
+      const r2=await fetch(PLATFORM_API+'/token',{method:'POST',body:form2});
+      if(r2.ok){const d2=await r2.json();PLATFORM_TOKEN=d2.access_token;}
+    } catch(e){}
+
     sessionStorage.setItem('nexus_token',TOKEN);
+    sessionStorage.setItem('nexus_platform_token',PLATFORM_TOKEN);
     document.getElementById('login-screen').style.display='none';
     document.getElementById('app').style.display='flex';
     loadAll();
@@ -440,7 +499,9 @@ async function doLogin(){
 }
 
 function doLogout(){
-  TOKEN=''; sessionStorage.removeItem('nexus_token');
+  TOKEN=''; PLATFORM_TOKEN='';
+  sessionStorage.removeItem('nexus_token');
+  sessionStorage.removeItem('nexus_platform_token');
   document.getElementById('login-screen').style.display='flex';
   document.getElementById('app').style.display='none';
 }
@@ -546,37 +607,110 @@ async function deleteContrato(id){
   catch(e){toast('Erro ao remover.','error')}
 }
 
-// ── TENANTS ──
-async function saveTenant(){
-  const cliente=document.getElementById('t-cliente').value;
-  if(!cliente){toast('Selecione um cliente.','error');return}
-  const clientes=await api('GET','/clientes');
-  const c=clientes.find(x=>x.id==cliente);
-  try{
-    await api('POST','/tenants',{cliente_id:parseInt(cliente),cliente_nome:c?c.empresa:'',subdominio:document.getElementById('t-sub').value,plano:document.getElementById('t-plano').value,tickets_mes:parseInt(document.getElementById('t-tickets').value)||500,usuarios:parseInt(document.getElementById('t-users').value)||10,status:document.getElementById('t-status').value});
-    closeModal('modal-tenant');toast('Tenant criado!');loadSection('tenants');loadStats();
-  } catch(e){toast('Erro ao criar tenant.','error')}
-}
-
+// ── TENANTS NEXUS PLATFORM (dados reais) ──
 async function renderTenants(){
-  const tb=document.getElementById('tbody-tenants');
+  const tb=document.getElementById('tbody-tenants-platform');
+
+  // Carregar stats da platform
   try{
-    const data=await api('GET','/tenants');
-    if(!data||!data.length){tb.innerHTML='<tr><td colspan="7"><div class="empty"><div class="empty-icon">🖥️</div><div class="empty-text">Nenhum tenant ativo.</div></div></td></tr>';return}
-    tb.innerHTML=data.map(t=>`<tr><td><strong>${t.cliente_nome}</strong></td><td><span style="font-family:JetBrains Mono,monospace;font-size:.8rem">${t.subdominio||'—'}</span></td><td><span class="badge badge-blue">${t.plano}</span></td><td>${t.usuarios}</td><td>${t.tickets_mes}</td><td>${badge(t.status)}</td><td><div style="display:flex;gap:.35rem">${t.status!=='Revogado'?`<button class="btn btn-danger btn-sm" onclick="revogarTenant(${t.id})">🔒 Revogar</button>`:''}<button class="btn btn-danger btn-sm" onclick="deleteTenant(${t.id})">🗑</button></div></td></tr>`).join('');
-  } catch(e){tb.innerHTML='<tr><td colspan="7"><div class="empty"><div class="empty-icon">⚠️</div><div class="empty-text">Erro ao carregar.</div></div></td></tr>'}
+    const stats=await platformApi('GET','/stats');
+    if(stats){
+      document.getElementById('pt-ativos').textContent=stats.tenants_ativos;
+      document.getElementById('pt-usuarios').textContent=stats.usuarios_ativos;
+      document.getElementById('pt-tickets').textContent=stats.tickets_abertos;
+      document.getElementById('pt-sla').textContent=stats.sla_violados;
+    }
+  } catch(e){}
+
+  // Carregar tenants
+  try{
+    const data=await platformApi('GET','/tenants');
+    if(!data||!data.length){
+      tb.innerHTML='<tr><td colspan="8"><div class="empty"><div class="empty-icon">🖥️</div><div class="empty-text">Nenhum tenant encontrado.</div></div></td></tr>';
+      return;
+    }
+    tb.innerHTML=data.map(t=>`
+      <tr style="cursor:pointer" onclick="loadTenantDetail('${t.id}','${t.nome}')">
+        <td><strong>${t.nome}</strong><br><small style="color:var(--text-3)">${t.email_admin}</small></td>
+        <td><span class="badge badge-blue">${t.plano}</span></td>
+        <td>${t.total_usuarios||0}</td>
+        <td>${t.total_tickets||0}</td>
+        <td>${t.total_ativos||0}</td>
+        <td>${t.ativo?'<span class="badge badge-green">Ativo</span>':'<span class="badge badge-red">Inativo</span>'}</td>
+        <td><small>${t.criado_em?new Date(t.criado_em).toLocaleDateString('pt-BR'):'-'}</small></td>
+        <td onclick="event.stopPropagation()">
+          <div style="display:flex;gap:.35rem;flex-wrap:wrap">
+            <select class="btn btn-ghost btn-sm" onchange="mudarPlano('${t.id}',this.value)" style="padding:.3rem .5rem">
+              <option value="">Mudar plano</option>
+              <option value="inventario" ${t.plano==='inventario'?'selected':''}>Inventário</option>
+              <option value="chamados" ${t.plano==='chamados'?'selected':''}>Chamados</option>
+              <option value="completo" ${t.plano==='completo'?'selected':''}>Completo</option>
+              <option value="trial" ${t.plano==='trial'?'selected':''}>Trial</option>
+            </select>
+            ${t.ativo
+              ?`<button class="btn btn-danger btn-sm" onclick="toggleTenantPlatform('${t.id}',false)">🔒 Suspender</button>`
+              :`<button class="btn btn-primary btn-sm" onclick="toggleTenantPlatform('${t.id}',true)">▶ Reativar</button>`
+            }
+          </div>
+        </td>
+      </tr>`).join('');
+  } catch(e){
+    tb.innerHTML='<tr><td colspan="8"><div class="empty"><div class="empty-icon">⚠️</div><div class="empty-text">Erro ao conectar com Nexus Platform API.</div></div></td></tr>';
+  }
 }
 
-async function revogarTenant(id){
-  if(!confirm('Revogar acesso deste tenant?')) return;
-  try{await api('PATCH',`/tenants/${id}/status`,{status:'Revogado'});toast('Acesso revogado!','error');loadSection('tenants');loadSection('acessos')}
-  catch(e){toast('Erro ao revogar.','error')}
+async function loadTenantDetail(tenantId, nome){
+  document.getElementById('tenant-detail').style.display='block';
+  document.getElementById('tenant-detail-title').textContent=`Detalhes — ${nome}`;
+  document.getElementById('tbody-tenant-usuarios').innerHTML='<tr><td colspan="5"><div class="loading"><div class="spinner"></div></div></td></tr>';
+  document.getElementById('tbody-tenant-tickets').innerHTML='<tr><td colspan="4"><div class="loading"><div class="spinner"></div></div></td></tr>';
+  document.getElementById('tenant-detail').scrollIntoView({behavior:'smooth'});
+
+  try{
+    const [usuarios, tickets]=await Promise.all([
+      platformApi('GET',`/tenants/${tenantId}/usuarios`),
+      platformApi('GET',`/tenants/${tenantId}/tickets?limit=10`)
+    ]);
+
+    document.getElementById('tbody-tenant-usuarios').innerHTML=
+      (usuarios&&usuarios.length)
+        ? usuarios.map(u=>`<tr><td>${u.nome}</td><td><small>${u.email}</small></td><td><span class="badge badge-blue">${u.role}</span></td><td>${u.ativo?'<span class="badge badge-green">Ativo</span>':'<span class="badge badge-red">Inativo</span>'}</td><td><button class="btn btn-ghost btn-sm" onclick="toggleUsuarioPlatform('${tenantId}','${u.id}','${u.nome}')">${u.ativo?'Suspender':'Reativar'}</button></td></tr>`).join('')
+        : '<tr><td colspan="5"><div class="empty"><div class="empty-text">Nenhum usuário.</div></div></td></tr>';
+
+    document.getElementById('tbody-tenant-tickets').innerHTML=
+      (tickets&&tickets.length)
+        ? tickets.map(t=>`<tr><td>#${t.numero}</td><td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${t.titulo}</td><td>${badge(t.status)}</td><td>${badge(t.prioridade)}</td></tr>`).join('')
+        : '<tr><td colspan="4"><div class="empty"><div class="empty-text">Nenhum ticket.</div></div></td></tr>';
+  } catch(e){
+    document.getElementById('tbody-tenant-usuarios').innerHTML='<tr><td colspan="5"><div class="empty"><div class="empty-text">Erro ao carregar.</div></div></td></tr>';
+  }
 }
 
-async function deleteTenant(id){
-  if(!confirm('Remover este tenant?')) return;
-  try{await api('DELETE',`/tenants/${id}`);toast('Tenant removido.');loadSection('tenants');loadStats()}
-  catch(e){toast('Erro ao remover.','error')}
+async function toggleTenantPlatform(tenantId, ativo){
+  const motivo = !ativo ? prompt('Motivo da suspensão (opcional):') : null;
+  try{
+    await platformApi('PATCH',`/tenants/${tenantId}/status`,{ativo, motivo_inativo: motivo||null});
+    toast(ativo?'Tenant reativado!':'Tenant suspenso!', ativo?'success':'error');
+    renderTenants();
+  } catch(e){toast('Erro ao atualizar tenant.','error')}
+}
+
+async function mudarPlano(tenantId, plano){
+  if(!plano) return;
+  try{
+    await platformApi('PATCH',`/tenants/${tenantId}/plano`,{plano});
+    toast(`Plano alterado para ${plano}!`);
+    renderTenants();
+  } catch(e){toast('Erro ao mudar plano.','error')}
+}
+
+async function toggleUsuarioPlatform(tenantId, userId, nome){
+  if(!confirm(`Alterar status de ${nome}?`)) return;
+  try{
+    const r=await platformApi('PATCH',`/tenants/${tenantId}/usuarios/${userId}/status`,{});
+    toast(`Usuário ${r.ativo?'reativado':'suspenso'}!`);
+    loadTenantDetail(tenantId, document.getElementById('tenant-detail-title').textContent.replace('Detalhes — ',''));
+  } catch(e){toast('Erro ao atualizar usuário.','error')}
 }
 
 // ── LEADNOW ──
@@ -686,7 +820,14 @@ function loadAll(){loadStats();renderAtividade('activity-dash')}
 // ── AUTO LOGIN ──
 window.addEventListener('load',()=>{
   const t=sessionStorage.getItem('nexus_token');
-  if(t){TOKEN=t;document.getElementById('login-screen').style.display='none';document.getElementById('app').style.display='flex';loadAll()}
+  const pt=sessionStorage.getItem('nexus_platform_token');
+  if(t){
+    TOKEN=t;
+    PLATFORM_TOKEN=pt||'';
+    document.getElementById('login-screen').style.display='none';
+    document.getElementById('app').style.display='flex';
+    loadAll();
+  }
 });
 </script>
 </body>
