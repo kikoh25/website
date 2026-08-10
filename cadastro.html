@@ -80,7 +80,7 @@
     .form-group input,.form-group select{background:var(--bg);border:1.5px solid var(--border);border-radius:9px;padding:.72rem 1rem;color:var(--text);font-family:'Inter',sans-serif;font-size:.875rem;outline:none;transition:border-color .2s,background .2s}
     .form-group input:focus,.form-group select:focus{border-color:var(--purple);background:#fff}
     .form-group input.error{border-color:var(--red)}
-    .form-row{display:grid;grid-template-columns:1fr 1fr;gap:.85rem}
+    .form-row{display:grid;grid-template-columns:1fr 1fr;gap:.85rem}@media(max-width:600px){.form-row{grid-template-columns:1fr!important;display:flex!important;flex-direction:column!important}}
     .field-hint{font-size:.7rem;color:var(--text-3);margin-top:2px}
     .field-error{font-size:.7rem;color:var(--red);margin-top:2px;display:none}
 
