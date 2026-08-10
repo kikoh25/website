@@ -392,8 +392,8 @@
         <div class="alert alert-warn">⚠️ Suspender um tenant desativa o acesso imediatamente e invalida todas as sessões ativas.</div>
         <div class="table-wrap">
           <table>
-            <thead><tr><th>Tenant</th><th>Responsável</th><th>E-mail</th><th>Produto</th><th>Último acesso</th><th>Plano</th><th>Status</th><th>Ações</th></tr></thead>
-            <tbody id="tbody-acessos"><tr><td colspan="7"><div class="loading"><div class="spinner"></div>Carregando...</div></td></tr></tbody>
+            <thead><tr><th>Cliente/Tenant</th><th>Responsável</th><th>E-mail</th><th>Produto</th><th>Último acesso</th><th>Plano</th><th>Status</th><th>Ações</th></tr></thead>
+            <tbody id="tbody-acessos"><tr><td colspan="8"><div class="loading"><div class="spinner"></div>Carregando...</div></td></tr></tbody>
           </table>
         </div>
       </div>
@@ -839,28 +839,51 @@ async function deleteLeadNow(id){
 async function renderAcessos(){
   const tb=document.getElementById('tbody-acessos');
   try{
-    const tenants=await platformApi('GET','/tenants');
-    if(!tenants?.length){tb.innerHTML='<tr><td colspan="7"><div class="empty"><div class="empty-icon">🔑</div><div class="empty-text">Nenhum acesso.</div></div></td></tr>';return}
-    const rows=await Promise.all(tenants.map(async t=>{
+    const [tenants, leadnow] = await Promise.all([
+      platformApi('GET','/tenants').catch(()=>[]),
+      api('GET','/leadnow').catch(()=>[])
+    ]);
+
+    const platformRows = await Promise.all((tenants||[]).map(async t=>{
       try{
         const usuarios=await platformApi('GET',`/tenants/${t.id}/usuarios`);
         const admin=usuarios?.find(u=>u.role==='admin')||usuarios?.[0]||null;
-        return {tenant:t,admin};
-      }catch(e){return {tenant:t,admin:null}}
+        return {
+          nome:t.nome, slug:t.slug, responsavel:admin?.nome||'—',
+          email:admin?.email||'—', produto:'Nexus Platform',
+          produto_badge:'badge-purple', produto_icon:'🖥️',
+          ultimo_acesso:admin?.ultimo_login, plano:planName(t.plano),
+          ativo:t.ativo, id:t.id, tipo:'platform'
+        };
+      }catch(e){return null}
     }));
-    tb.innerHTML=rows.map(({tenant:t,admin:u})=>`<tr>
-      <td><strong>${t.nome}</strong><br><small style="color:var(--text-3);font-family:JetBrains Mono,monospace">${t.slug}</small></td>
-      <td>${u?u.nome:'—'}</td>
-      <td>${u?`<small>${u.email}</small>`:'—'}</td>
-      <td><small style="font-family:JetBrains Mono,monospace">${u?.ultimo_login?new Date(u.ultimo_login).toLocaleString('pt-BR'):'Nunca'}</small></td>
-      <td>${badge(planName(t.plano))}</td>
-      <td>${t.ativo?'<span class="badge badge-green">Ativo</span>':'<span class="badge badge-red">Suspenso</span>'}</td>
-      <td>${t.ativo
-        ?`<button class="btn btn-danger btn-xs" onclick="toggleTenantPlatform('${t.id}',false)">🔒 Suspender</button>`
-        :`<button class="btn btn-success btn-xs" onclick="toggleTenantPlatform('${t.id}',true)">▶ Reativar</button>`}
-      </td>
+
+    const leadnowRows = (leadnow||[]).map(l=>({
+      nome:l.cliente_nome, slug:l.evento||'—', responsavel:'—',
+      email:'—', produto:'LeadNow', produto_badge:'badge-blue',
+      produto_icon:'⚡', ultimo_acesso:null, plano:l.status,
+      ativo:l.status==='Ativo', id:l.id, tipo:'leadnow'
+    }));
+
+    const todos=[...platformRows.filter(Boolean),...leadnowRows];
+    if(!todos.length){tb.innerHTML='<tr><td colspan="8"><div class="empty"><div class="empty-icon">🔑</div><div class="empty-text">Nenhum acesso cadastrado.</div></div></td></tr>';return}
+
+    tb.innerHTML=todos.map(r=>`<tr>
+      <td><strong>${r.nome}</strong><br><small style="color:var(--text-3);font-family:JetBrains Mono,monospace">${r.slug}</small></td>
+      <td>${r.responsavel}</td>
+      <td><small>${r.email}</small></td>
+      <td><span class="badge ${r.produto_badge}">${r.produto_icon} ${r.produto}</span></td>
+      <td><small style="font-family:JetBrains Mono,monospace">${r.ultimo_acesso?new Date(r.ultimo_acesso).toLocaleString('pt-BR'):'Nunca'}</small></td>
+      <td>${badge(r.plano)}</td>
+      <td>${r.ativo?'<span class="badge badge-green">Ativo</span>':'<span class="badge badge-red">Suspenso</span>'}</td>
+      <td>${r.tipo==='platform'
+        ?r.ativo
+          ?`<button class="btn btn-danger btn-xs" onclick="toggleTenantPlatform('${r.id}',false)">🔒</button>`
+          :`<button class="btn btn-success btn-xs" onclick="toggleTenantPlatform('${r.id}',true)">▶</button>`
+        :'—'
+      }</td>
     </tr>`).join('');
-  }catch(e){tb.innerHTML='<tr><td colspan="7"><div class="empty"><div class="empty-icon">⚠️</div><div class="empty-text">Erro ao carregar acessos.</div></div></td></tr>'}
+  }catch(e){tb.innerHTML='<tr><td colspan="8"><div class="empty"><div class="empty-icon">⚠️</div><div class="empty-text">Erro ao carregar acessos.</div></div></td></tr>'}
 }
 
 // ── FINANCEIRO ──
@@ -892,21 +915,44 @@ async function renderFinanceiro(){
 // ── STATS ──
 async function loadStats(){
   try{
-    const [s,ps]=await Promise.all([api('GET','/stats'),platformApi('GET','/stats').catch(()=>null)]);
+    const [s, ps, leadnow] = await Promise.all([
+      api('GET','/stats'),
+      platformApi('GET','/stats').catch(()=>null),
+      api('GET','/leadnow').catch(()=>[])
+    ]);
+
     if(s){
       document.getElementById('stat-contratos').textContent=s.contratos_ativos;
       document.getElementById('stat-mrr').textContent='R$'+s.mrr.toLocaleString('pt-BR',{minimumFractionDigits:0});
       document.getElementById('fin-mrr').textContent='R$'+s.mrr.toLocaleString('pt-BR',{minimumFractionDigits:0});
       document.getElementById('fin-contratos').textContent=s.contratos_ativos;
     }
+
+    // Clientes = tenants da platform + instâncias LeadNow (únicos)
+    let totalClientes = 0;
+    let totalAtivos = 0;
     if(ps){
-      document.getElementById('stat-clientes').textContent=ps.tenants_ativos;
-      document.getElementById('badge-clientes').textContent=ps.tenants_total;
+      totalClientes += ps.tenants_total||0;
+      totalAtivos += ps.tenants_ativos||0;
       document.getElementById('stat-tickets').textContent=ps.tickets_abertos;
       const slaEl=document.getElementById('stat-tickets-sla');
       if(ps.sla_violados>0){slaEl.textContent=`⚠️ ${ps.sla_violados} SLA violados`;slaEl.className='stat-delta down'}
       else{slaEl.textContent='✅ SLA em dia';slaEl.className='stat-delta up'}
     }
+    if(leadnow?.length){
+      // Contar clientes únicos do LeadNow que não estão na platform
+      totalClientes += leadnow.length;
+    }
+    document.getElementById('stat-clientes').textContent=totalAtivos||totalClientes;
+    document.getElementById('badge-clientes').textContent=totalClientes;
+
+    // Produtos ativos no dashboard
+    const produtos = [];
+    if(ps?.tenants_ativos) produtos.push(`🖥️ Nexus Platform: ${ps.tenants_ativos} tenants`);
+    if(leadnow?.length) produtos.push(`⚡ LeadNow: ${leadnow.filter(l=>l.status==='Ativo').length} instâncias`);
+    const deltaEl = document.getElementById('stat-clientes-delta');
+    if(deltaEl) deltaEl.textContent = produtos.join(' · ')||'Todos os produtos';
+
   }catch(e){}
 }
 
