@@ -1,10 +1,870 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <title>Nexus EF Business</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nexus EF Business — Tecnologia que conecta, automação que transforma</title>
+  <meta name="description" content="Desenvolvimento de software, integrações e automação de processos para empresas que querem crescer com tecnologia de verdade." />
+  <link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;600;700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --indigo:        #1E1B4B;
+      --indigo-mid:    #2D2A6E;
+      --purple:        #7C3AED;
+      --purple-light:  #9B5CF6;
+      --purple-glow:   rgba(124,58,237,0.15);
+      --white:         #FFFFFF;
+      --off-white:     #F5F4FF;
+      --gray-100:      #EEF0F8;
+      --gray-400:      #A8ACCA;
+      --gray-600:      #7478A0;
+      --text:          #1A1A2E;
+    }
+
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--white);
+      color: var(--text);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1rem 6%;
+      background: rgba(30,27,75,0.94);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(124,58,237,0.18);
+    }
+    .nav-logo {
+      display: flex; align-items: center; gap: 0.65rem;
+      text-decoration: none;
+    }
+    .logo-hex {
+      width: 36px; height: 36px;
+      position: relative; flex-shrink: 0;
+    }
+    .logo-hex svg { width: 100%; height: 100%; }
+    .nav-logo-text {
+      font-family: 'Lora', serif;
+      font-size: 1.2rem; font-weight: 700;
+      color: var(--white);
+      letter-spacing: -0.02em;
+      line-height: 1;
+    }
+    .nav-logo-text span { color: #C4B5FD; }
+    .nav-logo-sub {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.55rem; font-weight: 500;
+      color: rgba(255,255,255,0.4);
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      margin-top: 2px;
+    }
+    .nav-links { display: flex; gap: 2rem; list-style: none; }
+    .nav-links a {
+      color: rgba(255,255,255,0.82);
+      text-decoration: none;
+      font-size: 0.875rem; font-weight: 500;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--white); }
+    .nav-cta {
+      background: var(--purple);
+      color: var(--white) !important;
+      padding: 0.5rem 1.3rem;
+      border-radius: 7px;
+      font-weight: 600 !important;
+      transition: background 0.2s, transform 0.15s !important;
+    }
+    .nav-cta:hover { background: var(--purple-light) !important; transform: translateY(-1px) !important; }
+
+    /* ── HERO ── */
+    .hero {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #0f0d2a 0%, #1E1B4B 45%, #2D1B69 100%);
+      display: flex; align-items: center;
+      padding: 8rem 6% 5rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background:
+        radial-gradient(ellipse 55% 55% at 85% 45%, rgba(124,58,237,0.28) 0%, transparent 70%),
+        radial-gradient(ellipse 35% 35% at 15% 85%, rgba(124,58,237,0.14) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    /* Hexagon grid background */
+    .hero::after {
+      content: '';
+      position: absolute; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='64'%3E%3Cpath d='M28 2 L54 17 L54 47 L28 62 L2 47 L2 17 Z' fill='none' stroke='rgba(124,58,237,0.07)' stroke-width='1'/%3E%3C/svg%3E");
+      background-size: 56px 64px;
+      opacity: 0.6;
+      pointer-events: none;
+    }
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      align-items: center;
+      max-width: 1200px;
+      margin: 0 auto;
+      width: 100%;
+      position: relative; z-index: 1;
+    }
+    .hero-eyebrow {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.72rem; font-weight: 500;
+      color: #C4B5FD;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      margin-bottom: 1.5rem;
+      background: rgba(124,58,237,0.12);
+      border: 1px solid rgba(196,181,253,0.2);
+      padding: 0.35rem 0.9rem;
+      border-radius: 100px;
+    }
+    .hero-eyebrow::before {
+      content: '';
+      width: 6px; height: 6px; border-radius: 50%;
+      background: #C4B5FD;
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%,100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.8); }
+    }
+    .hero h1 {
+      font-family: 'Lora', serif;
+      font-size: clamp(2.5rem, 4.2vw, 3.8rem);
+      font-weight: 700;
+      color: var(--white);
+      line-height: 1.18;
+      letter-spacing: -0.025em;
+      margin-bottom: 1.5rem;
+    }
+    .hero h1 em {
+      font-style: normal;
+      background: linear-gradient(90deg, #C4B5FD, #818CF8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero-desc {
+      font-size: 1.05rem;
+      color: rgba(255,255,255,0.78);
+      max-width: 480px;
+      margin-bottom: 2.5rem;
+      line-height: 1.8;
+    }
+    .hero-actions { display: flex; gap: 1rem; flex-wrap: wrap; }
+    .btn-primary {
+      background: var(--purple);
+      color: var(--white);
+      padding: 0.9rem 2.1rem;
+      border-radius: 8px;
+      font-weight: 600; font-size: 0.95rem;
+      text-decoration: none;
+      transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+      display: inline-block;
+      box-shadow: 0 4px 20px rgba(124,58,237,0.35);
+    }
+    .btn-primary:hover {
+      background: var(--purple-light);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 28px rgba(124,58,237,0.45);
+    }
+    .btn-ghost {
+      border: 1.5px solid rgba(255,255,255,0.25);
+      color: rgba(255,255,255,0.88);
+      padding: 0.9rem 2.1rem;
+      border-radius: 8px;
+      font-weight: 500; font-size: 0.95rem;
+      text-decoration: none;
+      transition: border-color 0.2s, color 0.2s, background 0.2s;
+      display: inline-block;
+    }
+    .btn-ghost:hover {
+      border-color: rgba(196,181,253,0.5);
+      color: var(--white);
+      background: rgba(124,58,237,0.1);
+    }
+
+    /* Hero code card */
+    .hero-visual { display: flex; justify-content: center; align-items: center; }
+    .code-card {
+      background: rgba(15,13,42,0.7);
+      border: 1px solid rgba(124,58,237,0.28);
+      border-radius: 18px;
+      padding: 2rem;
+      width: 100%; max-width: 420px;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 24px 64px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.06);
+    }
+    .code-bar { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; align-items: center; }
+    .code-bar span { width: 10px; height: 10px; border-radius: 50%; }
+    .code-bar span:nth-child(1) { background: #FF5F57; }
+    .code-bar span:nth-child(2) { background: #FFBD2E; }
+    .code-bar span:nth-child(3) { background: #28CA41; }
+    .code-bar-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.68rem; color: rgba(255,255,255,0.3);
+      margin-left: auto; letter-spacing: 0.05em;
+    }
+    .code-lines { display: flex; flex-direction: column; gap: 0.55rem; }
+    .code-line {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.78rem;
+      display: flex; gap: 0.75rem; align-items: baseline;
+    }
+    .code-line .ln { color: rgba(255,255,255,0.18); min-width: 1.5rem; text-align: right; user-select: none; }
+    .kw  { color: #C084FC; }
+    .fn  { color: #60A5FA; }
+    .str { color: #86EFAC; }
+    .cm  { color: rgba(255,255,255,0.28); font-style: italic; }
+    .metrics {
+      display: grid; grid-template-columns: repeat(3,1fr);
+      gap: 1rem; margin-top: 1.5rem;
+      border-top: 1px solid rgba(255,255,255,0.07);
+      padding-top: 1.5rem;
+    }
+    .metric { text-align: center; }
+    .metric-val {
+      font-family: 'Lora', serif;
+      font-size: 1.5rem; font-weight: 700;
+      background: linear-gradient(90deg, #C4B5FD, #818CF8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .metric-lab { font-size: 0.68rem; color: rgba(255,255,255,0.45); margin-top: 0.2rem; }
+
+    /* ── SECTION BASE ── */
+    section { padding: 6rem 6%; }
+    .section-inner { max-width: 1200px; margin: 0 auto; }
+    .section-eyebrow {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem; font-weight: 500;
+      color: var(--purple);
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      margin-bottom: 0.75rem;
+    }
+    .section-title {
+      font-family: 'Lora', serif;
+      font-size: clamp(1.85rem, 3vw, 2.7rem);
+      font-weight: 700;
+      color: var(--indigo);
+      line-height: 1.22;
+      letter-spacing: -0.022em;
+      margin-bottom: 1rem;
+    }
+    .section-sub {
+      font-size: 1rem;
+      color: var(--gray-600);
+      max-width: 560px;
+      line-height: 1.75;
+    }
+
+    /* ── PRODUTOS ── */
+    #produtos { background: var(--off-white); }
+    .products-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 1.5rem;
+      margin-top: 3.5rem;
+    }
+    .product-card {
+      background: var(--white);
+      border: 1px solid var(--gray-100);
+      border-radius: 20px;
+      padding: 2.5rem;
+      transition: box-shadow 0.28s, transform 0.22s, border-color 0.28s;
+      position: relative; overflow: hidden;
+    }
+    .product-card::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--purple), var(--purple-light));
+      opacity: 0;
+      transition: opacity 0.28s;
+    }
+    .product-card:hover::before { opacity: 1; }
+    .product-card:hover {
+      box-shadow: 0 16px 48px rgba(124,58,237,0.12);
+      border-color: rgba(124,58,237,0.15);
+      transform: translateY(-4px);
+    }
+    .product-card.featured {
+      background: linear-gradient(150deg, #0f0d2a 0%, #1E1B4B 50%, #2D1B69 100%);
+      border-color: rgba(124,58,237,0.3);
+      box-shadow: 0 8px 40px rgba(0,0,0,0.25);
+    }
+    .product-card.featured::before { opacity: 1; }
+    .product-card.featured .product-tag { background: rgba(196,181,253,0.12); color: #C4B5FD; border-color: rgba(196,181,253,0.2); }
+    .product-card.featured .product-name { color: var(--white); }
+    .product-card.featured .product-desc { color: rgba(255,255,255,0.72); }
+    .product-card.featured .feature-item { color: rgba(255,255,255,0.78); }
+    .product-card.featured .feature-dot { background: #C4B5FD; }
+    .product-tag {
+      display: inline-block;
+      background: var(--purple-glow);
+      color: var(--purple);
+      border: 1px solid rgba(124,58,237,0.2);
+      font-size: 0.68rem; font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 0.28rem 0.75rem;
+      border-radius: 100px;
+      margin-bottom: 1.25rem;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .product-icon {
+      width: 52px; height: 52px;
+      background: linear-gradient(135deg, var(--purple), var(--purple-light));
+      border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 1.25rem;
+      font-size: 1.5rem;
+      box-shadow: 0 6px 20px rgba(124,58,237,0.3);
+    }
+    .product-name {
+      font-family: 'Lora', serif;
+      font-size: 1.5rem; font-weight: 700;
+      color: var(--indigo);
+      margin-bottom: 0.8rem;
+    }
+    .product-desc {
+      font-size: 0.91rem;
+      color: var(--gray-600);
+      line-height: 1.75;
+      margin-bottom: 1.75rem;
+    }
+    .features-list { list-style: none; display: flex; flex-direction: column; gap: 0.6rem; }
+    .feature-item {
+      display: flex; align-items: flex-start; gap: 0.7rem;
+      font-size: 0.86rem; color: var(--gray-600); line-height: 1.5;
+    }
+    .feature-dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--purple); flex-shrink: 0; margin-top: 0.45rem;
+    }
+
+    /* ── SERVIÇOS ── */
+    #servicos { background: var(--white); }
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.25rem;
+      margin-top: 3.5rem;
+    }
+    .service-card {
+      border: 1px solid var(--gray-100);
+      border-radius: 14px;
+      padding: 1.85rem;
+      transition: border-color 0.22s, box-shadow 0.22s, transform 0.22s;
+      position: relative; overflow: hidden;
+    }
+    .service-card:hover {
+      border-color: rgba(124,58,237,0.22);
+      box-shadow: 0 6px 24px rgba(124,58,237,0.08);
+      transform: translateY(-2px);
+    }
+    .service-icon { font-size: 1.75rem; margin-bottom: 1.1rem; display: block; }
+    .service-name {
+      font-family: 'Lora', serif;
+      font-size: 1.05rem; font-weight: 600;
+      color: var(--indigo);
+      margin-bottom: 0.55rem;
+    }
+    .service-desc { font-size: 0.86rem; color: var(--gray-600); line-height: 1.7; }
+
+    /* ── DIFERENCIAIS ── */
+    #diferenciais {
+      background: linear-gradient(150deg, #0f0d2a 0%, #1E1B4B 60%, #2a1860 100%);
+      position: relative; overflow: hidden;
+    }
+    #diferenciais::before {
+      content: '';
+      position: absolute; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='64'%3E%3Cpath d='M28 2 L54 17 L54 47 L28 62 L2 47 L2 17 Z' fill='none' stroke='rgba(124,58,237,0.06)' stroke-width='1'/%3E%3C/svg%3E");
+      background-size: 56px 64px;
+      pointer-events: none;
+    }
+    #diferenciais .section-inner { position: relative; z-index: 1; }
+    #diferenciais .section-eyebrow { color: #C4B5FD; }
+    #diferenciais .section-title { color: var(--white); }
+    #diferenciais .section-sub { color: rgba(255,255,255,0.65); }
+    .diff-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 1.25rem;
+      margin-top: 3.5rem;
+    }
+    .diff-card {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 14px;
+      padding: 2rem;
+      transition: background 0.25s, border-color 0.25s;
+    }
+    .diff-card:hover {
+      background: rgba(124,58,237,0.1);
+      border-color: rgba(124,58,237,0.3);
+    }
+    .diff-num {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.72rem;
+      color: #C4B5FD;
+      letter-spacing: 0.1em;
+      margin-bottom: 0.9rem;
+      font-weight: 500;
+    }
+    .diff-title {
+      font-family: 'Lora', serif;
+      font-size: 1.08rem; font-weight: 600;
+      color: var(--white);
+      margin-bottom: 0.55rem;
+    }
+    .diff-text {
+      font-size: 0.86rem;
+      color: rgba(255,255,255,0.62);
+      line-height: 1.7;
+    }
+
+    /* ── CTA / CONTATO ── */
+    #contato {
+      background: linear-gradient(135deg, #5B21B6 0%, var(--purple) 100%);
+      padding: 6rem 6%;
+      position: relative; overflow: hidden;
+    }
+    #contato::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse 60% 70% at 50% 0%, rgba(255,255,255,0.08) 0%, transparent 65%);
+      pointer-events: none;
+    }
+    #contato .section-inner { position: relative; z-index: 1; text-align: center; }
+    #contato .section-title { color: var(--white); }
+    #contato .section-sub { color: rgba(255,255,255,0.78); margin: 0 auto 2.5rem; }
+    .cta-actions { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; margin-bottom: 3rem; }
+    .btn-white {
+      background: var(--white);
+      color: var(--purple);
+      padding: 0.9rem 2.25rem;
+      border-radius: 8px;
+      font-weight: 700; font-size: 0.95rem;
+      text-decoration: none;
+      transition: transform 0.15s, box-shadow 0.2s;
+      display: inline-block;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+    }
+    .btn-white:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(0,0,0,0.18); }
+
+    /* Formulário */
+    .contact-form {
+      max-width: 640px;
+      margin: 0 auto;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.18);
+      border-radius: 18px;
+      padding: 2.5rem;
+      text-align: left;
+      backdrop-filter: blur(8px);
+    }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .form-group { display: flex; flex-direction: column; gap: 0.4rem; margin-bottom: 1rem; }
+    .form-group label { font-size: 0.8rem; font-weight: 600; color: rgba(255,255,255,0.88); letter-spacing: 0.02em; }
+    .form-group input,
+    .form-group textarea {
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.22);
+      border-radius: 9px;
+      padding: 0.8rem 1rem;
+      color: var(--white);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9rem;
+      outline: none;
+      transition: border-color 0.2s, background 0.2s;
+      resize: none;
+    }
+    .form-group input::placeholder,
+    .form-group textarea::placeholder { color: rgba(255,255,255,0.65); }
+    .form-group input:focus,
+    .form-group textarea:focus {
+      border-color: rgba(255,255,255,0.65);
+      background: rgba(255,255,255,0.14);
+    }
+    #submitBtn {
+      width: 100%; border: none; cursor: pointer;
+      font-family: 'Inter', sans-serif; font-size: 0.95rem;
+      margin-top: 0.5rem;
+    }
+    #submitBtn:disabled { opacity: 0.6; cursor: not-allowed; transform: none !important; }
+    .form-msg { text-align: center; margin-top: 0.85rem; font-size: 0.875rem; font-weight: 500; }
+    .form-msg.success { color: #86EFAC; }
+    .form-msg.error   { color: #FCA5A5; }
+
+    /* ── FOOTER ── */
+    footer {
+      background: #080614;
+      padding: 3rem 6%;
+      text-align: center;
+      border-top: 1px solid rgba(124,58,237,0.12);
+    }
+    .footer-logo-wrap { display: flex; align-items: center; justify-content: center; gap: 0.65rem; margin-bottom: 0.6rem; }
+    .footer-logo-text {
+      font-family: 'Lora', serif;
+      font-size: 1.1rem; font-weight: 700;
+      color: var(--white);
+    }
+    .footer-logo-text span { color: #C4B5FD; }
+    .footer-tagline { font-size: 0.8rem; color: rgba(255,255,255,0.32); margin-bottom: 1.75rem; letter-spacing: 0.05em; text-transform: uppercase; font-family: 'JetBrains Mono', monospace; }
+    .footer-links { display: flex; gap: 1.75rem; justify-content: center; flex-wrap: wrap; list-style: none; margin-bottom: 2rem; }
+    .footer-links a { font-size: 0.82rem; color: rgba(255,255,255,0.38); text-decoration: none; transition: color 0.2s; }
+    .footer-links a:hover { color: rgba(255,255,255,0.8); }
+    .footer-copy { font-size: 0.72rem; color: rgba(255,255,255,0.18); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 768px) {
+      .hero-grid { grid-template-columns: 1fr; gap: 3rem; }
+      .hero-visual { display: none; }
+      .nav-links { display: none; }
+      nav { padding: 1rem 5%; }
+      .form-row { grid-template-columns: 1fr; }
+      .contact-form { padding: 1.75rem; }
+    }
+
+    /* ── SCROLL REVEAL ── */
+    .reveal { opacity: 0; transform: translateY(28px); transition: opacity 0.65s ease, transform 0.65s ease; }
+    .reveal.visible { opacity: 1; transform: none; }
+  </style>
 </head>
 <body>
-  <h1>Nexus EF Business — Em breve!</h1>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-logo">
+    <div class="logo-hex">
+      <svg viewBox="0 0 40 46" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M20 2L38 12V34L20 44L2 34V12L20 2Z" fill="url(#hg)" stroke="rgba(196,181,253,0.3)" stroke-width="1"/>
+        <text x="20" y="29" text-anchor="middle" font-family="Lora,serif" font-size="14" font-weight="700" fill="white">N</text>
+        <defs>
+          <linearGradient id="hg" x1="2" y1="2" x2="38" y2="44" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stop-color="#7C3AED"/>
+            <stop offset="100%" stop-color="#4C1D95"/>
+          </linearGradient>
+        </defs>
+      </svg>
+    </div>
+    <div>
+      <div class="nav-logo-text">Nexus<span>EF</span></div>
+      <div class="nav-logo-sub">Business</div>
+    </div>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#produtos">Produtos</a></li>
+    <li><a href="#servicos">Serviços</a></li>
+    <li><a href="#diferenciais">Por que a Nexus</a></li>
+    <li><a href="#contato" class="nav-cta">Fale conosco</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-grid">
+    <div>
+      <p class="hero-eyebrow">Tecnologia B2B sob medida</p>
+      <h1>Conectamos sistemas.<br>Automatizamos<br><em>o que importa.</em></h1>
+      <p class="hero-desc">
+        Da integração ao desenvolvimento completo — entregamos soluções de tecnologia que realmente funcionam no dia a dia da sua empresa, sem enrolação e com resultado mensurável.
+      </p>
+      <div class="hero-actions">
+        <a href="#produtos" class="btn-primary">Conheça nossos produtos</a>
+        <a href="#contato" class="btn-ghost">Fale com a gente</a>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="code-card">
+        <div class="code-bar">
+          <span></span><span></span><span></span>
+          <span class="code-bar-title">nexus.config.js</span>
+        </div>
+        <div class="code-lines">
+          <div class="code-line"><span class="ln">01</span><span><span class="kw">import</span> <span class="fn">nexus</span> <span class="kw">from</span> <span class="str">'@nexusef/core'</span></span></div>
+          <div class="code-line"><span class="ln">02</span><span class="cm">// conectar e automatizar</span></div>
+          <div class="code-line"><span class="ln">03</span><span><span class="fn">nexus</span>.<span class="fn">integrate</span>(<span class="str">"erp"</span>, <span class="str">"crm"</span>, <span class="str">"slack"</span>)</span></div>
+          <div class="code-line"><span class="ln">04</span><span><span class="fn">nexus</span>.<span class="fn">automate</span>(<span class="str">"processos"</span>)</span></div>
+          <div class="code-line"><span class="ln">05</span><span><span class="fn">nexus</span>.<span class="fn">deploy</span>({ <span class="str">env</span>: <span class="str">"production"</span> })</span></div>
+          <div class="code-line"><span class="ln">06</span><span class="cm">// resultado garantido</span></div>
+          <div class="code-line"><span class="ln">07</span><span><span class="kw">return</span> { <span class="str">status</span>: <span class="str">"empresa transformada"</span> }</span></div>
+        </div>
+        <div class="metrics">
+          <div class="metric">
+            <div class="metric-val">+40%</div>
+            <div class="metric-lab">Produtividade</div>
+          </div>
+          <div class="metric">
+            <div class="metric-val">0</div>
+            <div class="metric-lab">Retrabalho</div>
+          </div>
+          <div class="metric">
+            <div class="metric-val">24/7</div>
+            <div class="metric-lab">Automações</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRODUTOS -->
+<section id="produtos">
+  <div class="section-inner">
+    <p class="section-eyebrow reveal">Produtos</p>
+    <h2 class="section-title reveal">Soluções próprias para<br>empresas que exigem mais</h2>
+    <p class="section-sub reveal">Desenvolvemos produtos que resolvem problemas reais — com inteligência, autonomia e escala.</p>
+
+    <div class="products-grid">
+
+      <div class="product-card featured reveal">
+        <div class="product-tag">Em breve</div>
+        <div class="product-icon">🖥️</div>
+        <div class="product-name">Nexus Platform</div>
+        <p class="product-desc">Plataforma de gestão de TI totalmente customizável para empresas que exigem controle real. Do ticket ao inventário, do SLA ao KPI — tudo em um único ambiente configurado para o seu negócio, do jeito que você precisa.</p>
+        <ul class="features-list">
+          <li class="feature-item"><span class="feature-dot"></span>Abertura de chamados por qualquer canal: Slack, Teams, Google Chat, e-mail, portal ou qualquer plataforma parametrizada</li>
+          <li class="feature-item"><span class="feature-dot"></span>Gestão completa de tickets com SLA configurável e alertas inteligentes</li>
+          <li class="feature-item"><span class="feature-dot"></span>Inventário robusto de ativos, equipamentos e acessórios</li>
+          <li class="feature-item"><span class="feature-dot"></span>KPIs poderosos e dashboard executivo em tempo real</li>
+          <li class="feature-item"><span class="feature-dot"></span>Relatórios totalmente personalizados por área, gestor ou período</li>
+          <li class="feature-item"><span class="feature-dot"></span>Base de conhecimento integrada para equipes e colaboradores</li>
+        </ul>
+      </div>
+
+      <div class="product-card reveal">
+        <div class="product-tag">Em breve</div>
+        <div class="product-icon">⚡</div>
+        <div class="product-name">LeadNow</div>
+        <p class="product-desc">Plataforma de inteligência conversacional para eventos B2B. Uma IA proprietária, treinada com a base de conhecimento do seu negócio, aborda visitantes, responde qualquer pergunta com precisão, qualifica cada lead automaticamente e registra toda a conversa — sem precisar de nenhuma pessoa presente no stand.</p>
+        <ul class="features-list">
+          <li class="feature-item"><span class="feature-dot"></span>IA proprietária com base de conhecimento do seu produto e empresa</li>
+          <li class="feature-item"><span class="feature-dot"></span>Registra e analisa cada conversa do evento em tempo real</li>
+          <li class="feature-item"><span class="feature-dot"></span>CRM próprio integrado — histórico completo de cada lead</li>
+          <li class="feature-item"><span class="feature-dot"></span>Qualificação automática e chamadas para aprofundar perfil</li>
+          <li class="feature-item"><span class="feature-dot"></span>Filtra os temas e perguntas mais recorrentes do evento</li>
+          <li class="feature-item"><span class="feature-dot"></span>Relatório executivo completo do evento com inteligência real</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- SERVIÇOS -->
+<section id="servicos">
+  <div class="section-inner">
+    <p class="section-eyebrow reveal">Serviços</p>
+    <h2 class="section-title reveal">Desenvolvemos qualquer solução<br>que sua empresa precisar</h2>
+    <p class="section-sub reveal">Se existe um processo manual, uma lacuna entre sistemas ou uma rotina que toma tempo demais — a Nexus resolve.</p>
+
+    <div class="services-grid">
+      <div class="service-card reveal">
+        <span class="service-icon">🔗</span>
+        <div class="service-name">Integrações de Sistemas</div>
+        <p class="service-desc">Conectamos ERPs, CRMs, plataformas de e-commerce, APIs e ferramentas internas para que seus dados fluam automaticamente entre sistemas, sem duplicidade e sem erro humano.</p>
+      </div>
+      <div class="service-card reveal">
+        <span class="service-icon">⚙️</span>
+        <div class="service-name">Automação de Processos</div>
+        <p class="service-desc">Eliminamos tarefas repetitivas com automações inteligentes — usando n8n, webhooks e scripts personalizados adaptados ao seu fluxo real de trabalho.</p>
+      </div>
+      <div class="service-card reveal">
+        <span class="service-icon">💻</span>
+        <div class="service-name">Desenvolvimento sob Medida</div>
+        <p class="service-desc">Criamos sistemas, APIs, painéis e aplicações web completas desde o zero — com foco em performance, segurança e escalabilidade para crescer com você.</p>
+      </div>
+      <div class="service-card reveal">
+        <span class="service-icon">☁️</span>
+        <div class="service-name">Infraestrutura e Cloud</div>
+        <p class="service-desc">Configuração, migração e gerenciamento de infraestrutura em nuvem — AWS, VPS, Docker, Nginx, SSL e tudo que sustenta sua operação digital com estabilidade.</p>
+      </div>
+      <div class="service-card reveal">
+        <span class="service-icon">🤖</span>
+        <div class="service-name">IA Aplicada ao Negócio</div>
+        <p class="service-desc">Implementamos inteligência artificial que gera valor real: agentes conversacionais, assistentes com base de conhecimento, análise de dados e automação cognitiva.</p>
+      </div>
+      <div class="service-card reveal">
+        <span class="service-icon">📊</span>
+        <div class="service-name">Dashboards e Relatórios</div>
+        <p class="service-desc">Transformamos dados dispersos em painéis visuais e relatórios estratégicos que ajudam gestores a tomar decisões com clareza, velocidade e segurança.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DIFERENCIAIS -->
+<section id="diferenciais">
+  <div class="section-inner">
+    <p class="section-eyebrow reveal">Por que a Nexus</p>
+    <h2 class="section-title reveal">Tecnologia sem enrolação,<br>resultado sem surpresa</h2>
+    <p class="section-sub reveal">Trabalhamos como um parceiro interno, não como um fornecedor externo. Entendemos o problema antes de propor qualquer solução.</p>
+
+    <div class="diff-grid">
+      <div class="diff-card reveal">
+        <div class="diff-num">01 —</div>
+        <div class="diff-title">Foco em resultado</div>
+        <p class="diff-text">Não entregamos código — entregamos processos funcionando. O sucesso é medido pelo impacto real no seu negócio, não por linhas escritas.</p>
+      </div>
+      <div class="diff-card reveal">
+        <div class="diff-num">02 —</div>
+        <div class="diff-title">Sem burocracia</div>
+        <p class="diff-text">Comunicação direta, escopo claro e entregas objetivas. Você sabe exatamente o que está sendo feito, por quê e quando vai ficar pronto.</p>
+      </div>
+      <div class="diff-card reveal">
+        <div class="diff-num">03 —</div>
+        <div class="diff-title">Stack moderna</div>
+        <p class="diff-text">Usamos as melhores tecnologias do mercado — não a que é mais fácil pra nós, mas a que faz mais sentido para o seu projeto e o seu time.</p>
+      </div>
+      <div class="diff-card reveal">
+        <div class="diff-num">04 —</div>
+        <div class="diff-title">Parceria de longo prazo</div>
+        <p class="diff-text">Não sumimos após a entrega. Evoluímos os sistemas junto com a sua empresa, com suporte contínuo e melhorias que acompanham o seu crescimento.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section id="contato">
+  <div class="section-inner">
+    <h2 class="section-title reveal">Pronto para transformar<br>sua operação?</h2>
+    <p class="section-sub reveal">Conte o seu desafio. A gente analisa, propõe e executa — do diagnóstico à solução em produção.</p>
+    <div class="cta-actions reveal">
+      <a href="https://wa.me/5511926461357?text=Olá! Vim pelo site da Nexus EF Business e gostaria de conversar sobre uma solução." class="btn-white" target="_blank">💬 Falar no WhatsApp</a>
+    </div>
+
+    <div class="contact-form reveal">
+      <form id="contactForm">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="nome">Nome</label>
+            <input type="text" id="nome" placeholder="Seu nome completo" required />
+          </div>
+          <div class="form-group">
+            <label for="email">E-mail</label>
+            <input type="email" id="email" placeholder="seu@email.com" required />
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="empresa">Empresa</label>
+          <input type="text" id="empresa" placeholder="Nome da sua empresa" />
+        </div>
+        <div class="form-group">
+          <label for="mensagem">Como podemos ajudar?</label>
+          <textarea id="mensagem" rows="4" placeholder="Descreva brevemente o que você precisa..." required></textarea>
+        </div>
+        <button type="submit" class="btn-white" id="submitBtn">Enviar mensagem →</button>
+        <div id="formMsg" class="form-msg"></div>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo-wrap">
+    <svg width="28" height="32" viewBox="0 0 40 46" fill="none">
+      <path d="M20 2L38 12V34L20 44L2 34V12L20 2Z" fill="url(#fg)" stroke="rgba(196,181,253,0.25)" stroke-width="1"/>
+      <text x="20" y="29" text-anchor="middle" font-family="Lora,serif" font-size="14" font-weight="700" fill="white">N</text>
+      <defs>
+        <linearGradient id="fg" x1="2" y1="2" x2="38" y2="44" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stop-color="#7C3AED"/>
+          <stop offset="100%" stop-color="#4C1D95"/>
+        </linearGradient>
+      </defs>
+    </svg>
+    <div class="footer-logo-text">Nexus<span>EF</span> Business</div>
+  </div>
+  <p class="footer-tagline">Soluções · Integrações · Automação</p>
+  <ul class="footer-links">
+    <li><a href="#produtos">Produtos</a></li>
+    <li><a href="#servicos">Serviços</a></li>
+    <li><a href="#diferenciais">Por que a Nexus</a></li>
+    <li><a href="#contato">Contato</a></li>
+  </ul>
+  <p class="footer-copy">© 2026 Nexus EF Business. Todos os direitos reservados.</p>
+</footer>
+
+<script>
+  // Scroll reveal
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry, i) => {
+      if (entry.isIntersecting) {
+        setTimeout(() => entry.target.classList.add('visible'), i * 70);
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.08 });
+  reveals.forEach(el => observer.observe(el));
+
+  // Formulário via Web3Forms
+  document.getElementById('contactForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const btn = document.getElementById('submitBtn');
+    const msg = document.getElementById('formMsg');
+    btn.disabled = true;
+    btn.textContent = 'Enviando...';
+    msg.className = 'form-msg';
+    msg.textContent = '';
+
+    const data = {
+      access_key: 'COLOQUE_SUA_CHAVE_WEB3FORMS_AQUI',
+      name:    document.getElementById('nome').value,
+      email:   document.getElementById('email').value,
+      company: document.getElementById('empresa').value,
+      message: document.getElementById('mensagem').value,
+      to:      'kikoh25@hotmail.com',
+      subject: 'Novo contato pelo site — Nexus EF Business',
+    };
+
+    try {
+      const res  = await fetch('https://api.web3forms.com/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      const json = await res.json();
+      if (json.success) {
+        msg.className = 'form-msg success';
+        msg.textContent = '✓ Mensagem enviada! Retornaremos em breve.';
+        this.reset();
+      } else { throw new Error(); }
+    } catch {
+      msg.className = 'form-msg error';
+      msg.textContent = '✗ Erro ao enviar. Tente pelo WhatsApp.';
+    }
+    btn.disabled = false;
+    btn.textContent = 'Enviar mensagem →';
+  });
+
+  // Nav scroll
+  window.addEventListener('scroll', () => {
+    document.querySelector('nav').style.background =
+      window.scrollY > 40 ? 'rgba(15,13,42,0.98)' : 'rgba(30,27,75,0.94)';
+  });
+</script>
+
 </body>
 </html>
