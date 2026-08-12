@@ -299,7 +299,26 @@ async function enviarRecuperacao(){
 
 function redirectTo(product){
   showStep('redirect');
-  setTimeout(()=>{ window.location.href = product.url; }, 1200);
+  if(product.id === 'platform'){
+    // Login automático via form POST na Nexus Platform
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = 'https://ti.nexusefbusiness.com.br/auth/login';
+    form.style.display = 'none';
+    const addField = (name, value) => {
+      const input = document.createElement('input');
+      input.type = 'hidden';
+      input.name = name;
+      input.value = value;
+      form.appendChild(input);
+    };
+    addField('email', userEmail);
+    addField('senha', document.getElementById('input-senha').value);
+    document.body.appendChild(form);
+    form.submit();
+  } else {
+    setTimeout(()=>{ window.location.href = product.url; }, 1200);
+  }
 }
 
 function showError(id, msg){
