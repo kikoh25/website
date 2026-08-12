@@ -300,22 +300,24 @@ async function enviarRecuperacao(){
 function redirectTo(product){
   showStep('redirect');
   if(product.id === 'platform'){
-    // Login automático via form POST na Nexus Platform
-    const form = document.createElement('form');
-    form.method = 'POST';
-    form.action = 'https://ti.nexusefbusiness.com.br/auth/login';
-    form.style.display = 'none';
-    const addField = (name, value) => {
-      const input = document.createElement('input');
-      input.type = 'hidden';
-      input.name = name;
-      input.value = value;
-      form.appendChild(input);
-    };
-    addField('email', userEmail);
-    addField('senha', document.getElementById('input-senha').value);
-    document.body.appendChild(form);
-    form.submit();
+    // Login via fetch para pegar o redirect e seguir com cookies
+    const formData = new FormData();
+    formData.append('email', userEmail);
+    formData.append('senha', document.getElementById('input-senha').value);
+    fetch('https://ti.nexusefbusiness.com.br/auth/login', {
+      method: 'POST',
+      body: formData,
+      credentials: 'include'
+    })
+    .then(r => r.json())
+    .then(d => {
+      if(d.redirect){
+        window.location.href = 'https://ti.nexusefbusiness.com.br' + d.redirect;
+      } else {
+        window.location.href = 'https://ti.nexusefbusiness.com.br';
+      }
+    })
+    .catch(()=>{ window.location.href = 'https://ti.nexusefbusiness.com.br'; });
   } else {
     setTimeout(()=>{ window.location.href = product.url; }, 1200);
   }
