@@ -230,19 +230,16 @@ async function doLogin(){
   // Tentar login na Nexus Platform
   if(foundProducts.find(p=>p.id==='platform')){
     try{
-      const form = new FormData();
-      form.append('username', userEmail);
-      form.append('password', senha);
-      const r = await fetch(PLATFORM_API+'/token', {method:'POST', body:form});
+      const r = await fetch(PLATFORM_API+'/login-usuario', {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({email: userEmail, password: senha})
+      });
       if(r.ok){
+        const d = await r.json();
         loggedIn = true;
-        loggedProducts = foundProducts;
-        // Pegar nome do usuário
-        const token = (await r.json()).access_token;
-        try{
-          const me = await fetch(PLATFORM_API+'/me', {headers:{'Authorization':'Bearer '+token}});
-          if(me.ok){const d=await me.json(); userName=d.nome||userEmail.split('@')[0];}
-        }catch(e){userName=userEmail.split('@')[0];}
+        loggedProducts = [{id:'platform', nome:'Nexus Platform', desc:'Helpdesk e gestão de TI', icon:'🖥️', url: d.redirect||PLATFORM_URL}];
+        userName = d.nome || userEmail.split('@')[0];
       }
     }catch(e){}
   }
