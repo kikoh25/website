@@ -342,3 +342,20 @@ def cadastro(data: CadastroIn, db: Session = Depends(get_db)):
         "email": data.email,
         "message": "Conta criada com sucesso!"
     }
+
+# ── VERIFICAR EMAIL (para login unificado) ──
+class EmailCheck(BaseModel):
+    email: str
+
+@app.post("/verificar-email")
+def verificar_email(data: EmailCheck, db: Session = Depends(get_db)):
+    row = db.execute(text("SELECT id, nome FROM users WHERE email = :email AND ativo = true"), {"email": data.email}).fetchone()
+    if row:
+        return {"exists": True, "nome": row.nome}
+    return {"exists": False}
+
+@app.get("/me")
+def get_me(user=Depends(get_current_user), db: Session = Depends(get_db)):
+    row = db.execute(text("SELECT id, nome, email, role FROM users WHERE email = :email AND ativo = true"), {"email": user}).fetchone()
+    if not row: raise HTTPException(404)
+    return dict(row._mapping)
