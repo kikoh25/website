@@ -270,9 +270,9 @@ class CadastroIn(BaseModel):
     plano: str = "free"
 
 PLANOS = {
-    "free":    {"max_tecnicos": 1,  "max_usuarios": 3,   "max_ativos": 5,   "plano_ativo": True},
-    "starter": {"max_tecnicos": 2,  "max_usuarios": 20,  "max_ativos": 50,  "plano_ativo": True},
-    "pro":     {"max_tecnicos": 5,  "max_usuarios": 100, "max_ativos": 300, "plano_ativo": True},
+    "free":    {"plano_db": "trial",    "max_tecnicos": 1,  "max_usuarios": 3,   "max_ativos": 5,   "plano_ativo": True},
+    "starter": {"plano_db": "chamados", "max_tecnicos": 2,  "max_usuarios": 20,  "max_ativos": 50,  "plano_ativo": True},
+    "pro":     {"plano_db": "completo", "max_tecnicos": 5,  "max_usuarios": 100, "max_ativos": 300, "plano_ativo": True},
 }
 
 @app.post("/cadastro", status_code=201)
@@ -313,7 +313,7 @@ def cadastro(data: CadastroIn, db: Session = Depends(get_db)):
     """), {
         "id": tenant_id, "nome": data.empresa, "slug": data.slug,
         "cnpj": data.cnpj, "email": data.email, "tel": data.telefone,
-        "plano": data.plano, "plano_ativo": config["plano_ativo"],
+        "plano": config["plano_db"], "plano_ativo": config["plano_ativo"],
         "max_tec": config["max_tecnicos"], "max_usr": config["max_usuarios"],
         "max_atv": config["max_ativos"]
     })
