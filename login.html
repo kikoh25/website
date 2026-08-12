@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Acessar minha conta — Nexus EF Business</title>
+  <link href="https://fonts.googleapis.com/css2?family=Lora:wght@600;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --indigo:#1E1B4B;--indigo-deep:#0f0d2a;
+      --purple:#7C3AED;--purple-light:#9B5CF6;
+      --white:#fff;--bg:#F7F6FF;
+      --border:#ECEAF8;--text:#18182A;--text-2:#52557A;--text-3:#9096B8;
+      --green:#10B981;--red:#EF4444;
+    }
+    html{scroll-behavior:smooth}
+    body{font-family:'Inter',sans-serif;background:linear-gradient(135deg,var(--indigo-deep) 0%,var(--indigo) 55%,#2D1B69 100%);min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:1.5rem;position:relative;overflow:hidden}
+    body::before{content:'';position:absolute;inset:0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='64'%3E%3Cpath d='M28 2 L54 17 L54 47 L28 62 L2 47 L2 17 Z' fill='none' stroke='rgba(124,58,237,0.07)' stroke-width='1'/%3E%3C/svg%3E");background-size:56px 64px;pointer-events:none}
+
+    /* CARD */
+    .card{position:relative;z-index:1;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:20px;padding:2.5rem;width:100%;max-width:420px;backdrop-filter:blur(16px);box-shadow:0 24px 64px rgba(0,0,0,.4)}
+
+    /* LOGO */
+    .logo{display:flex;align-items:center;gap:.65rem;justify-content:center;margin-bottom:2rem;text-decoration:none}
+    .logo svg{width:38px;height:38px}
+    .logo-text{font-family:'Lora',serif;font-size:1.2rem;font-weight:700;color:#fff}
+    .logo-text span{color:#C4B5FD}
+
+    /* STEPS */
+    .step{display:none}
+    .step.active{display:block}
+
+    .step-title{font-family:'Lora',serif;font-size:1.4rem;font-weight:700;color:#fff;margin-bottom:.35rem;text-align:center}
+    .step-sub{font-size:.83rem;color:rgba(255,255,255,.55);text-align:center;margin-bottom:2rem;line-height:1.6}
+
+    /* FORM */
+    .form-group{display:flex;flex-direction:column;gap:.4rem;margin-bottom:1rem}
+    .form-group label{font-size:.78rem;font-weight:600;color:rgba(255,255,255,.75);letter-spacing:.02em}
+    .form-group input{background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.18);border-radius:9px;padding:.8rem 1rem;color:#fff;font-family:'Inter',sans-serif;font-size:.9rem;outline:none;transition:border-color .2s;width:100%}
+    .form-group input::placeholder{color:rgba(255,255,255,.32)}
+    .form-group input:focus{border-color:rgba(196,181,253,.6)}
+
+    .btn-primary{width:100%;background:var(--purple);color:#fff;border:none;border-radius:9px;padding:.9rem;font-family:'Inter',sans-serif;font-size:.95rem;font-weight:700;cursor:pointer;margin-top:.5rem;transition:background .2s,transform .15s;box-shadow:0 4px 16px rgba(124,58,237,.4);display:flex;align-items:center;justify-content:center;gap:.5rem}
+    .btn-primary:hover{background:var(--purple-light);transform:translateY(-1px)}
+    .btn-primary:disabled{opacity:.6;cursor:not-allowed;transform:none}
+
+    .error-msg{color:#FCA5A5;font-size:.82rem;text-align:center;margin-top:.75rem;display:none;line-height:1.5}
+    .back-link{display:block;text-align:center;margin-top:1.25rem;font-size:.8rem;color:rgba(255,255,255,.4);cursor:pointer;transition:color .2s}
+    .back-link:hover{color:rgba(255,255,255,.8)}
+
+    /* SPINNER */
+    .spinner{width:18px;height:18px;border:2.5px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0}
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    /* PRODUCTS */
+    .products-grid{display:flex;flex-direction:column;gap:.85rem;margin-top:.5rem}
+    .product-btn{display:flex;align-items:center;gap:1rem;background:rgba(255,255,255,.06);border:1.5px solid rgba(255,255,255,.12);border-radius:12px;padding:1.1rem 1.25rem;cursor:pointer;transition:all .2s;text-align:left;width:100%}
+    .product-btn:hover{background:rgba(124,58,237,.2);border-color:rgba(196,181,253,.3);transform:translateY(-1px)}
+    .product-icon{font-size:1.6rem;flex-shrink:0}
+    .product-info-name{font-size:.95rem;font-weight:700;color:#fff;margin-bottom:.2rem}
+    .product-info-desc{font-size:.75rem;color:rgba(255,255,255,.5)}
+    .product-arrow{margin-left:auto;color:rgba(255,255,255,.3);font-size:1.1rem}
+
+    /* BOTTOM LINKS */
+    .bottom-links{position:relative;z-index:1;margin-top:1.75rem;display:flex;gap:1.5rem;justify-content:center;flex-wrap:wrap}
+    .bottom-links a{font-size:.78rem;color:rgba(255,255,255,.35);text-decoration:none;transition:color .2s}
+    .bottom-links a:hover{color:rgba(255,255,255,.7)}
+
+    /* Greet */
+    .greet{background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.2);border-radius:10px;padding:.85rem 1rem;margin-bottom:1.5rem;display:flex;align-items:center;gap:.65rem}
+    .greet-icon{font-size:1.2rem;flex-shrink:0}
+    .greet-text{font-size:.82rem;color:rgba(255,255,255,.75);line-height:1.5}
+    .greet-name{font-weight:700;color:#fff}
+  </style>
+</head>
+<body>
+
+<div class="card">
+  <a href="/" class="logo">
+    <svg viewBox="0 0 40 46" fill="none"><path d="M20 2L38 12V34L20 44L2 34V12L20 2Z" fill="url(#lg)" stroke="rgba(196,181,253,0.25)" stroke-width="1"/><text x="20" y="29" text-anchor="middle" font-family="Lora,serif" font-size="14" font-weight="700" fill="white">N</text><defs><linearGradient id="lg" x1="2" y1="2" x2="38" y2="44"><stop offset="0%" stop-color="#7C3AED"/><stop offset="100%" stop-color="#4C1D95"/></linearGradient></defs></svg>
+    <div class="logo-text">Nexus<span>EF</span> Business</div>
+  </a>
+
+  <!-- STEP 1: EMAIL -->
+  <div class="step active" id="step-email">
+    <div class="step-title">Bem-vindo de volta</div>
+    <div class="step-sub">Digite seu e-mail para continuar</div>
+    <div class="form-group">
+      <label>E-mail</label>
+      <input type="email" id="input-email" placeholder="seu@email.com" autocomplete="email" onkeydown="if(event.key==='Enter')checkEmail()"/>
+    </div>
+    <button class="btn-primary" id="btn-email" onclick="checkEmail()">
+      <span id="btn-email-text">Continuar</span>
+    </button>
+    <div class="error-msg" id="err-email">E-mail não encontrado em nenhum produto Nexus.</div>
+  </div>
+
+  <!-- STEP 2: SENHA -->
+  <div class="step" id="step-senha">
+    <div class="step-title">Digite sua senha</div>
+    <div class="step-sub" id="step-senha-sub">Entrando como <strong id="email-display"></strong></div>
+    <div class="form-group">
+      <label>Senha</label>
+      <input type="password" id="input-senha" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"/>
+    </div>
+    <button class="btn-primary" id="btn-senha" onclick="doLogin()">
+      <span id="btn-senha-text">Entrar</span>
+    </button>
+    <div class="error-msg" id="err-senha">E-mail ou senha incorretos.</div>
+    <div class="back-link" onclick="goBack()">← Usar outro e-mail</div>
+  </div>
+
+  <!-- STEP 3: ESCOLHER PRODUTO -->
+  <div class="step" id="step-produtos">
+    <div class="greet">
+      <div class="greet-icon">👋</div>
+      <div class="greet-text">Olá, <span class="greet-name" id="greet-name">—</span>! Escolha o produto que deseja acessar:</div>
+    </div>
+    <div class="products-grid" id="products-grid"></div>
+    <div class="back-link" onclick="goBack()">← Voltar</div>
+  </div>
+
+  <!-- STEP 4: REDIRECIONANDO -->
+  <div class="step" id="step-redirect">
+    <div style="text-align:center;padding:1.5rem 0">
+      <div class="spinner" style="width:40px;height:40px;border-width:3px;margin:0 auto 1.5rem"></div>
+      <div class="step-title" style="margin-bottom:.5rem">Acessando...</div>
+      <div class="step-sub">Você será redirecionado em instantes.</div>
+    </div>
+  </div>
+</div>
+
+<div class="bottom-links">
+  <a href="/cadastro.html">Criar conta grátis</a>
+  <a href="/">Voltar ao site</a>
+  <a href="https://wa.me/5511926461357" target="_blank">Suporte</a>
+</div>
+
+<script>
+const PLATFORM_API = 'https://platform-api.nexusefbusiness.com.br';
+const PLATFORM_URL = 'https://ti.nexusefbusiness.com.br';
+
+let foundProducts = [];
+let userEmail = '';
+let userName = '';
+
+function showStep(id){
+  document.querySelectorAll('.step').forEach(s=>s.classList.remove('active'));
+  document.getElementById('step-'+id).classList.add('active');
+}
+
+function goBack(){
+  showStep('email');
+  foundProducts = [];
+  userEmail = '';
+}
+
+// STEP 1 — Verificar em qual produto o email existe
+async function checkEmail(){
+  const email = document.getElementById('input-email').value.trim();
+  if(!email || !email.includes('@')){
+    showError('err-email','Digite um e-mail válido.');
+    return;
+  }
+  userEmail = email;
+  document.getElementById('err-email').style.display='none';
+  const btn = document.getElementById('btn-email');
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner"></div> Verificando...';
+
+  const products = [];
+
+  // Verificar Nexus Platform
+  try{
+    const r = await fetch(PLATFORM_API+'/verificar-email', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({email})
+    });
+    if(r.ok){
+      const d = await r.json();
+      if(d.exists) products.push({id:'platform', nome:'Nexus Platform', desc:'Helpdesk e gestão de TI', icon:'🖥️', url: PLATFORM_URL});
+    }
+  }catch(e){}
+
+  // Aqui futuramente verificar LeadNow, etc.
+
+  btn.disabled = false;
+  btn.innerHTML = '<span id="btn-email-text">Continuar</span>';
+
+  if(!products.length){
+    showError('err-email','E-mail não encontrado em nenhum produto Nexus.<br>Deseja <a href="/cadastro.html" style="color:#C4B5FD">criar uma conta grátis</a>?');
+    return;
+  }
+
+  foundProducts = products;
+  document.getElementById('email-display').textContent = email;
+  showStep('senha');
+  setTimeout(()=>document.getElementById('input-senha').focus(), 100);
+}
+
+// STEP 2 — Login
+async function doLogin(){
+  const senha = document.getElementById('input-senha').value;
+  if(!senha){showError('err-senha','Digite sua senha.');return}
+  document.getElementById('err-senha').style.display='none';
+  const btn = document.getElementById('btn-senha');
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner"></div> Entrando...';
+
+  let loggedIn = false;
+  let loggedProducts = [];
+
+  // Tentar login na Nexus Platform
+  if(foundProducts.find(p=>p.id==='platform')){
+    try{
+      const form = new FormData();
+      form.append('username', userEmail);
+      form.append('password', senha);
+      const r = await fetch(PLATFORM_API+'/token', {method:'POST', body:form});
+      if(r.ok){
+        loggedIn = true;
+        loggedProducts = foundProducts;
+        // Pegar nome do usuário
+        const token = (await r.json()).access_token;
+        try{
+          const me = await fetch(PLATFORM_API+'/me', {headers:{'Authorization':'Bearer '+token}});
+          if(me.ok){const d=await me.json(); userName=d.nome||userEmail.split('@')[0];}
+        }catch(e){userName=userEmail.split('@')[0];}
+      }
+    }catch(e){}
+  }
+
+  btn.disabled = false;
+  btn.innerHTML = '<span>Entrar</span>';
+
+  if(!loggedIn){
+    showError('err-senha','E-mail ou senha incorretos.');
+    return;
+  }
+
+  // Se só tem 1 produto, redireciona direto
+  if(loggedProducts.length === 1){
+    redirectTo(loggedProducts[0]);
+    return;
+  }
+
+  // Se tem mais de 1, mostra escolha
+  document.getElementById('greet-name').textContent = userName;
+  const grid = document.getElementById('products-grid');
+  grid.innerHTML = loggedProducts.map(p=>`
+    <button class="product-btn" onclick="redirectTo(${JSON.stringify(p).replace(/"/g,'&quot;')})">
+      <div class="product-icon">${p.icon}</div>
+      <div><div class="product-info-name">${p.nome}</div><div class="product-info-desc">${p.desc}</div></div>
+      <div class="product-arrow">→</div>
+    </button>
+  `).join('');
+  showStep('produtos');
+}
+
+function redirectTo(product){
+  showStep('redirect');
+  setTimeout(()=>{ window.location.href = product.url; }, 1200);
+}
+
+function showError(id, msg){
+  const el = document.getElementById(id);
+  el.innerHTML = msg;
+  el.style.display = 'block';
+}
+</script>
+</body>
+</html>
