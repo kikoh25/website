@@ -300,19 +300,16 @@ async function enviarRecuperacao(){
 function redirectTo(product){
   showStep('redirect');
   if(product.id === 'platform'){
-    // Login via fetch para pegar o redirect e seguir com cookies
-    const formData = new FormData();
-    formData.append('email', userEmail);
-    formData.append('senha', document.getElementById('input-senha').value);
-    fetch('https://ti.nexusefbusiness.com.br/auth/login', {
+    // Gerar token de autologin e redirecionar
+    fetch(PLATFORM_API+'/gerar-autologin', {
       method: 'POST',
-      body: formData,
-      credentials: 'include'
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({email: userEmail, password: document.getElementById('input-senha').value})
     })
     .then(r => r.json())
     .then(d => {
-      if(d.redirect){
-        window.location.href = 'https://ti.nexusefbusiness.com.br' + d.redirect;
+      if(d.token){
+        window.location.href = 'https://ti.nexusefbusiness.com.br/auth/autologin?token=' + d.token;
       } else {
         window.location.href = 'https://ti.nexusefbusiness.com.br';
       }
