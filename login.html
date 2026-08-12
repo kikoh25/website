@@ -108,7 +108,22 @@
       <span id="btn-senha-text">Entrar</span>
     </button>
     <div class="error-msg" id="err-senha">E-mail ou senha incorretos.</div>
+    <div style="text-align:right;margin-top:.5rem">
+      <span onclick="esqueci()" style="font-size:.78rem;color:rgba(255,255,255,.4);cursor:pointer;transition:color .2s" onmouseover="this.style.color='rgba(196,181,253,.8)'" onmouseout="this.style.color='rgba(255,255,255,.4)'">Esqueci minha senha</span>
+    </div>
     <div class="back-link" onclick="goBack()">← Usar outro e-mail</div>
+  </div>
+
+  <!-- STEP ESQUECI: recuperação -->
+  <div class="step" id="step-esqueci">
+    <div class="step-title">Recuperar senha</div>
+    <div class="step-sub">Enviaremos um link para redefinir sua senha.</div>
+    <div style="background:rgba(255,255,255,.06);border-radius:10px;padding:.85rem 1rem;margin-bottom:1.5rem;font-size:.85rem;color:rgba(255,255,255,.7)">📧 <span id="esqueci-email"></span></div>
+    <button class="btn-primary" id="btn-esqueci" onclick="enviarRecuperacao()">
+      <span id="btn-esqueci-text">Enviar link de redefinição</span>
+    </button>
+    <div class="error-msg" id="msg-esqueci" style="display:none"></div>
+    <div class="back-link" onclick="showStep('senha')">← Voltar</div>
   </div>
 
   <!-- STEP 3: ESCOLHER PRODUTO -->
@@ -257,6 +272,32 @@ async function doLogin(){
     </button>
   `).join('');
   showStep('produtos');
+}
+
+function esqueci(){
+  document.getElementById('esqueci-email').textContent = userEmail;
+  showStep('esqueci');
+}
+
+async function enviarRecuperacao(){
+  const btn = document.getElementById('btn-esqueci');
+  const msg = document.getElementById('msg-esqueci');
+  btn.disabled=true;
+  btn.innerHTML='<div class="spinner"></div> Enviando...';
+  msg.style.display='none';
+  try{
+    const r = await fetch(PLATFORM_API+'/esqueci-senha',{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({email: userEmail})
+    });
+    msg.style.cssText='display:block;color:#86EFAC;font-size:.85rem;text-align:center;margin-top:.75rem';
+    msg.textContent='✓ Link enviado! Verifique seu e-mail.';
+  }catch(e){
+    msg.style.cssText='display:block;color:#FCA5A5;font-size:.85rem;text-align:center;margin-top:.75rem';
+    msg.textContent='Erro ao enviar. Tente novamente.';
+  }
+  btn.disabled=false;
+  btn.innerHTML='<span>Enviar link de redefinição</span>';
 }
 
 function redirectTo(product){
