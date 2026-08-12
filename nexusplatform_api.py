@@ -128,7 +128,7 @@ def update_tenant_status(tenant_id: str, data: TenantStatusUpdate, db: Session =
     return {"ok": True, "ativo": data.ativo}
 
 LIMITES_PLANO = {
-    "trial":     {"max_tecnicos": 1,  "max_usuarios": 3,   "max_ativos": 5},
+    "trial":     {"max_tecnicos": 1,  "max_usuarios": 5,   "max_ativos": 15},
     "chamados":  {"max_tecnicos": 2,  "max_usuarios": 20,  "max_ativos": 50},
     "completo":  {"max_tecnicos": 5,  "max_usuarios": 100, "max_ativos": 300},
     "inventario":{"max_tecnicos": 2,  "max_usuarios": 20,  "max_ativos": 200},
@@ -270,7 +270,7 @@ class CadastroIn(BaseModel):
     plano: str = "free"
 
 PLANOS = {
-    "free":    {"plano_db": "trial",    "max_tecnicos": 1,  "max_usuarios": 3,   "max_ativos": 5,   "plano_ativo": True},
+    "free":    {"plano_db": "trial",    "max_tecnicos": 1,  "max_usuarios": 5,   "max_ativos": 15,  "plano_ativo": True},
     "starter": {"plano_db": "chamados", "max_tecnicos": 2,  "max_usuarios": 20,  "max_ativos": 50,  "plano_ativo": True},
     "pro":     {"plano_db": "completo", "max_tecnicos": 5,  "max_usuarios": 100, "max_ativos": 300, "plano_ativo": True},
 }
