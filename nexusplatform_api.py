@@ -472,3 +472,46 @@ def verificar_token(token: str):
     if not token_data or datetime.utcnow() > token_data["expires"]:
         raise HTTPException(400, "Link inválido ou expirado.")
     return {"ok": True, "email": token_data["email"]}
+
+# ── LOGIN DE USUÁRIO DA PLATAFORMA ──
+class UserLoginIn(BaseModel):
+    email: str
+    password: str
+
+@app.post("/login-usuario")
+def login_usuario(data: UserLoginIn, db: Session = Depends(get_db)):
+    import bcrypt as _bcrypt
+    row = db.execute(text("""
+        SELECT u.id, u.nome, u.email, u.senha_hash, u.role, u.ativo,
+               t.id as tenant_id, t.nome as tenant_nome, t.plano, t.ativo as tenant_ativo
+        FROM users u
+        JOIN tenants t ON t.id = u.tenant_id
+        WHERE u.email = :email
+    """), {"email": data.email}).fetchone()
+
+    if not row:
+        raise HTTPException(401, "E-mail ou senha incorretos.")
+    if not row.ativo:
+        raise HTTPException(401, "Usuário suspenso. Entre em contato com o suporte.")
+    if not row.tenant_ativo:
+        raise HTTPException(401, "Conta suspensa. Entre em contato com o suporte.")
+
+    # Verificar senha (bcrypt compatível com $2a$ e $2b$)
+    try:
+        senha_ok = _bcrypt.checkpw(data.password.encode(), row.senha_hash.encode())
+    except Exception:
+        raise HTTPException(401, "E-mail ou senha incorretos.")
+
+    if not senha_ok:
+        raise HTTPException(401, "E-mail ou senha incorretos.")
+
+    return {
+        "ok": True,
+        "nome": row.nome,
+        "email": row.email,
+        "role": row.role,
+        "tenant_id": str(row.tenant_id),
+        "tenant_nome": row.tenant_nome,
+        "plano": row.plano,
+        "redirect": "https://ti.nexusefbusiness.com.br"
+    }
