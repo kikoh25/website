@@ -359,3 +359,116 @@ def get_me(user=Depends(get_current_user), db: Session = Depends(get_db)):
     row = db.execute(text("SELECT id, nome, email, role FROM users WHERE email = :email AND ativo = true"), {"email": user}).fetchone()
     if not row: raise HTTPException(404)
     return dict(row._mapping)
+
+# ── RECUPERAÇÃO DE SENHA ──
+import secrets, resend
+from datetime import datetime, timedelta
+
+resend.api_key = "re_4FHQ6SYU_5WBE2MfqARXSBmuNQ7gPBqEh"
+
+# Armazena tokens em memória (simples, sem banco adicional)
+reset_tokens = {}
+
+class ForgotIn(BaseModel):
+    email: str
+
+class ResetIn(BaseModel):
+    token: str
+    nova_senha: str
+
+@app.post("/esqueci-senha")
+def esqueci_senha(data: ForgotIn, db: Session = Depends(get_db)):
+    # Verificar se email existe
+    row = db.execute(text("""
+        SELECT u.id, u.nome, u.email, t.nome as tenant_nome
+        FROM users u
+        JOIN tenants t ON t.id = u.tenant_id
+        WHERE u.email = :email AND u.ativo = true
+    """), {"email": data.email}).fetchone()
+
+    # Sempre retorna sucesso (segurança)
+    if not row:
+        return {"ok": True, "message": "Se o e-mail existir, você receberá as instruções."}
+
+    # Gerar token seguro
+    token = secrets.token_urlsafe(32)
+    reset_tokens[token] = {
+        "user_id": str(row.id),
+        "email": row.email,
+        "expires": datetime.utcnow() + timedelta(hours=2)
+    }
+
+    # Enviar e-mail via Resend
+    reset_url = f"https://nexusefbusiness.com.br/redefinir-senha.html?token={token}"
+    try:
+        resend.Emails.send({
+            "from": "Nexus Platform <contato@nexusefbusiness.com.br>",
+            "to": [row.email],
+            "subject": "Redefinição de senha — Nexus Platform",
+            "html": f"""
+            <div style="font-family:Inter,sans-serif;max-width:520px;margin:0 auto;padding:2rem">
+              <div style="text-align:center;margin-bottom:2rem">
+                <img src="https://nexusefbusiness.com.br/favicon.ico" width="40" style="margin-bottom:1rem"/>
+                <h1 style="font-family:Georgia,serif;color:#1E1B4B;font-size:1.5rem;margin:0">Nexus<span style="color:#7C3AED">EF</span> Platform</h1>
+              </div>
+              <h2 style="color:#1E1B4B;font-size:1.2rem;margin-bottom:.75rem">Olá, {row.nome}!</h2>
+              <p style="color:#52557A;line-height:1.7;margin-bottom:1.5rem">
+                Recebemos uma solicitação para redefinir a senha da sua conta na Nexus Platform.
+                Clique no botão abaixo para criar uma nova senha:
+              </p>
+              <div style="text-align:center;margin:2rem 0">
+                <a href="{reset_url}" style="background:#7C3AED;color:#fff;padding:.9rem 2rem;border-radius:8px;text-decoration:none;font-weight:700;font-size:.95rem">
+                  Redefinir minha senha
+                </a>
+              </div>
+              <p style="color:#9096B8;font-size:.8rem;line-height:1.6">
+                Este link expira em <strong>2 horas</strong>. Se você não solicitou a redefinição, ignore este e-mail.
+              </p>
+              <hr style="border:none;border-top:1px solid #ECEAF8;margin:1.5rem 0"/>
+              <p style="color:#9096B8;font-size:.75rem;text-align:center">
+                Nexus EF Business · nexusefbusiness.com.br
+              </p>
+            </div>
+            """
+        })
+    except Exception as e:
+        print(f"Erro ao enviar email: {e}")
+
+    return {"ok": True, "message": "Se o e-mail existir, você receberá as instruções."}
+
+@app.post("/redefinir-senha")
+def redefinir_senha(data: ResetIn, db: Session = Depends(get_db)):
+    # Verificar token
+    token_data = reset_tokens.get(data.token)
+    if not token_data:
+        raise HTTPException(400, "Link inválido ou expirado.")
+    if datetime.utcnow() > token_data["expires"]:
+        del reset_tokens[data.token]
+        raise HTTPException(400, "Link expirado. Solicite um novo.")
+    if len(data.nova_senha) < 8:
+        raise HTTPException(400, "Senha mínima de 8 caracteres.")
+
+    # Atualizar senha
+    import bcrypt as _bcrypt
+    hash = _bcrypt.hashpw(data.nova_senha.encode(), _bcrypt.gensalt(12)).decode()
+    db.execute(text("""
+        UPDATE users SET senha_hash = :hash, atualizado_em = now()
+        WHERE id = :id
+    """), {"hash": hash, "id": token_data["user_id"]})
+
+    # Invalidar sessões antigas
+    db.execute(text("""
+        DELETE FROM user_sessions WHERE sess->'user'->>'id' = :uid
+    """), {"uid": token_data["user_id"]})
+
+    db.commit()
+    del reset_tokens[data.token]
+
+    return {"ok": True, "message": "Senha redefinida com sucesso!"}
+
+@app.get("/verificar-token")
+def verificar_token(token: str):
+    token_data = reset_tokens.get(token)
+    if not token_data or datetime.utcnow() > token_data["expires"]:
+        raise HTTPException(400, "Link inválido ou expirado.")
+    return {"ok": True, "email": token_data["email"]}
