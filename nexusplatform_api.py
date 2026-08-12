@@ -14,9 +14,9 @@ import uuid
 SECRET_KEY = "nexusplatform@2026#supersecreto"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 480
-DATABASE_URL = "postgresql://nexus_user:Ivete%402019%40%23@localhost/nexusplatform"
 
 # ── DB ──
+DATABASE_URL = "postgresql+psycopg2://nexus_user:NexusDB2026@localhost/nexusplatform"
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
