@@ -426,9 +426,45 @@ async function submitForm(){
   }catch(e){
     btn.disabled = false;
     btn.innerHTML = '<span id="submit-text">' + PLANS[selectedPlan].btnText + '</span>';
-    alert(e.message || 'Erro ao criar conta. Tente novamente.');
+    const msg = e.message || 'Erro ao criar conta. Tente novamente.';
+    if(msg.includes('slug') || msg.includes('identificador')){
+      showModal('Identificador já em uso','Já existe uma conta com esse identificador. Um novo será gerado automaticamente.','⚠️');
+    } else if(msg.includes('e-mail') || msg.includes('email') || msg.includes('cadastrado')){
+      showModal('E-mail já cadastrado','Este e-mail já possui uma conta na Nexus Platform. <a href="/login.html" style="color:#7C3AED;font-weight:600">Clique aqui para fazer login.</a>','📧');
+    } else if(msg.includes('fetch') || msg.includes('network') || msg.includes('Failed')){
+      showModal('Erro de conexão','Não conseguimos conectar ao servidor. Verifique sua internet e tente novamente.','🌐');
+    } else {
+      showModal('Algo deu errado', msg, '❌');
+    }
   }
 }
+
+function showModal(title, desc, icon='❌'){
+  document.getElementById('modal-icon').textContent = icon;
+  document.getElementById('modal-title').textContent = title;
+  document.getElementById('modal-desc').innerHTML = desc;
+  const ov = document.getElementById('modal-overlay');
+  ov.style.display = 'flex';
+}
+function closeModal(){
+  document.getElementById('modal-overlay').style.display = 'none';
+}
+document.getElementById('modal-overlay').addEventListener('click', function(e){
+  if(e.target === this) closeModal();
+});
 </script>
+
+<!-- MODAL DE ERRO/AVISO -->
+<div id="modal-overlay" style="display:none;position:fixed;inset:0;background:rgba(15,13,42,.65);backdrop-filter:blur(6px);z-index:1000;align-items:center;justify-content:center;padding:1.5rem">
+  <div style="background:#fff;border-radius:18px;padding:2.5rem 2rem;width:100%;max-width:420px;box-shadow:0 24px 64px rgba(0,0,0,.2);animation:slideUp .22s ease;text-align:center">
+    <div id="modal-icon" style="font-size:2.75rem;margin-bottom:1rem">❌</div>
+    <div id="modal-title" style="font-family:'Lora',serif;font-size:1.2rem;font-weight:700;color:#1E1B4B;margin-bottom:.5rem">Algo deu errado</div>
+    <div id="modal-desc" style="font-size:.88rem;color:#52557A;line-height:1.7;margin-bottom:1.75rem"></div>
+    <button onclick="closeModal()" style="background:#7C3AED;color:#fff;border:none;border-radius:9px;padding:.8rem 2.5rem;font-family:'Inter',sans-serif;font-size:.9rem;font-weight:700;cursor:pointer;transition:background .2s;width:100%">Entendido</button>
+  </div>
+</div>
+<style>
+@keyframes slideUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+</style>
 </body>
 </html>
