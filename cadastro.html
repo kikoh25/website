@@ -364,11 +364,13 @@ document.getElementById('f-tel').addEventListener('input', function(){
 // Auto-slug from empresa
 document.getElementById('f-empresa').addEventListener('blur', function(){
   const slug = document.getElementById('f-slug');
-  slug.value = this.value.toLowerCase()
+  const base = this.value.toLowerCase()
     .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
-    .replace(/[^a-z0-9\s-]/g,'').trim()
-    .replace(/\s+/g,'-').replace(/-+/g,'-').slice(0,30)
-    + '-' + Date.now().toString().slice(-4);
+    .replace(/[^a-z0-9\s]/g,'').trim()
+    .replace(/\s+/g,'-').replace(/-+/g,'-').slice(0,25)
+    .replace(/^-+|-+$/g,'');
+  const suffix = Math.floor(1000 + Math.random()*9000);
+  slug.value = (base || 'empresa') + '-' + suffix;
 });
 
 function showError(id, show){
