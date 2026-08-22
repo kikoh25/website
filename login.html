@@ -199,16 +199,16 @@ async function checkEmail(){
     }
   }catch(e){}
 
-  // Verificar Nexus Contábil
+  // Verificar Nexus Contábil via login rápido
   try{
-    const r2 = await fetch('https://api-contabil.nexusefbusiness.com.br/auth/verificar-email', {
+    const r2 = await fetch('https://api-contabil.nexusefbusiness.com.br/api/v1/auth/login', {
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({email})
+      body: JSON.stringify({email, senha: '___check___'})
     });
-    if(r2.ok){
-      const d2 = await r2.json();
-      if(d2.exists) products.push({id:'contabil', nome:'Nexus Contábil', desc:'Gestão contábil multi-tenant', icon:'📊', url: 'https://contabil.nexusefbusiness.com.br'});
+    // Se retornar 401 = usuário existe mas senha errada. Se 404 = não existe
+    if(r2.status === 401 || r2.ok) {
+      products.push({id:'contabil', nome:'Nexus Contábil', desc:'Gestão contábil multi-tenant', icon:'📊', url: 'https://contabil.nexusefbusiness.com.br'});
     }
   }catch(e){}
 
@@ -327,15 +327,23 @@ function redirectTo(product){
     })
     .catch(()=>{ window.location.href = 'https://ti.nexusefbusiness.com.br'; });
   } else if(product.id === 'contabil'){
-    const form = document.createElement('form');
-    form.method = 'POST';
-    form.action = 'https://contabil.nexusefbusiness.com.br/auth/login';
-    form.style.display = 'none';
-    const addField = (n, v) => { const i=document.createElement('input'); i.type='hidden'; i.name=n; i.value=v; form.appendChild(i); };
-    addField('email', userEmail);
-    addField('senha', document.getElementById('input-senha').value);
-    document.body.appendChild(form);
-    form.submit();
+    fetch('https://api-contabil.nexusefbusiness.com.br/api/v1/auth/login', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({email: userEmail, senha: document.getElementById('input-senha').value})
+    })
+    .then(r=>r.json())
+    .then(d=>{
+      if(d.accessToken){
+        // Salvar token e redirecionar
+        sessionStorage.setItem('contabil_token', d.accessToken);
+        window.location.href = 'https://contabil.nexusefbusiness.com.br/dashboard?token='+d.accessToken;
+      } else {
+        showStep('senha');
+        showError('err-senha', d.message||'E-mail ou senha incorretos.');
+      }
+    })
+    .catch(()=>{ window.location.href = 'https://contabil.nexusefbusiness.com.br'; });
   } else {
     setTimeout(()=>{ window.location.href = product.url; }, 1200);
   }
