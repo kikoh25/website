@@ -199,7 +199,18 @@ async function checkEmail(){
     }
   }catch(e){}
 
-  // Aqui futuramente verificar LeadNow, etc.
+  // Verificar Nexus Contábil
+  try{
+    const r2 = await fetch('https://api-contabil.nexusefbusiness.com.br/auth/verificar-email', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({email})
+    });
+    if(r2.ok){
+      const d2 = await r2.json();
+      if(d2.exists) products.push({id:'contabil', nome:'Nexus Contábil', desc:'Gestão contábil multi-tenant', icon:'📊', url: 'https://contabil.nexusefbusiness.com.br'});
+    }
+  }catch(e){}
 
   btn.disabled = false;
   btn.innerHTML = '<span id="btn-email-text">Continuar</span>';
@@ -315,6 +326,16 @@ function redirectTo(product){
       }
     })
     .catch(()=>{ window.location.href = 'https://ti.nexusefbusiness.com.br'; });
+  } else if(product.id === 'contabil'){
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = 'https://contabil.nexusefbusiness.com.br/auth/login';
+    form.style.display = 'none';
+    const addField = (n, v) => { const i=document.createElement('input'); i.type='hidden'; i.name=n; i.value=v; form.appendChild(i); };
+    addField('email', userEmail);
+    addField('senha', document.getElementById('input-senha').value);
+    document.body.appendChild(form);
+    form.submit();
   } else {
     setTimeout(()=>{ window.location.href = product.url; }, 1200);
   }
