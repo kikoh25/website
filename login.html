@@ -336,8 +336,7 @@ function redirectTo(product){
     .then(d=>{
       if(d.accessToken){
         // Salvar token e redirecionar
-        sessionStorage.setItem('contabil_token', d.accessToken);
-        window.location.href = 'https://contabil.nexusefbusiness.com.br/dashboard?token='+d.accessToken;
+        window.location.href = 'https://contabil.nexusefbusiness.com.br/api/auth/sso?token='+d.accessToken;
       } else {
         showStep('senha');
         showError('err-senha', d.message||'E-mail ou senha incorretos.');
