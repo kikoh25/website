@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Nexus Contábil — Sistema contábil completo para escritórios</title>
+  <meta name="description" content="34 módulos integrados. Todos os regimes tributários. Apuração automática, contratos digitais, portal do cliente e muito mais."/>
+  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,600;0,700;1,600&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --indigo:#1E1B4B;--indigo-deep:#0f0d2a;
+      --purple:#7C3AED;--purple-light:#9B5CF6;--purple-faint:rgba(124,58,237,0.06);
+      --white:#fff;--bg:#F7F6FF;--surface:#fff;
+      --border:#ECEAF8;--text:#18182A;--text-2:#52557A;--text-3:#9096B8;
+      --green:#10B981;--yellow:#F59E0B;--red:#EF4444;
+    }
+    html{scroll-behavior:smooth}
+    body{font-family:'Inter',sans-serif;background:#fff;color:var(--text);overflow-x:hidden}
+
+    nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:.9rem 6%;display:flex;align-items:center;justify-content:space-between;transition:all .3s}
+    nav.scrolled{background:rgba(15,13,42,.95);backdrop-filter:blur(14px);border-bottom:1px solid rgba(124,58,237,.15)}
+    .nav-logo{display:flex;align-items:center;gap:.6rem;text-decoration:none}
+    .nav-logo svg{width:32px;height:32px}
+    .nav-logo-text{font-family:'Lora',serif;font-size:1rem;font-weight:700;color:#fff}
+    .nav-logo-text span{color:#C4B5FD}
+    .nav-links{display:flex;align-items:center;gap:1.5rem}
+    .nav-links a{font-size:.85rem;color:rgba(255,255,255,.65);text-decoration:none;transition:color .2s}
+    .nav-links a:hover{color:#fff}
+    .nav-cta{background:var(--purple);color:#fff!important;padding:.5rem 1.1rem;border-radius:7px;font-weight:600!important}
+
+    .hero{min-height:100vh;background:linear-gradient(135deg,var(--indigo-deep) 0%,var(--indigo) 50%,#2D1B69 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8rem 6% 5rem;text-align:center;position:relative;overflow:hidden}
+    .hero::before{content:'';position:absolute;inset:0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='64'%3E%3Cpath d='M28 2 L54 17 L54 47 L28 62 L2 47 L2 17 Z' fill='none' stroke='rgba(124,58,237,0.07)' stroke-width='1'/%3E%3C/svg%3E");background-size:56px 64px}
+    .hero::after{content:'';position:absolute;bottom:0;left:0;right:0;height:120px;background:linear-gradient(to top,#fff,transparent)}
+    .hero-inner{position:relative;z-index:1;max-width:820px}
+    .hero-badge{display:inline-flex;align-items:center;gap:.5rem;background:rgba(124,58,237,.15);border:1px solid rgba(196,181,253,.2);border-radius:100px;padding:.35rem 1rem;font-size:.75rem;font-weight:600;color:#C4B5FD;letter-spacing:.06em;margin-bottom:1.75rem;font-family:'JetBrains Mono',monospace}
+    .hero h1{font-family:'Lora',serif;font-size:clamp(2rem,5vw,3.75rem);font-weight:700;color:#fff;line-height:1.15;letter-spacing:-.03em;margin-bottom:1.25rem}
+    .hero h1 em{font-style:italic;background:linear-gradient(90deg,#C4B5FD,#818CF8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+    .hero-sub{font-size:1.05rem;color:rgba(255,255,255,.7);line-height:1.75;max-width:580px;margin:0 auto 2.5rem}
+    .hero-actions{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;margin-bottom:3rem}
+    .btn-hero{display:inline-flex;align-items:center;gap:.5rem;padding:.9rem 2rem;border-radius:9px;font-weight:700;font-size:.95rem;text-decoration:none;transition:all .2s}
+    .btn-hero-primary{background:var(--purple);color:#fff;box-shadow:0 4px 24px rgba(124,58,237,.4)}
+    .btn-hero-primary:hover{background:var(--purple-light);transform:translateY(-2px)}
+    .btn-hero-ghost{background:rgba(255,255,255,.08);color:#fff;border:1px solid rgba(255,255,255,.2)}
+    .btn-hero-ghost:hover{background:rgba(255,255,255,.14)}
+    .hero-stats{display:flex;gap:2.5rem;justify-content:center;flex-wrap:wrap}
+    .hero-stat{text-align:center}
+    .hero-stat-value{font-family:'Lora',serif;font-size:1.75rem;font-weight:700;color:#fff;line-height:1}
+    .hero-stat-label{font-size:.72rem;color:rgba(255,255,255,.45);margin-top:.3rem;letter-spacing:.04em}
+
+    section{padding:5rem 6%}
+    .section-inner{max-width:1100px;margin:0 auto}
+    .eyebrow{font-family:'JetBrains Mono',monospace;font-size:.7rem;font-weight:500;color:var(--purple);letter-spacing:.14em;text-transform:uppercase;margin-bottom:.85rem}
+    .section-title{font-family:'Lora',serif;font-size:clamp(1.75rem,3vw,2.5rem);font-weight:700;color:var(--indigo);line-height:1.2;letter-spacing:-.025em;margin-bottom:1rem}
+    .section-sub{font-size:1rem;color:var(--text-2);line-height:1.75;max-width:580px}
+
+    /* EXCLUSIVOS */
+    .exclusivos{background:var(--bg)}
+    .exclusivos-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1.25rem;margin-top:2.5rem}
+    .exclusivo-card{background:#fff;border:1px solid var(--border);border-radius:14px;padding:1.75rem;position:relative;overflow:hidden;transition:all .2s}
+    .exclusivo-card:hover{border-color:var(--purple);box-shadow:0 8px 32px rgba(124,58,237,.1);transform:translateY(-2px)}
+    .exclusivo-card::before{content:'EXCLUSIVO';position:absolute;top:1rem;right:1rem;background:linear-gradient(135deg,var(--purple),var(--purple-light));color:#fff;font-size:.55rem;font-weight:700;padding:.2rem .55rem;border-radius:4px;letter-spacing:.1em;font-family:'JetBrains Mono',monospace}
+    .exclusivo-icon{font-size:2rem;margin-bottom:.85rem}
+    .exclusivo-title{font-size:1rem;font-weight:700;color:var(--indigo);margin-bottom:.5rem}
+    .exclusivo-desc{font-size:.83rem;color:var(--text-2);line-height:1.7}
+
+    /* MÓDULOS */
+    .modulos-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-top:2.5rem}
+    .modulo-card{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:1.25rem;transition:all .2s}
+    .modulo-card:hover{border-color:var(--purple);background:var(--purple-faint)}
+    .modulo-icon{font-size:1.3rem;margin-bottom:.5rem}
+    .modulo-title{font-size:.88rem;font-weight:700;color:var(--indigo);margin-bottom:.3rem}
+    .modulo-desc{font-size:.75rem;color:var(--text-2);line-height:1.6}
+
+    /* PLANOS */
+    .plans-section{background:var(--bg)}
+    .plans-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-top:3rem}
+    .plan-card{background:#fff;border:2px solid var(--border);border-radius:16px;padding:1.75rem;position:relative;transition:all .2s}
+    .plan-card:hover{border-color:var(--purple);box-shadow:0 8px 32px rgba(124,58,237,.1);transform:translateY(-2px)}
+    .plan-card.featured{background:linear-gradient(150deg,var(--indigo-deep),var(--indigo));border-color:var(--purple)}
+    .plan-card.featured .plan-name,.plan-card.featured .plan-price,.plan-card.featured .plan-feature-text{color:#fff}
+    .plan-card.featured .plan-period,.plan-card.featured .plan-desc{color:rgba(255,255,255,.55)}
+    .plan-card.featured .plan-divider{border-color:rgba(255,255,255,.08)}
+    .plan-popular{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--purple);color:#fff;font-size:.65rem;font-weight:700;padding:.2rem .85rem;border-radius:100px;white-space:nowrap;font-family:'JetBrains Mono',monospace}
+    .plan-trial{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--green);color:#fff;font-size:.65rem;font-weight:700;padding:.2rem .85rem;border-radius:100px;white-space:nowrap;font-family:'JetBrains Mono',monospace}
+    .plan-name{font-family:'Lora',serif;font-size:1.15rem;font-weight:700;color:var(--indigo);margin-bottom:.5rem}
+    .plan-price{font-family:'Lora',serif;font-size:2rem;font-weight:700;color:var(--indigo);line-height:1;margin-bottom:.2rem}
+    .plan-period{font-size:.75rem;color:var(--text-3);margin-bottom:1rem}
+    .plan-desc{font-size:.8rem;color:var(--text-2);line-height:1.6;margin-bottom:1.1rem;min-height:40px}
+    .plan-divider{border:none;border-top:1px solid var(--border);margin-bottom:1.1rem}
+    .plan-features{display:flex;flex-direction:column;gap:.45rem;margin-bottom:1.5rem}
+    .plan-feature{display:flex;align-items:flex-start;gap:.55rem;font-size:.78rem}
+    .plan-feature-check{width:15px;height:15px;border-radius:50%;background:rgba(16,185,129,.1);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:.1rem}
+    .plan-feature-check svg{width:8px;height:8px;stroke:var(--green);stroke-width:3}
+    .plan-feature-check.no{background:rgba(144,150,184,.08)}
+    .plan-feature-check.no svg{stroke:var(--text-3)}
+    .plan-feature-text{color:var(--text-2);line-height:1.5}
+    .plan-feature-text.no{color:var(--text-3)}
+    .plan-limit{font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--purple);background:rgba(124,58,237,.06);padding:.12rem .45rem;border-radius:4px;margin-left:auto;flex-shrink:0}
+    .plan-btn{display:block;text-align:center;padding:.75rem;border-radius:8px;font-weight:700;font-size:.83rem;text-decoration:none;transition:all .2s}
+    .plan-btn-primary{background:var(--purple);color:#fff}
+    .plan-btn-primary:hover{background:var(--purple-light)}
+    .plan-btn-ghost{border:1.5px solid var(--border);color:var(--text-2)}
+    .plan-btn-ghost:hover{border-color:var(--purple);color:var(--purple)}
+    .plan-btn-white{background:#fff;color:var(--purple)}
+    .plan-btn-white:hover{background:rgba(255,255,255,.9)}
+    .plan-btn-green{background:var(--green);color:#fff}
+    .plan-btn-green:hover{background:#059669}
+
+    /* PAGAMENTO */
+    .payment-info{background:#fff;border:1px solid var(--border);border-radius:12px;padding:1.25rem 1.5rem;margin-top:1.5rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap}
+    .payment-icon{font-size:1.2rem;flex-shrink:0}
+    .payment-text{font-size:.82rem;color:var(--text-2);line-height:1.6}
+
+    /* CTA */
+    .cta-section{background:linear-gradient(135deg,var(--indigo-deep),var(--indigo),#2D1B69);padding:6rem 6%;text-align:center;position:relative;overflow:hidden}
+    .cta-section::before{content:'';position:absolute;inset:0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='64'%3E%3Cpath d='M28 2 L54 17 L54 47 L28 62 L2 47 L2 17 Z' fill='none' stroke='rgba(124,58,237,0.06)' stroke-width='1'/%3E%3C/svg%3E");background-size:56px 64px}
+    .cta-inner{position:relative;z-index:1;max-width:640px;margin:0 auto}
+    .cta-title{font-family:'Lora',serif;font-size:clamp(1.75rem,3vw,2.75rem);font-weight:700;color:#fff;margin-bottom:1rem;line-height:1.2}
+    .cta-sub{font-size:1rem;color:rgba(255,255,255,.65);line-height:1.75;margin-bottom:2.5rem}
+    .cta-proof{margin-top:2rem;font-size:.78rem;color:rgba(255,255,255,.35);display:flex;gap:1.5rem;justify-content:center;flex-wrap:wrap}
+
+    footer{background:var(--indigo-deep);padding:2.5rem 6%;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;border-top:1px solid rgba(255,255,255,.06)}
+    footer a{color:rgba(255,255,255,.4);text-decoration:none;font-size:.8rem;transition:color .2s}
+    footer a:hover{color:rgba(255,255,255,.8)}
+    .footer-copy{font-size:.78rem;color:rgba(255,255,255,.25)}
+
+    .reveal{opacity:0;transform:translateY(24px);transition:opacity .6s ease,transform .6s ease}
+    .reveal.visible{opacity:1;transform:none}
+
+    @media(max-width:900px){.plans-grid{grid-template-columns:1fr 1fr}.exclusivos-grid{grid-template-columns:1fr}.modulos-grid{grid-template-columns:1fr 1fr}}
+    @media(max-width:600px){.plans-grid{grid-template-columns:1fr}.modulos-grid{grid-template-columns:1fr}.hero-stats{gap:1.5rem}.nav-links{display:none}}
+  </style>
+</head>
+<body>
+
+<nav id="nav">
+  <a href="/" class="nav-logo">
+    <svg viewBox="0 0 40 46" fill="none"><path d="M20 2L38 12V34L20 44L2 34V12L20 2Z" fill="url(#ng)" stroke="rgba(196,181,253,0.2)" stroke-width="1"/><text x="20" y="29" text-anchor="middle" font-family="Lora,serif" font-size="14" font-weight="700" fill="white">N</text><defs><linearGradient id="ng" x1="2" y1="2" x2="38" y2="44"><stop offset="0%" stop-color="#7C3AED"/><stop offset="100%" stop-color="#4C1D95"/></linearGradient></defs></svg>
+    <div class="nav-logo-text">Nexus<span>EF</span></div>
+  </a>
+  <div class="nav-links">
+    <a href="#exclusivos">Exclusivos</a>
+    <a href="#modulos">Módulos</a>
+    <a href="#planos">Planos</a>
+    <a href="/login.html">Acessar conta</a>
+    <a href="https://contabil.nexusefbusiness.com.br/register" class="nav-cta">Testar grátis</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-inner">
+    <div class="hero-badge">📊 Nexus Contábil · 34 módulos integrados</div>
+    <h1>O sistema contábil que<br>seu escritório<br><em>merecia ter.</em></h1>
+    <p class="hero-sub">Todos os regimes. Todos os tributos. Apuração automática, contratos digitais, portal do cliente e 4 funcionalidades exclusivas que nenhum outro sistema tem. Zero planilha.</p>
+    <div class="hero-actions">
+      <a href="https://contabil.nexusefbusiness.com.br/register" class="btn-hero btn-hero-primary">✅ Testar grátis por 7 dias</a>
+      <a href="#planos" class="btn-hero btn-hero-ghost">Ver planos →</a>
+    </div>
+    <div class="hero-stats">
+      <div class="hero-stat"><div class="hero-stat-value">34</div><div class="hero-stat-label">Módulos integrados</div></div>
+      <div class="hero-stat"><div class="hero-stat-value">318</div><div class="hero-stat-label">CFOPs cadastrados</div></div>
+      <div class="hero-stat"><div class="hero-stat-value">27</div><div class="hero-stat-label">Estados SEFAZ</div></div>
+      <div class="hero-stat"><div class="hero-stat-value">4</div><div class="hero-stat-label">Regimes tributários</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- EXCLUSIVOS -->
+<section class="exclusivos" id="exclusivos">
+  <div class="section-inner">
+    <p class="eyebrow reveal" style="text-align:center">Só no Nexus Contábil</p>
+    <h2 class="section-title reveal" style="text-align:center;max-width:100%">4 funcionalidades que nenhum<br>outro sistema contábil tem</h2>
+    <div class="exclusivos-grid">
+      <div class="exclusivo-card reveal">
+        <div class="exclusivo-icon">🏥</div>
+        <div class="exclusivo-title">Saúde Fiscal</div>
+        <p class="exclusivo-desc">Score de 0 a 100 por empresa. Status Saudável, Atenção ou Crítico. Monitora certidões, apuração, faturamento, limite MEI e obrigações simultaneamente — em tempo real para toda a carteira.</p>
+      </div>
+      <div class="exclusivo-card reveal">
+        <div class="exclusivo-icon">🔍</div>
+        <div class="exclusivo-title">Monitor de Inconsistências</div>
+        <p class="exclusivo-desc">Detecta automaticamente CFOPs incompatíveis, notas sem imposto, CNPJs inválidos e outros problemas antes que virem autuações. Sua carteira sempre limpa.</p>
+      </div>
+      <div class="exclusivo-card reveal">
+        <div class="exclusivo-icon">📊</div>
+        <div class="exclusivo-title">Simulador de Regime</div>
+        <p class="exclusivo-desc">Compara MEI, Simples Nacional, Lucro Presumido e Lucro Real com detalhamento tributo a tributo. Mostre ao cliente quanto ele economiza mudando de regime com dados reais.</p>
+      </div>
+      <div class="exclusivo-card reveal">
+        <div class="exclusivo-icon">⚠️</div>
+        <div class="exclusivo-title">Alertas de Notas Suspeitas</div>
+        <p class="exclusivo-desc">Análise estatística automática para identificar valores atípicos, CNPJs repetidos, emissões suspeitas e fracionamento. Proteja seus clientes contra fraudes fiscais.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MÓDULOS -->
+<section id="modulos">
+  <div class="section-inner">
+    <p class="eyebrow reveal">34 módulos</p>
+    <h2 class="section-title reveal">Tudo que um escritório contábil precisa</h2>
+    <p class="section-sub reveal">Do XML à assinatura do contrato, sem precisar de nenhum outro sistema.</p>
+    <div class="modulos-grid" style="margin-top:2.5rem">
+      <div class="modulo-card reveal"><div class="modulo-icon">📥</div><div class="modulo-title">Importação em Lote</div><p class="modulo-desc">NF-e, NFS-e e CT-e sem limite. Classificação automática por CFOP.</p></div>
+      <div class="modulo-card reveal"><div class="modulo-icon">🔗</div><div class="modulo-title">Consulta SEFAZ (DFe)</div><p class="modulo-desc">Baixa XMLs direto da Receita com certificado A1 nos 27 estados.</p></div>
+      <div class="modulo-card reveal"><div class="modulo-icon">📄</div><div class="modulo-title">Emissão de NFS-e</div><p class="modulo-desc">Integrada ao Portal Nacional nfse.gov.br. Homologação e produção.</p></div>
+      <div class="modulo-card reveal"><div class="modulo-icon">⚖️</div><div class="modulo-title">Apuração PIS/COFINS</div><p class="modulo-desc">Automática por CFOP, saldo credor, fechamento e exportação.</p></div>
+      <div class="modulo-card reveal"><div class="modulo-icon">📋</div><div class="modulo-title">ICMS, IPI, IBS e CBS</div><p class="modulo-desc">Débitos e créditos extraídos dos XMLs. Pronto para a Reforma Tributária.</p></div>
+      <div class="modulo-card reveal"><div class="modulo-icon">📈</div><div class="modulo-title">DRE e Fluxo de Caixa</div><p class="modulo-desc">Demonstrativo automático com comparativo ano a ano e projeção.</p></div>
+      <div class="modulo-card reveal"><div class="modulo-icon">📅</div><div class="modulo-title">Calendário Fiscal</div><p class="modulo-desc">Obrigações geradas automaticamente por regime com marcação de conclusão.</p></div>
+      <div class="modulo-card reveal"><div class="modulo-icon">✍️</div><div class="modulo-title">Contratos Digitais</div><p class="modulo-desc">Templates por regime, assinatura eletrônica com validade jurídica (Lei 14.063/2020).</p></div>
+      <div class="modulo-card reveal"><div class="modulo-icon">🌐</div><div class="modulo-title">Portal do Cliente</div><p class="modulo-desc">Acesso por CNPJ para ver fechamentos, certidões e documentos.</p></div>
+      <div class="modulo-card reveal"><div class="modulo-icon">📬</div><div class="modulo-title">Fechar Mês</div><p class="modulo-desc">E-mail automático ao cliente com resumo financeiro e fiscal.</p></div>
+      <div class="modulo-card reveal"><div class="modulo-icon">🏅</div><div class="modulo-title">Certidões</div><p class="modulo-desc">Alertas diários às 8h de vencimento com envio automático ao cliente.</p></div>
+      <div class="modulo-card reveal"><div class="modulo-icon">💰</div><div class="modulo-title">Proposta de Honorários</div><p class="modulo-desc">PDF profissional com dados reais da empresa. Impressiona na hora.</p></div>
+      <div class="modulo-card reveal"><div class="modulo-icon">🧮</div><div class="modulo-title">Pró-Labore</div><p class="modulo-desc">Cálculo com INSS e IRRF automáticos pela tabela 2026.</p></div>
+      <div class="modulo-card reveal"><div class="modulo-icon">📊</div><div class="modulo-title">Monitor MEI</div><p class="modulo-desc">Acompanha limite anual de R$81.000 com alerta a partir de 80%.</p></div>
+      <div class="modulo-card reveal"><div class="modulo-icon">🤖</div><div class="modulo-title">Automações</div><p class="modulo-desc">Tarefas e alertas automáticos recorrentes configuráveis por escritório.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- PLANOS -->
+<section class="plans-section" id="planos">
+  <div class="section-inner">
+    <p class="eyebrow reveal" style="text-align:center">Planos</p>
+    <h2 class="section-title reveal" style="text-align:center;max-width:100%">Comece grátis.<br>Cresça sem limites.</h2>
+    <p class="section-sub reveal" style="text-align:center;margin:0 auto">7 dias com acesso completo, sem cartão de crédito.</p>
+
+    <div class="plans-grid">
+      <!-- TRIAL -->
+      <div class="plan-card reveal">
+        <div class="plan-trial">✅ 7 dias grátis</div>
+        <div class="plan-name">Trial</div>
+        <div class="plan-price">R$0</div>
+        <div class="plan-period">por 7 dias · sem cartão</div>
+        <div class="plan-desc">Acesso completo a todas as funcionalidades sem restrição.</div>
+        <hr class="plan-divider"/>
+        <div class="plan-features">
+          <div class="plan-feature"><div class="plan-feature-check"><svg viewBox="0 0 24 24" fill="none"><polyline points="20 6 9 17 4 12"/></svg></div><span class="plan-feature-text">Todos os 34 módulos</span></div>
+          <div class="plan-feature"><div class="plan-feature-check"><svg viewBox="0 0 24 24" fill="none"><polyline points="20 6 9 17 4 12"/></svg></div><span class="plan-feature-text">Sem limite de empresas</span></div>
+          <div class="plan-feature"><div class="plan-feature-check"><svg viewBox="0 0 24 24" fill="none"><polyline points="20 6 9 17 4 12"/></svg></div><span class="plan-feature-text">Sem cartão de crédito</span></div>
+        </div>
+        <a href="https://contabil.nexusefbusiness.com.br/register" class="plan-btn plan-btn-green">Começar agora</a>
+      </div>
+
+      <!-- STARTER -->
+      <div class="plan-card reveal">
+        <div class="plan-name">Starter</div>
+        <div class="plan-price">R$297</div>
+        <div class="plan-period">/mês · recorrente</div>
+        <div class="plan-desc">Para escritórios pequenos que precisam de controle fiscal básico.</div>
+        <hr class="plan-divider"/>
+        <div class="plan-features">
+          <div class="plan-feature"><div class="plan-feature-check"><svg viewBox="0 0 24 24" fill="none"><polyline points="20 6 9 17 4 12"/></svg></div><span class="plan-feature-text">5 empresas</span><span class="plan-limit">5</span></div>
+          <div class="plan-feature"><div class="plan-feature-check"><svg viewBox="0 0 24 24" fill="none"><polyline points="20 6 9 17 4 12"/></svg></div><span class="plan-feature-text">2.000 XMLs/mês</span></div>
+          <div class="plan-feature"><div class="plan-feature-check"><svg viewBox="0 0 24 24" fill="none"><polyline points="20 6 9 17 4 12"/></svg></div><span class="plan-feature-text">2 usuários</span></div>
+          <div class="plan-feature"><div class="plan-feature-check"><svg viewBox="0 0 24 24" fill="none"><polyline points="20 6 9 17 4 12"/></svg></div><span class="plan-feature-text">Importação XML e SEFAZ</span></div>
+          <div class="plan-feature"><div class="plan-feature-check no"><svg viewBox="0 0 24 24" fill="none"><polyline points="20 6 9 17 4 12"/></svg></div><span class="plan-feature-text no">Apuração fiscal</span></div>
+          <div class="plan-feature"><div class="plan-feature-check no"><svg viewBox="0 0 24 24" fill="none"><polyline points="20 6 9 17 4 12"/></svg></div><span class="plan-feature-text no">Contratos e portal</span></div>
+        </div>
+        <a href="https://contabil.nexusefbusiness.com.br/register" class="plan-btn plan-btn-ghost">Começar com Starter</a>
+      </div>
+
+      <!-- PROFISSIONAL -->
+      <div class="plan-card featured reveal">
+        <div class="plan-popular">⭐ Mais popular</div>
+        <div class="plan-name">Profissional</div>
+        <div class="plan-price">R$497</div>
+        <div class="plan-period">/mês · recorrente</div>
+        <div class="plan-desc">Para escritórios em crescimento com carteira completa de clientes.</div>
+        <hr class="plan-divider"/>
+        <div class="plan-features">
+          <div class="plan-feature"><div class="plan-feature-check"><svg viewBox="0 0 24 24" fill="none"><polyline points="20 6 9 17 4 12"/></svg></div><span class="plan-feature-text">25 empresas</span><span class="plan-limit" style="background:rgba(196,181,253,.1);color:#C4B5FD">25</span></div>
+          <div class="plan-feature"><div class="plan-feature-check"><svg viewBox="0 0 24 24" fill="none"><polyline points="20 6 9 17 4 12"/></svg></div><span class="plan-feature-text">15.000 XMLs/mês</span></div>
+          <div class="plan-feature"><div class="plan-feature-check"><svg viewBox="0 0 24 24" fill="none"><polyline points="20 6 9 17 4 12"/></svg></div><span class="plan-feature-text">5 usuários</span></div>
+          <div class="plan-feature"><div class="plan-feature-check"><svg viewBox="0 0 24 24" fill="none"><polyline points="20 6 9 17 4 12"/></svg></div><span class="plan-feature-text">Apuração PIS/COFINS/ICMS/IPI/IBS/CBS</span></div>
+          <div class="plan-feature"><div class="plan-feature-check"><svg viewBox="0 0 24 24" fill="none"><polyline points="20 6 9 17 4 12"/></svg></div><span class="plan-feature-text">Contratos digitais</span></div>
+          <div class="plan-feature"><div class="plan-feature-check"><svg viewBox="0 0 24 24" fill="none"><polyline points="20 6 9 17 4 12"/></svg></div><span class="plan-feature-text">Portal do cliente</span></div>
+          <div class="plan-feature"><div class="plan-feature-check"><svg viewBox="0 0 24 24" fill="none"><polyline points="20 6 9 17 4 12"/></svg></div><span class="plan-feature-text">Certidões e fechar mês</span></div>
+        </div>
+        <a href="https://contabil.nexusefbusiness.com.br/register" class="plan-btn plan-btn-white">Começar com Profissional →</a>
+      </div>
+
+      <!-- ENTERPRISE -->
+      <div class="plan-card reveal">
+        <div class="plan-name">Enterprise</div>
+        <div class="plan-price">R$697</div>
+        <div class="plan-period">/mês · recorrente</div>
+        <div class="plan-desc">Para grandes escritórios sem nenhuma restrição.</div>
+        <hr class="plan-divider"/>
+        <div class="plan-features">
+          <div class="plan-feature"><div class="plan-feature-check"><svg viewBox="0 0 24 24" fill="none"><polyline points="20 6 9 17 4 12"/></svg></div><span class="plan-feature-text">Empresas ilimitadas</span><span class="plan-limit">∞</span></div>
+          <div class="plan-feature"><div class="plan-feature-check"><svg viewBox="0 0 24 24" fill="none"><polyline points="20 6 9 17 4 12"/></svg></div><span class="plan-feature-text">XMLs ilimitados</span></div>
+          <div class="plan-feature"><div class="plan-feature-check"><svg viewBox="0 0 24 24" fill="none"><polyline points="20 6 9 17 4 12"/></svg></div><span class="plan-feature-text">Usuários ilimitados</span></div>
+          <div class="plan-feature"><div class="plan-feature-check"><svg viewBox="0 0 24 24" fill="none"><polyline points="20 6 9 17 4 12"/></svg></div><span class="plan-feature-text">Tudo do Profissional</span></div>
+          <div class="plan-feature"><div class="plan-feature-check"><svg viewBox="0 0 24 24" fill="none"><polyline points="20 6 9 17 4 12"/></svg></div><span class="plan-feature-text">API para integração com ERP</span></div>
+        </div>
+        <a href="https://wa.me/5511926461357?text=Tenho interesse no plano Enterprise do Nexus Contábil." target="_blank" class="plan-btn plan-btn-ghost">Falar com vendas</a>
+      </div>
+    </div>
+
+    <div class="payment-info reveal">
+      <div class="payment-icon">💳</div>
+      <div class="payment-text"><strong>Formas de pagamento:</strong> Boleto e cartão de crédito (mensal recorrente) — ou PIX, boleto e cartão para pagamento avulso de 1 mês. Cancele quando quiser, sem fidelidade.</div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+  <div class="cta-inner">
+    <h2 class="cta-title reveal">Pronto para transformar<br>seu escritório?</h2>
+    <p class="cta-sub reveal">7 dias com acesso completo a todos os 34 módulos. Sem cartão de crédito, sem compromisso.</p>
+    <div class="hero-actions reveal">
+      <a href="https://contabil.nexusefbusiness.com.br/register" class="btn-hero btn-hero-primary">✅ Começar grátis agora</a>
+      <a href="https://wa.me/5511926461357?text=Olá! Quero saber mais sobre o Nexus Contábil." target="_blank" class="btn-hero btn-hero-ghost">💬 Falar com a equipe</a>
+    </div>
+    <div class="cta-proof reveal">
+      <span>✓ 7 dias grátis</span>
+      <span>✓ Sem cartão</span>
+      <span>✓ Cancele quando quiser</span>
+      <span>✓ Suporte em português</span>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-copy">© 2026 Nexus EF Business · Todos os direitos reservados</div>
+  <div style="display:flex;gap:1.5rem">
+    <a href="/">Site</a>
+    <a href="/nexus-platform.html">Nexus Platform</a>
+    <a href="/login.html">Acessar</a>
+    <a href="https://wa.me/5511926461357" target="_blank">Suporte</a>
+  </div>
+</footer>
+
+<script>
+window.addEventListener('scroll',()=>{
+  document.getElementById('nav').classList.toggle('scrolled', window.scrollY > 50);
+});
+const observer = new IntersectionObserver(entries=>{
+  entries.forEach(e=>{ if(e.isIntersecting) e.target.classList.add('visible'); });
+},{threshold:0.1});
+document.querySelectorAll('.reveal').forEach(el=>observer.observe(el));
+</script>
+</body>
+</html>
