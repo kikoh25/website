@@ -616,3 +616,110 @@ def contabil_update_status(tenant_id: str, data: dict, db=Depends(get_contabil_d
                {"status": data.get("status"), "id": tenant_id})
     db.commit()
     return {"ok": True}
+
+# ── CONTÁBIL — ENDPOINTS AVANÇADOS ──
+
+@app.get("/contabil/tenants/{tenant_id}/tickets")
+def contabil_tenant_tickets(tenant_id: str, db=Depends(get_contabil_db), user=Depends(get_current_user)):
+    rows = db.execute(_text2("""
+        SELECT id, tipo, titulo, descricao, status, "createdAt", "updatedAt"
+        FROM tickets WHERE "tenantId" = :id ORDER BY "createdAt" DESC LIMIT 20
+    """), {"id": tenant_id}).fetchall()
+    return [dict(r._mapping) for r in rows]
+
+@app.get("/contabil/tenants/{tenant_id}/documentos-mes")
+def contabil_docs_mes(tenant_id: str, db=Depends(get_contabil_db), user=Depends(get_current_user)):
+    rows = db.execute(_text2("""
+        SELECT DATE_TRUNC('month', d."dataImportacao") as mes,
+               COUNT(*) as total,
+               SUM(d.valor) as valor_total
+        FROM documentos d
+        JOIN empresas e ON e.id = d."empresaId"
+        WHERE e."tenantId" = :id
+          AND d."dataImportacao" >= NOW() - INTERVAL '12 months'
+        GROUP BY 1 ORDER BY 1
+    """), {"id": tenant_id}).fetchall()
+    return [dict(r._mapping) for r in rows]
+
+@app.get("/contabil/tenants/{tenant_id}/auditoria")
+def contabil_tenant_auditoria(tenant_id: str, db=Depends(get_contabil_db), user=Depends(get_current_user)):
+    rows = db.execute(_text2("""
+        SELECT a.id, a.acao, a.entidade, a.descricao, a."usuarioId",
+               u.nome as usuario_nome, a."createdAt"
+        FROM audit_logs a
+        LEFT JOIN usuarios u ON u.id = a."usuarioId"
+        WHERE a."tenantId" = :id
+        ORDER BY a."createdAt" DESC LIMIT 20
+    """), {"id": tenant_id}).fetchall()
+    return [dict(r._mapping) for r in rows]
+
+@app.get("/contabil/crescimento")
+def contabil_crescimento(db=Depends(get_contabil_db), user=Depends(get_current_user)):
+    rows = db.execute(_text2("""
+        SELECT DATE_TRUNC('month', "createdAt") as mes,
+               COUNT(*) as novos,
+               COUNT(*) FILTER (WHERE status = 'ACTIVE') as ativos
+        FROM tenants
+        WHERE "createdAt" >= NOW() - INTERVAL '12 months'
+        GROUP BY 1 ORDER BY 1
+    """)).fetchall()
+    return [dict(r._mapping) for r in rows]
+
+@app.get("/contabil/trial-expirando")
+def contabil_trial_expirando(db=Depends(get_contabil_db), user=Depends(get_current_user)):
+    rows = db.execute(_text2("""
+        SELECT id, nome, email, plano, status, "trialEndsAt",
+               EXTRACT(DAY FROM "trialEndsAt" - NOW()) as dias_restantes
+        FROM tenants
+        WHERE status = 'TRIAL'
+          AND "trialEndsAt" IS NOT NULL
+          AND "trialEndsAt" > NOW()
+          AND "trialEndsAt" <= NOW() + INTERVAL '7 days'
+        ORDER BY "trialEndsAt"
+    """)).fetchall()
+    return [dict(r._mapping) for r in rows]
+
+@app.get("/contabil/inativos")
+def contabil_inativos(db=Depends(get_contabil_db), user=Depends(get_current_user)):
+    rows = db.execute(_text2("""
+        SELECT t.id, t.nome, t.email, t.plano, t.status,
+               MAX(u."lastLoginAt") as ultimo_login,
+               EXTRACT(DAY FROM NOW() - MAX(u."lastLoginAt")) as dias_sem_acesso
+        FROM tenants t
+        LEFT JOIN usuarios u ON u."tenantId" = t.id
+        WHERE t.status = 'ACTIVE'
+        GROUP BY t.id
+        HAVING MAX(u."lastLoginAt") < NOW() - INTERVAL '30 days'
+            OR MAX(u."lastLoginAt") IS NULL
+        ORDER BY ultimo_login ASC NULLS FIRST
+    """)).fetchall()
+    return [dict(r._mapping) for r in rows]
+
+@app.patch("/contabil/tenants/{tenant_id}/trial")
+def contabil_extend_trial(tenant_id: str, data: dict, db=Depends(get_contabil_db), user=Depends(get_current_user)):
+    dias = data.get("dias", 7)
+    db.execute(_text2("""
+        UPDATE tenants
+        SET "trialEndsAt" = COALESCE("trialEndsAt", NOW()) + (:dias || ' days')::INTERVAL,
+            "updatedAt" = NOW()
+        WHERE id = :id
+    """), {"dias": dias, "id": tenant_id})
+    db.commit()
+    return {"ok": True, "dias_adicionados": dias}
+
+@app.get("/contabil/mrr")
+def contabil_mrr(db=Depends(get_contabil_db), user=Depends(get_current_user)):
+    precos = {"STARTER": 297, "PROFISSIONAL": 497, "ENTERPRISE": 697}
+    rows = db.execute(_text2("""
+        SELECT plano, COUNT(*) as quantidade
+        FROM tenants WHERE status = 'ACTIVE'
+        GROUP BY plano
+    """)).fetchall()
+    mrr = 0
+    detalhes = []
+    for r in rows:
+        preco = precos.get(r.plano, 0)
+        subtotal = preco * r.quantidade
+        mrr += subtotal
+        detalhes.append({"plano": r.plano, "quantidade": r.quantidade, "preco": preco, "subtotal": subtotal})
+    return {"mrr_total": mrr, "detalhes": detalhes}
