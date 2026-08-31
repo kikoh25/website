@@ -387,53 +387,121 @@
       <!-- NEXUS CONTÁBIL -->
       <div class="view" id="view-contabil">
         <div class="section-header">
-          <div><div class="section-title-sm">Nexus Contábil</div><div class="section-desc">Gestão de escritórios contábeis em tempo real</div></div>
+          <div><div class="section-title-sm">Nexus Contábil</div><div class="section-desc">Gestão completa dos escritórios contábeis</div></div>
           <button class="btn btn-ghost btn-sm" onclick="loadSection('contabil')">🔄 Atualizar</button>
         </div>
 
-        <div class="stats-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:1.25rem">
+        <!-- ALERTAS -->
+        <div id="ct-alertas" style="margin-bottom:1rem"></div>
+
+        <!-- STATS PRINCIPAIS -->
+        <div class="stats-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:1rem">
           <div class="stat-card"><span class="stat-icon">🏢</span><div class="stat-label">Total escritórios</div><div class="stat-value" id="ct-total">—</div></div>
           <div class="stat-card"><span class="stat-icon">✅</span><div class="stat-label">Ativos</div><div class="stat-value" id="ct-ativos">—</div></div>
           <div class="stat-card"><span class="stat-icon">🔬</span><div class="stat-label">Em trial</div><div class="stat-value" id="ct-trial">—</div></div>
           <div class="stat-card"><span class="stat-icon">🏭</span><div class="stat-label">Empresas gerenciadas</div><div class="stat-value" id="ct-empresas">—</div></div>
         </div>
-
-        <div class="stats-grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:1.5rem">
-          <div class="stat-card"><span class="stat-icon">🟢</span><div class="stat-label">Plano Starter</div><div class="stat-value" id="ct-starter">—</div></div>
-          <div class="stat-card"><span class="stat-icon">⭐</span><div class="stat-label">Plano Profissional</div><div class="stat-value" id="ct-profissional">—</div></div>
-          <div class="stat-card"><span class="stat-icon">🚀</span><div class="stat-label">Plano Enterprise</div><div class="stat-value" id="ct-enterprise">—</div></div>
+        <div class="stats-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:1.5rem">
+          <div class="stat-card"><span class="stat-icon">💰</span><div class="stat-label">MRR estimado</div><div class="stat-value" id="ct-mrr" style="color:var(--green)">—</div></div>
+          <div class="stat-card"><span class="stat-icon">🟢</span><div class="stat-label">Starter</div><div class="stat-value" id="ct-starter">—</div></div>
+          <div class="stat-card"><span class="stat-icon">⭐</span><div class="stat-label">Profissional</div><div class="stat-value" id="ct-profissional">—</div></div>
+          <div class="stat-card"><span class="stat-icon">🚀</span><div class="stat-label">Enterprise</div><div class="stat-value" id="ct-enterprise">—</div></div>
         </div>
 
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>Escritório</th><th>E-mail</th><th>Plano</th><th>Status</th><th>Empresas</th><th>Usuários</th><th>XMLs/mês</th><th>Trial até</th><th>Criado</th><th>Ações</th></tr></thead>
-            <tbody id="tbody-contabil"><tr><td colspan="10"><div class="loading"><div class="spinner"></div>Carregando...</div></td></tr></tbody>
-          </table>
+        <!-- ABAS -->
+        <div style="display:flex;gap:.5rem;margin-bottom:1rem;border-bottom:1px solid var(--border);padding-bottom:.5rem">
+          <button class="btn btn-sm" id="ct-tab-escritorios" onclick="ctTab('escritorios')" style="background:var(--purple);color:#fff">🏢 Escritórios</button>
+          <button class="btn btn-ghost btn-sm" id="ct-tab-trial" onclick="ctTab('trial')">⏰ Trial expirando</button>
+          <button class="btn btn-ghost btn-sm" id="ct-tab-inativos" onclick="ctTab('inativos')">😴 Inativos</button>
+          <button class="btn btn-ghost btn-sm" id="ct-tab-crescimento" onclick="ctTab('crescimento')">📈 Crescimento</button>
         </div>
 
-        <div id="contabil-detail" style="display:none">
+        <!-- ABA ESCRITÓRIOS -->
+        <div id="ct-panel-escritorios">
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Escritório</th><th>Plano</th><th>Status</th><th>Empresas</th><th>Usuários</th><th>XMLs/mês</th><th>Trial até</th><th>Criado em</th><th>Ações</th></tr></thead>
+              <tbody id="tbody-contabil"><tr><td colspan="9"><div class="loading"><div class="spinner"></div>Carregando...</div></td></tr></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- ABA TRIAL EXPIRANDO -->
+        <div id="ct-panel-trial" style="display:none">
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Escritório</th><th>E-mail</th><th>Plano</th><th>Trial expira</th><th>Dias restantes</th><th>Ações</th></tr></thead>
+              <tbody id="tbody-ct-trial"><tr><td colspan="6"><div class="loading"><div class="spinner"></div>Carregando...</div></td></tr></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- ABA INATIVOS -->
+        <div id="ct-panel-inativos" style="display:none">
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Escritório</th><th>Plano</th><th>Último acesso</th><th>Dias sem acesso</th><th>Ações</th></tr></thead>
+              <tbody id="tbody-ct-inativos"><tr><td colspan="5"><div class="loading"><div class="spinner"></div>Carregando...</div></td></tr></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- ABA CRESCIMENTO -->
+        <div id="ct-panel-crescimento" style="display:none">
+          <div style="background:#fff;border:1px solid var(--border);border-radius:10px;padding:1.5rem">
+            <div style="font-size:.85rem;font-weight:700;color:var(--indigo);margin-bottom:1rem">📈 Crescimento mensal — últimos 12 meses</div>
+            <canvas id="ct-chart-crescimento" height="80"></canvas>
+          </div>
+          <div style="background:#fff;border:1px solid var(--border);border-radius:10px;padding:1.5rem;margin-top:1rem">
+            <div style="font-size:.85rem;font-weight:700;color:var(--indigo);margin-bottom:1rem">💰 MRR por plano</div>
+            <div id="ct-mrr-detalhes"></div>
+          </div>
+        </div>
+
+        <!-- DETALHE ESCRITÓRIO -->
+        <div id="contabil-detail" style="display:none;margin-top:1.5rem">
           <div class="detail-panel">
-            <div class="detail-panel-header">
-              <div class="table-header-title" id="contabil-detail-title">Detalhes do Escritório</div>
-              <button class="btn btn-ghost btn-sm" onclick="document.getElementById('contabil-detail').style.display='none'">✕ Fechar</button>
+            <div class="detail-panel-header" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem">
+              <div class="table-header-title" id="contabil-detail-title">Detalhes</div>
+              <div style="display:flex;gap:.5rem">
+                <button class="btn btn-ghost btn-sm" id="ct-btn-extend" onclick="extenderTrial()">⏰ +7 dias trial</button>
+                <button class="btn btn-ghost btn-sm" onclick="document.getElementById('contabil-detail').style.display='none'">✕ Fechar</button>
+              </div>
             </div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:0">
-              <div style="border-right:1px solid var(--border)">
-                <div style="padding:.75rem 1.25rem;border-bottom:1px solid var(--border);font-size:.78rem;font-weight:700;color:var(--text-2)">🏭 Empresas</div>
-                <table><thead><tr><th>Nome</th><th>CNPJ</th><th>Regime</th></tr></thead>
-                <tbody id="tbody-ct-empresas"><tr><td colspan="3"><div class="loading"><div class="spinner"></div></div></td></tr></tbody></table>
-              </div>
-              <div>
-                <div style="padding:.75rem 1.25rem;border-bottom:1px solid var(--border);font-size:.78rem;font-weight:700;color:var(--text-2)">👥 Usuários</div>
-                <table><thead><tr><th>Nome</th><th>E-mail</th><th>Perfil</th><th>Status</th></tr></thead>
-                <tbody id="tbody-ct-usuarios"><tr><td colspan="4"><div class="loading"><div class="spinner"></div></div></td></tr></tbody></table>
-              </div>
+
+            <!-- Sub-abas do detalhe -->
+            <div style="display:flex;gap:.4rem;padding:.75rem 1.25rem;border-bottom:1px solid var(--border)">
+              <button class="btn btn-xs" id="ct-dtab-empresas" onclick="ctDetailTab('empresas')" style="background:var(--purple);color:#fff">🏭 Empresas</button>
+              <button class="btn btn-ghost btn-xs" id="ct-dtab-usuarios" onclick="ctDetailTab('usuarios')">👥 Usuários</button>
+              <button class="btn btn-ghost btn-xs" id="ct-dtab-tickets" onclick="ctDetailTab('tickets')">🎫 Tickets</button>
+              <button class="btn btn-ghost btn-xs" id="ct-dtab-docs" onclick="ctDetailTab('docs')">📄 Documentos/mês</button>
+              <button class="btn btn-ghost btn-xs" id="ct-dtab-auditoria" onclick="ctDetailTab('auditoria')">🔍 Auditoria</button>
+            </div>
+
+            <div id="ct-detail-empresas">
+              <table><thead><tr><th>Nome</th><th>CNPJ</th><th>Regime</th></tr></thead>
+              <tbody id="tbody-ct-empresas"></tbody></table>
+            </div>
+            <div id="ct-detail-usuarios" style="display:none">
+              <table><thead><tr><th>Nome</th><th>E-mail</th><th>Perfil</th><th>Status</th><th>Último login</th></tr></thead>
+              <tbody id="tbody-ct-usuarios"></tbody></table>
+            </div>
+            <div id="ct-detail-tickets" style="display:none">
+              <table><thead><tr><th>Tipo</th><th>Título</th><th>Status</th><th>Criado em</th></tr></thead>
+              <tbody id="tbody-ct-tickets"></tbody></table>
+            </div>
+            <div id="ct-detail-docs" style="display:none;padding:1.25rem">
+              <canvas id="ct-chart-docs" height="100"></canvas>
+            </div>
+            <div id="ct-detail-auditoria" style="display:none">
+              <table><thead><tr><th>Ação</th><th>Entidade</th><th>Descrição</th><th>Usuário</th><th>Data</th></tr></thead>
+              <tbody id="tbody-ct-auditoria"></tbody></table>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- ACESSOS -->
+      <!-- ACESSOS -->      <!-- ACESSOS -->
       <div class="view" id="view-acessos">
         <div class="section-header">
           <div><div class="section-title-sm">Controle de Acessos</div><div class="section-desc">Usuários responsáveis por tenant na Nexus Platform</div></div>
@@ -1058,84 +1126,310 @@ function loadSection(id){
   else if(id==='financeiro'){loadStats();renderFinanceiro()}
   else if(id==='atividade') renderAtividade('activity-full');
 }
+// ── NEXUS CONTÁBIL ──
+let _ctTenantId = null;
+let _ctGrowthChart = null;
+let _ctDocsChart = null;
+
+function ctTab(tab){
+  ['escritorios','trial','inativos','crescimento'].forEach(t=>{
+    document.getElementById(`ct-panel-${t}`).style.display = t===tab?'':'none';
+    const btn = document.getElementById(`ct-tab-${t}`);
+    btn.style.background = t===tab?'var(--purple)':'';
+    btn.style.color = t===tab?'#fff':'';
+    btn.className = t===tab?'btn btn-sm':'btn btn-ghost btn-sm';
+  });
+  if(tab==='trial') loadCtTrial();
+  else if(tab==='inativos') loadCtInativos();
+  else if(tab==='crescimento') loadCtCrescimento();
+}
+
+function ctDetailTab(tab){
+  ['empresas','usuarios','tickets','docs','auditoria'].forEach(t=>{
+    document.getElementById(`ct-detail-${t}`).style.display = t===tab?'':'none';
+    const btn = document.getElementById(`ct-dtab-${t}`);
+    btn.style.background = t===tab?'var(--purple)':'';
+    btn.style.color = t===tab?'#fff':'';
+    btn.className = t===tab?'btn btn-xs':'btn btn-ghost btn-xs';
+  });
+  if(tab==='tickets') loadCtTickets();
+  else if(tab==='docs') loadCtDocs();
+  else if(tab==='auditoria') loadCtAuditoria();
+}
+
 async function renderContabil(){
   try{
-    const [stats, tenants] = await Promise.all([
+    const [stats, mrr, tenants, alertaTrial] = await Promise.all([
       platformApi('GET','/contabil/stats'),
-      platformApi('GET','/contabil/tenants')
+      platformApi('GET','/contabil/mrr'),
+      platformApi('GET','/contabil/tenants'),
+      platformApi('GET','/contabil/trial-expirando')
     ]);
+
     if(stats){
-      document.getElementById('ct-total').textContent=stats.total_tenants||0;
-      document.getElementById('ct-ativos').textContent=stats.tenants_ativos||0;
-      document.getElementById('ct-trial').textContent=stats.tenants_trial||0;
-      document.getElementById('ct-empresas').textContent=stats.total_empresas||0;
-      document.getElementById('ct-starter').textContent=stats.plano_starter||0;
-      document.getElementById('ct-profissional').textContent=stats.plano_profissional||0;
-      document.getElementById('ct-enterprise').textContent=stats.plano_enterprise||0;
+      document.getElementById('ct-total').textContent = stats.total_tenants||0;
+      document.getElementById('ct-ativos').textContent = stats.tenants_ativos||0;
+      document.getElementById('ct-trial').textContent = stats.tenants_trial||0;
+      document.getElementById('ct-empresas').textContent = stats.total_empresas||0;
+      document.getElementById('ct-starter').textContent = stats.plano_starter||0;
+      document.getElementById('ct-profissional').textContent = stats.plano_profissional||0;
+      document.getElementById('ct-enterprise').textContent = stats.plano_enterprise||0;
     }
-    const tb=document.getElementById('tbody-contabil');
-    if(!tenants?.length){tb.innerHTML='<tr><td colspan="10"><div class="empty"><div class="empty-icon">📊</div><div class="empty-text">Nenhum escritório cadastrado.</div></div></td></tr>';return}
-    tb.innerHTML=tenants.map(t=>`<tr style="cursor:pointer" onclick="loadContabilDetail('${t.id}','${t.nome}')">
-      <td><strong>${t.nome||'—'}</strong><br><small style="color:var(--text-3)">${t.cnpj||'—'}</small></td>
-      <td><small>${t.email||'—'}</small></td>
-      <td>${badge(planName(t.plano))}</td>
-      <td>${t.status==='ATIVO'?'<span class="badge badge-green">Ativo</span>':t.status==='TRIAL'?'<span class="badge badge-blue">Trial</span>':t.status==='CANCELADO'?'<span class="badge badge-red">Cancelado</span>':'<span class="badge badge-gray">'+t.status+'</span>'}</td>
-      <td>${t.total_empresas||0}</td>
-      <td>${t.total_usuarios||0}</td>
-      <td><span style="font-family:JetBrains Mono,monospace;font-size:.75rem">${t.xmlsUsadosMes||0}</span></td>
-      <td><small>${t.trialEndsAt?new Date(t.trialEndsAt).toLocaleDateString('pt-BR'):'—'}</small></td>
-      <td><small>${t.createdAt?new Date(t.createdAt).toLocaleDateString('pt-BR'):'—'}</small></td>
-      <td onclick="event.stopPropagation()"><div style="display:flex;gap:.3rem;flex-wrap:wrap">
-        <select class="btn btn-ghost btn-xs" onchange="mudarPlanoContabil('${t.id}',this.value)" style="padding:.2rem .4rem">
-          <option value="">Plano</option>
-          <option value="STARTER">Starter</option>
-          <option value="PROFISSIONAL">Profissional</option>
-          <option value="ENTERPRISE">Enterprise</option>
-        </select>
-        ${t.status==='ACTIVE'
-          ?`<button class="btn btn-danger btn-xs" onclick="toggleContabilStatus('${t.id}','SUSPENDED')" title="Suspender">🔒</button>`
-          :t.status==='SUSPENDED'
-          ?`<button class="btn btn-success btn-xs" onclick="toggleContabilStatus('${t.id}','ACTIVE')" title="Reativar">▶</button>
-           <button class="btn btn-danger btn-xs" onclick="toggleContabilStatus('${t.id}','CANCELLED')" title="Cancelar">✕</button>`
-          :t.status==='TRIAL'
-          ?`<button class="btn btn-success btn-xs" onclick="toggleContabilStatus('${t.id}','ACTIVE')" title="Ativar">▶</button>`
-          :`<button class="btn btn-success btn-xs" onclick="toggleContabilStatus('${t.id}','ACTIVE')" title="Reativar">▶</button>`
-        }
-      </div></td>
-    </tr>`).join('');
+    if(mrr){
+      document.getElementById('ct-mrr').textContent = 'R$'+mrr.mrr_total.toLocaleString('pt-BR');
+    }
+
+    // Alertas trial expirando
+    const alertDiv = document.getElementById('ct-alertas');
+    if(alertaTrial?.length){
+      alertDiv.innerHTML = `<div style="background:#FEF3C7;border:1px solid #F59E0B;border-radius:8px;padding:.75rem 1rem;font-size:.8rem;color:#92400E;display:flex;align-items:center;gap:.75rem">
+        <span style="font-size:1.1rem">⏰</span>
+        <span><strong>${alertaTrial.length} escritório(s)</strong> com trial expirando nos próximos 7 dias.
+        <button onclick="ctTab('trial')" style="background:none;border:none;color:#92400E;text-decoration:underline;cursor:pointer;font-size:.8rem">Ver detalhes →</button></span>
+      </div>`;
+    } else {
+      alertDiv.innerHTML = '';
+    }
+
+    const tb = document.getElementById('tbody-contabil');
+    if(!tenants?.length){
+      tb.innerHTML='<tr><td colspan="9"><div class="empty"><div class="empty-icon">📊</div><div class="empty-text">Nenhum escritório cadastrado.</div></div></td></tr>';
+      return;
+    }
+    tb.innerHTML = tenants.map(t=>{
+      const trialDate = t.trialEndsAt ? new Date(t.trialEndsAt) : null;
+      const diasTrial = trialDate ? Math.ceil((trialDate - new Date()) / 86400000) : null;
+      const trialAlert = diasTrial !== null && diasTrial <= 7 && diasTrial > 0;
+      return `<tr style="cursor:pointer" onclick="loadContabilDetail('${t.id}','${t.nome}')">
+        <td><strong>${t.nome||'—'}</strong><br><small style="color:var(--text-3)">${t.email||'—'}</small></td>
+        <td>${badge(planName(t.plano))}</td>
+        <td>${statusBadgeContabil(t.status)}</td>
+        <td style="text-align:center">${t.total_empresas||0}</td>
+        <td style="text-align:center">${t.total_usuarios||0}</td>
+        <td><span style="font-family:JetBrains Mono,monospace;font-size:.75rem">${t.xmlsUsadosMes||0}</span></td>
+        <td><small style="${trialAlert?'color:var(--yellow);font-weight:700':''}">${trialDate?trialDate.toLocaleDateString('pt-BR'):'—'}${trialAlert?' ⚠️':''}</small></td>
+        <td><small>${t.createdAt?new Date(t.createdAt).toLocaleDateString('pt-BR'):'—'}</small></td>
+        <td onclick="event.stopPropagation()">
+          <div style="display:flex;gap:.3rem;flex-wrap:wrap">
+            <select class="btn btn-ghost btn-xs" onchange="mudarPlanoContabil('${t.id}',this.value)" style="padding:.2rem .4rem">
+              <option value="">Plano</option>
+              <option value="STARTER" ${t.plano==='STARTER'?'selected':''}>Starter R$297</option>
+              <option value="PROFISSIONAL" ${t.plano==='PROFISSIONAL'?'selected':''}>Profissional R$497</option>
+              <option value="ENTERPRISE" ${t.plano==='ENTERPRISE'?'selected':''}>Enterprise R$697</option>
+            </select>
+            ${t.status==='ACTIVE'
+              ?`<button class="btn btn-danger btn-xs" onclick="toggleContabilStatus('${t.id}','SUSPENDED')" title="Suspender">⏸</button>`
+              :t.status==='SUSPENDED'
+              ?`<button class="btn btn-success btn-xs" onclick="toggleContabilStatus('${t.id}','ACTIVE')" title="Reativar">▶</button>
+                <button class="btn btn-danger btn-xs" onclick="toggleContabilStatus('${t.id}','CANCELLED')" title="Cancelar">✕</button>`
+              :t.status==='TRIAL'
+              ?`<button class="btn btn-success btn-xs" onclick="toggleContabilStatus('${t.id}','ACTIVE')" title="Ativar">▶</button>
+                <button class="btn btn-ghost btn-xs" onclick="extenderTrialById('${t.id}')" title="+7 dias">⏰</button>`
+              :`<button class="btn btn-success btn-xs" onclick="toggleContabilStatus('${t.id}','ACTIVE')" title="Reativar">▶</button>`
+            }
+          </div>
+        </td>
+      </tr>`;
+    }).join('');
   }catch(e){
-    document.getElementById('tbody-contabil').innerHTML='<tr><td colspan="10"><div class="empty"><div class="empty-icon">⚠️</div><div class="empty-text">Erro ao conectar com Nexus Contábil.</div></div></td></tr>';
+    document.getElementById('tbody-contabil').innerHTML='<tr><td colspan="9"><div class="empty"><div class="empty-icon">⚠️</div><div class="empty-text">Erro ao carregar Nexus Contábil.</div></div></td></tr>';
   }
 }
 
-async function loadContabilDetail(id, nome){
-  const panel=document.getElementById('contabil-detail');
-  panel.style.display='block';
-  document.getElementById('contabil-detail-title').textContent=`${nome} — Empresas e Usuários`;
-  panel.scrollIntoView({behavior:'smooth',block:'nearest'});
+function statusBadgeContabil(s){
+  const map = {
+    ACTIVE:'<span class="badge badge-green">Ativo</span>',
+    TRIAL:'<span class="badge badge-blue">Trial</span>',
+    SUSPENDED:'<span class="badge badge-yellow">Suspenso</span>',
+    CANCELLED:'<span class="badge badge-red">Cancelado</span>'
+  };
+  return map[s]||`<span class="badge badge-gray">${s}</span>`;
+}
+
+async function loadCtTrial(){
+  const tb = document.getElementById('tbody-ct-trial');
   try{
-    const d=await platformApi('GET',`/contabil/tenants/${id}`);
-    document.getElementById('tbody-ct-empresas').innerHTML=d.empresas?.length
+    const rows = await platformApi('GET','/contabil/trial-expirando');
+    if(!rows?.length){
+      tb.innerHTML='<tr><td colspan="6"><div class="empty"><div class="empty-icon">✅</div><div class="empty-text">Nenhum trial expirando nos próximos 7 dias.</div></div></td></tr>';
+      return;
+    }
+    tb.innerHTML = rows.map(r=>`<tr>
+      <td><strong>${r.nome}</strong></td>
+      <td><small>${r.email}</small></td>
+      <td>${badge(planName(r.plano))}</td>
+      <td><small>${new Date(r.trialEndsAt).toLocaleDateString('pt-BR')}</small></td>
+      <td><span style="font-weight:700;color:${r.dias_restantes<=2?'var(--red)':r.dias_restantes<=5?'var(--yellow)':'var(--green)'}">${Math.ceil(r.dias_restantes)} dia(s)</span></td>
+      <td><div style="display:flex;gap:.3rem">
+        <button class="btn btn-ghost btn-xs" onclick="extenderTrialById('${r.id}')">⏰ +7 dias</button>
+        <button class="btn btn-success btn-xs" onclick="toggleContabilStatus('${r.id}','ACTIVE')">▶ Ativar</button>
+      </div></td>
+    </tr>`).join('');
+  }catch(e){tb.innerHTML='<tr><td colspan="6">Erro</td></tr>';}
+}
+
+async function loadCtInativos(){
+  const tb = document.getElementById('tbody-ct-inativos');
+  try{
+    const rows = await platformApi('GET','/contabil/inativos');
+    if(!rows?.length){
+      tb.innerHTML='<tr><td colspan="5"><div class="empty"><div class="empty-icon">🎉</div><div class="empty-text">Nenhum escritório inativo há 30+ dias.</div></div></td></tr>';
+      return;
+    }
+    tb.innerHTML = rows.map(r=>`<tr>
+      <td><strong>${r.nome}</strong><br><small>${r.email}</small></td>
+      <td>${badge(planName(r.plano))}</td>
+      <td><small>${r.ultimo_login?new Date(r.ultimo_login).toLocaleDateString('pt-BR'):'Nunca acessou'}</small></td>
+      <td><span style="font-weight:700;color:var(--red)">${Math.ceil(r.dias_sem_acesso||999)} dias</span></td>
+      <td><button class="btn btn-danger btn-xs" onclick="toggleContabilStatus('${r.id}','SUSPENDED')">⏸ Suspender</button></td>
+    </tr>`).join('');
+  }catch(e){tb.innerHTML='<tr><td colspan="5">Erro</td></tr>';}
+}
+
+async function loadCtCrescimento(){
+  try{
+    const [rows, mrr] = await Promise.all([
+      platformApi('GET','/contabil/crescimento'),
+      platformApi('GET','/contabil/mrr')
+    ]);
+
+    // Gráfico crescimento
+    const labels = rows.map(r=>new Date(r.mes).toLocaleDateString('pt-BR',{month:'short',year:'2-digit'}));
+    const novos = rows.map(r=>r.novos);
+    const ctx = document.getElementById('ct-chart-crescimento').getContext('2d');
+    if(_ctGrowthChart) _ctGrowthChart.destroy();
+    _ctGrowthChart = new Chart(ctx, {
+      type:'bar',
+      data:{labels,datasets:[{label:'Novos escritórios',data:novos,backgroundColor:'rgba(124,58,237,.6)',borderRadius:6}]},
+      options:{plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{stepSize:1}}}}
+    });
+
+    // MRR detalhes
+    const mrrDiv = document.getElementById('ct-mrr-detalhes');
+    if(mrr){
+      mrrDiv.innerHTML = `
+        <div style="font-size:1.5rem;font-weight:700;color:var(--green);margin-bottom:1rem">R$${mrr.mrr_total.toLocaleString('pt-BR')}/mês</div>
+        <div style="display:flex;flex-direction:column;gap:.5rem">
+          ${mrr.detalhes.map(d=>`<div style="display:flex;align-items:center;gap:.75rem">
+            <span style="font-size:.82rem;color:var(--text-2);width:120px">${d.plano}</span>
+            <div style="flex:1;background:var(--bg);border-radius:4px;height:20px;overflow:hidden">
+              <div style="height:100%;background:var(--purple);width:${mrr.mrr_total>0?(d.subtotal/mrr.mrr_total*100):0}%;border-radius:4px;transition:.3s"></div>
+            </div>
+            <span style="font-size:.82rem;font-weight:700;color:var(--indigo);width:80px;text-align:right">R$${d.subtotal.toLocaleString('pt-BR')}</span>
+            <span style="font-size:.75rem;color:var(--text-3)">(${d.quantidade}×)</span>
+          </div>`).join('')}
+        </div>`;
+    }
+  }catch(e){console.error(e)}
+}
+
+async function loadContabilDetail(id, nome){
+  _ctTenantId = id;
+  const panel = document.getElementById('contabil-detail');
+  panel.style.display = 'block';
+  document.getElementById('contabil-detail-title').textContent = `${nome}`;
+  panel.scrollIntoView({behavior:'smooth',block:'nearest'});
+  ctDetailTab('empresas');
+  try{
+    const d = await platformApi('GET',`/contabil/tenants/${id}`);
+    // Empresas
+    document.getElementById('tbody-ct-empresas').innerHTML = d.empresas?.length
       ?d.empresas.map(e=>`<tr><td>${e.nome}</td><td><small style="font-family:JetBrains Mono,monospace">${e.cnpj||'—'}</small></td><td>${badge(e.regime||'—')}</td></tr>`).join('')
       :'<tr><td colspan="3"><div class="empty"><div class="empty-text">Nenhuma empresa.</div></div></td></tr>';
-    document.getElementById('tbody-ct-usuarios').innerHTML=d.usuarios?.length
-      ?d.usuarios.map(u=>`<tr><td>${u.nome}</td><td><small>${u.email}</small></td><td>${badge(u.perfil)}</td><td>${u.ativo?'<span class="badge badge-green">Ativo</span>':'<span class="badge badge-red">Inativo</span>'}</td></tr>`).join('')
-      :'<tr><td colspan="4"><div class="empty"><div class="empty-text">Nenhum usuário.</div></div></td></tr>';
+    // Usuários
+    document.getElementById('tbody-ct-usuarios').innerHTML = d.usuarios?.length
+      ?d.usuarios.map(u=>`<tr>
+        <td>${u.nome}</td>
+        <td><small>${u.email}</small></td>
+        <td>${badge(u.role||u.perfil||'—')}</td>
+        <td>${u.ativo||u.status==='ACTIVE'?'<span class="badge badge-green">Ativo</span>':'<span class="badge badge-red">Inativo</span>'}</td>
+        <td><small>${u.lastLoginAt?new Date(u.lastLoginAt).toLocaleDateString('pt-BR'):'Nunca'}</small></td>
+      </tr>`).join('')
+      :'<tr><td colspan="5"><div class="empty"><div class="empty-text">Nenhum usuário.</div></div></td></tr>';
   }catch(e){toast('Erro ao carregar detalhes.','error')}
+}
+
+async function loadCtTickets(){
+  const tb = document.getElementById('tbody-ct-tickets');
+  if(!_ctTenantId) return;
+  try{
+    const rows = await platformApi('GET',`/contabil/tenants/${_ctTenantId}/tickets`);
+    tb.innerHTML = rows?.length
+      ?rows.map(r=>`<tr>
+        <td>${badge(r.tipo)}</td>
+        <td>${r.titulo}</td>
+        <td>${r.status==='aberto'?'<span class="badge badge-yellow">Aberto</span>':'<span class="badge badge-green">Fechado</span>'}</td>
+        <td><small>${new Date(r.createdAt).toLocaleDateString('pt-BR')}</small></td>
+      </tr>`).join('')
+      :'<tr><td colspan="4"><div class="empty"><div class="empty-text">Nenhum ticket.</div></div></td></tr>';
+  }catch(e){tb.innerHTML='<tr><td colspan="4">Erro</td></tr>';}
+}
+
+async function loadCtDocs(){
+  if(!_ctTenantId) return;
+  try{
+    const rows = await platformApi('GET',`/contabil/tenants/${_ctTenantId}/documentos-mes`);
+    const labels = rows.map(r=>new Date(r.mes).toLocaleDateString('pt-BR',{month:'short',year:'2-digit'}));
+    const totais = rows.map(r=>r.total);
+    const ctx = document.getElementById('ct-chart-docs').getContext('2d');
+    if(_ctDocsChart) _ctDocsChart.destroy();
+    _ctDocsChart = new Chart(ctx,{
+      type:'bar',
+      data:{labels,datasets:[{label:'Documentos importados',data:totais,backgroundColor:'rgba(124,58,237,.6)',borderRadius:6}]},
+      options:{plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{stepSize:1}}}}
+    });
+  }catch(e){console.error(e)}
+}
+
+async function loadCtAuditoria(){
+  const tb = document.getElementById('tbody-ct-auditoria');
+  if(!_ctTenantId) return;
+  try{
+    const rows = await platformApi('GET',`/contabil/tenants/${_ctTenantId}/auditoria`);
+    tb.innerHTML = rows?.length
+      ?rows.map(r=>`<tr>
+        <td>${badge(r.acao)}</td>
+        <td><small>${r.entidade||'—'}</small></td>
+        <td><small style="color:var(--text-2)">${r.descricao||'—'}</small></td>
+        <td><small>${r.usuario_nome||'Sistema'}</small></td>
+        <td><small>${new Date(r.createdAt).toLocaleDateString('pt-BR')} ${new Date(r.createdAt).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}</small></td>
+      </tr>`).join('')
+      :'<tr><td colspan="5"><div class="empty"><div class="empty-text">Nenhum registro de auditoria.</div></div></td></tr>';
+  }catch(e){tb.innerHTML='<tr><td colspan="5">Erro</td></tr>';}
 }
 
 async function mudarPlanoContabil(id, plano){
   if(!plano) return;
-  try{await platformApi('PATCH',`/contabil/tenants/${id}/plano`,{plano});toast(`Plano alterado para ${plano}!`);renderContabil()}
-  catch(e){toast('Erro.','error')}
+  try{
+    await platformApi('PATCH',`/contabil/tenants/${id}/plano`,{plano});
+    toast(`Plano alterado para ${planName(plano)}!`);
+    renderContabil();
+  }catch(e){toast('Erro ao alterar plano.','error')}
 }
 
 async function toggleContabilStatus(id, status){
   const msgs={ACTIVE:'Escritório reativado!',SUSPENDED:'Escritório suspenso!',CANCELLED:'Escritório cancelado!'};
-  try{await platformApi('PATCH',`/contabil/tenants/${id}/status`,{status});toast(msgs[status]||'Status atualizado!');renderContabil()}
-  catch(e){toast('Erro ao atualizar status.','error')}
+  try{
+    await platformApi('PATCH',`/contabil/tenants/${id}/status`,{status});
+    toast(msgs[status]||'Status atualizado!');
+    renderContabil();
+  }catch(e){toast('Erro ao atualizar status.','error')}
 }
 
+async function extenderTrialById(id){
+  try{
+    await platformApi('PATCH',`/contabil/tenants/${id}/trial`,{dias:7});
+    toast('Trial estendido por +7 dias!');
+    renderContabil();
+  }catch(e){toast('Erro ao estender trial.','error')}
+}
+
+async function extenderTrial(){
+  if(!_ctTenantId) return;
+  await extenderTrialById(_ctTenantId);
+}
+
+function loadAll(){loadStats();renderAtividade('activity-dash')}
 function loadAll(){loadStats();renderAtividade('activity-dash')}
 
 // ── AUTO LOGIN ──
