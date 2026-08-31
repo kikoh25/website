@@ -919,3 +919,282 @@ def admin_conversao(
         "total_clientes_pagos": total_clientes,
         "total_trial": total_trial,
     }
+
+
+# ── ASAAS INTEGRATION ──
+import urllib.request as _ur
+import json as _json
+
+ASAAS_KEY = "$aact_prod_000MzkwODA2MWY2OGM3MWRlMDU2NWM3MzJlNzZmNGZhZGY6OmY3MTRjMjVmLTAwZjgtNDRkZS1hNjlhLTA2MmM2MjM0MDhiMTo6JGFhY2hfMzliMWViYTctMmQyYy00NTZiLTkzOTQtNGM5ZjY5YTdmODgz"
+ASAAS_BASE = "https://api.asaas.com/v3"
+
+def asaas_get(path: str, params: dict = {}):
+    qs = "&".join(f"{k}={v}" for k,v in params.items())
+    url = f"{ASAAS_BASE}{path}{'?'+qs if qs else ''}"
+    req = _ur.Request(url, headers={"access_token": ASAAS_KEY, "Content-Type": "application/json"})
+    with _ur.urlopen(req, timeout=10) as r:
+        return _json.loads(r.read())
+
+def asaas_post(path: str, payload: dict):
+    url = f"{ASAAS_BASE}{path}"
+    data = _json.dumps(payload).encode()
+    req = _ur.Request(url, data=data, method="POST",
+        headers={"access_token": ASAAS_KEY, "Content-Type": "application/json"})
+    with _ur.urlopen(req, timeout=10) as r:
+        return _json.loads(r.read())
+
+@app.get("/asaas/subscriptions")
+def asaas_subscriptions(user=Depends(get_current_user)):
+    try:
+        data = asaas_get("/subscriptions", {"limit": "100"})
+        return data.get("data", [])
+    except Exception as e:
+        raise HTTPException(500, str(e))
+
+@app.get("/asaas/payments")
+def asaas_payments(user=Depends(get_current_user)):
+    try:
+        data = asaas_get("/payments", {"limit": "100", "order": "desc"})
+        return {"data": data.get("data", []), "total": data.get("totalCount", 0)}
+    except Exception as e:
+        raise HTTPException(500, str(e))
+
+@app.get("/asaas/payments/overdue")
+def asaas_overdue(user=Depends(get_current_user)):
+    try:
+        data = asaas_get("/payments", {"status": "OVERDUE", "limit": "50"})
+        return {"data": data.get("data", []), "total": data.get("totalCount", 0)}
+    except Exception as e:
+        raise HTTPException(500, str(e))
+
+@app.get("/asaas/mrr")
+def asaas_mrr(user=Depends(get_current_user)):
+    try:
+        subs = asaas_get("/subscriptions", {"status": "ACTIVE", "limit": "100"})
+        total_mrr = sum(s.get("value", 0) for s in subs.get("data", []))
+        por_plano = {}
+        for s in subs.get("data", []):
+            desc = s.get("description", "")
+            plano = "Outro"
+            for p in ["STARTER", "PROFISSIONAL", "ENTERPRISE", "Starter", "Pro", "chamados", "completo"]:
+                if p.upper() in desc.upper():
+                    plano = p.upper()
+                    break
+            por_plano[plano] = por_plano.get(plano, 0) + s.get("value", 0)
+        return {"mrr_total": total_mrr, "por_plano": por_plano,
+                "total_assinaturas": subs.get("totalCount", 0)}
+    except Exception as e:
+        raise HTTPException(500, str(e))
+
+@app.get("/asaas/churn")
+def asaas_churn(user=Depends(get_current_user)):
+    try:
+        canceladas = asaas_get("/subscriptions", {"status": "CANCELLED", "limit": "100"})
+        ativas = asaas_get("/subscriptions", {"status": "ACTIVE", "limit": "100"})
+        total_cancel = canceladas.get("totalCount", 0)
+        total_ativas = ativas.get("totalCount", 0)
+        total = total_cancel + total_ativas
+        churn_rate = round(total_cancel / total * 100, 1) if total > 0 else 0
+        return {"canceladas": total_cancel, "ativas": total_ativas,
+                "churn_rate": churn_rate, "detalhes": canceladas.get("data", [])[:10]}
+    except Exception as e:
+        raise HTTPException(500, str(e))
+
+@app.get("/asaas/projecao")
+def asaas_projecao(user=Depends(get_current_user)):
+    try:
+        subs = asaas_get("/subscriptions", {"status": "ACTIVE", "limit": "100"})
+        mrr = sum(s.get("value", 0) for s in subs.get("data", []))
+        return {
+            "mrr": mrr,
+            "mes_1": mrr,
+            "mes_2": round(mrr * 1.05, 2),
+            "mes_3": round(mrr * 1.10, 2),
+            "arr": round(mrr * 12, 2)
+        }
+    except Exception as e:
+        raise HTTPException(500, str(e))
+
+@app.get("/asaas/customers/{customer_id}/payments")
+def asaas_customer_payments(customer_id: str, user=Depends(get_current_user)):
+    try:
+        data = asaas_get("/payments", {"customer": customer_id, "limit": "20", "order": "desc"})
+        return data.get("data", [])
+    except Exception as e:
+        raise HTTPException(500, str(e))
+
+# ── PLATFORM — MELHORIAS ──
+
+@app.get("/tenants/{tenant_id}/stats")
+def tenant_stats(tenant_id: str, db=Depends(get_db), user=Depends(get_current_user)):
+    """Stats detalhados de um tenant: limites, uso, último login"""
+    tenant = db.execute(text("SELECT * FROM tenants WHERE id = :id"), {"id": tenant_id}).fetchone()
+    if not tenant:
+        raise HTTPException(404, "Tenant não encontrado")
+    
+    tickets_total = db.execute(text("SELECT COUNT(*) as n FROM tickets WHERE tenant_id = :id"), {"id": tenant_id}).fetchone().n
+    tickets_abertos = db.execute(text("SELECT COUNT(*) as n FROM tickets WHERE tenant_id = :id AND status = 'aberto'"), {"id": tenant_id}).fetchone().n
+    tickets_sla_vencido = db.execute(text("""
+        SELECT COUNT(*) as n FROM tickets 
+        WHERE tenant_id = :id AND status != 'resolvido' AND status != 'fechado'
+        AND prazo_sla < NOW()
+    """), {"id": tenant_id}).fetchone().n
+    
+    usuarios_total = db.execute(text("SELECT COUNT(*) as n FROM users WHERE tenant_id = :id"), {"id": tenant_id}).fetchone().n
+    ativos_total = db.execute(text("SELECT COUNT(*) as n FROM assets WHERE tenant_id = :id"), {"id": tenant_id}).fetchone().n
+    ultimo_login = db.execute(text("""
+        SELECT MAX(created_at) as ultimo FROM user_sessions WHERE tenant_id = :id
+    """), {"id": tenant_id}).fetchone().ultimo
+    ultimo_ticket = db.execute(text("""
+        SELECT MAX(criado_em) as ultimo FROM tickets WHERE tenant_id = :id
+    """), {"id": tenant_id}).fetchone().ultimo
+
+    t = dict(tenant._mapping)
+    limites = LIMITES_PLANO.get(t.get("plano","trial"), {})
+    
+    return {
+        "tenant": t,
+        "uso": {
+            "tickets_total": tickets_total,
+            "tickets_abertos": tickets_abertos,
+            "tickets_sla_vencido": tickets_sla_vencido,
+            "usuarios_total": usuarios_total,
+            "ativos_total": ativos_total,
+        },
+        "limites": limites,
+        "ultimo_login": str(ultimo_login) if ultimo_login else None,
+        "ultimo_ticket": str(ultimo_ticket) if ultimo_ticket else None,
+    }
+
+@app.post("/tenants/{tenant_id}/reset-senha")
+def tenant_reset_senha(tenant_id: str, db=Depends(get_db), user=Depends(get_current_user)):
+    """Gera nova senha temporária para o admin do tenant"""
+    import secrets, string
+    nova_senha = ''.join(secrets.choice(string.ascii_letters + string.digits) for _ in range(12))
+    hashed = bcrypt.hashpw(nova_senha.encode(), bcrypt.gensalt()).decode()
+    
+    admin = db.execute(text("""
+        SELECT id, email FROM users WHERE tenant_id = :id AND role = 'admin' LIMIT 1
+    """), {"id": tenant_id}).fetchone()
+    
+    if not admin:
+        raise HTTPException(404, "Admin do tenant não encontrado")
+    
+    db.execute(text("UPDATE users SET password_hash = :h WHERE id = :id"),
+               {"h": hashed, "id": admin.id})
+    db.commit()
+    return {"ok": True, "email": admin.email, "nova_senha": nova_senha}
+
+@app.post("/tenants/{tenant_id}/email")
+async def enviar_email_tenant(tenant_id: str, data: dict, db=Depends(get_db), user=Depends(get_current_user)):
+    """Envia e-mail direto para o admin do tenant"""
+    tenant = db.execute(text("SELECT * FROM tenants WHERE id = :id"), {"id": tenant_id}).fetchone()
+    if not tenant:
+        raise HTTPException(404, "Tenant não encontrado")
+    t = dict(tenant._mapping)
+    
+    admin = db.execute(text("SELECT email, nome FROM users WHERE tenant_id = :id AND role = 'admin' LIMIT 1"),
+                       {"id": tenant_id}).fetchone()
+    dest_email = admin.email if admin else t.get("email")
+    
+    import urllib.request as ur2, json as j2
+    payload = j2.dumps({
+        "from": "contato@nexusefbusiness.com.br",
+        "to": [dest_email],
+        "subject": data.get("assunto", "Mensagem da Nexus EF Business"),
+        "html": f"<p>{data.get('mensagem','')}</p><br><small>Nexus EF Business — nexusefbusiness.com.br</small>"
+    }).encode()
+    req = ur2.Request("https://api.resend.com/emails", data=payload, method="POST",
+        headers={"Authorization": "Bearer re_4FHQ6SYU_5WBE2MfqARXSBmuNQ7gPBqEh", "Content-Type": "application/json"})
+    with ur2.urlopen(req, timeout=10) as r:
+        result = j2.loads(r.read())
+    return {"ok": True, "email_enviado_para": dest_email, "resend_id": result.get("id")}
+
+# Contábil reset senha
+@app.post("/contabil/tenants/{tenant_id}/reset-senha")
+def contabil_reset_senha(tenant_id: str, dbc=Depends(get_contabil_db), user=Depends(get_current_user)):
+    import secrets, string, hashlib
+    nova_senha = ''.join(secrets.choice(string.ascii_letters + string.digits) for _ in range(12))
+    hashed = bcrypt.hashpw(nova_senha.encode(), bcrypt.gensalt()).decode()
+    
+    admin = dbc.execute(_text2("""
+        SELECT id, email FROM usuarios WHERE "tenantId" = :id AND role = 'ADMIN' LIMIT 1
+    """), {"id": tenant_id}).fetchone()
+    
+    if not admin:
+        raise HTTPException(404, "Admin não encontrado")
+    
+    dbc.execute(_text2('UPDATE usuarios SET senha = :h WHERE id = :id'),
+                {"h": hashed, "id": admin.id})
+    dbc.commit()
+    return {"ok": True, "email": admin.email, "nova_senha": nova_senha}
+
+@app.post("/contabil/tenants/{tenant_id}/email")
+async def enviar_email_contabil(tenant_id: str, data: dict, dbc=Depends(get_contabil_db), user=Depends(get_current_user)):
+    tenant = dbc.execute(_text2("SELECT * FROM tenants WHERE id = :id"), {"id": tenant_id}).fetchone()
+    if not tenant:
+        raise HTTPException(404, "Tenant não encontrado")
+    t = dict(tenant._mapping)
+    
+    import urllib.request as ur2, json as j2
+    payload = j2.dumps({
+        "from": "contato@nexusefbusiness.com.br",
+        "to": [t.get("email")],
+        "subject": data.get("assunto", "Mensagem da Nexus EF Business"),
+        "html": f"<p>Olá, <strong>{t.get('nome')}</strong>!</p><p>{data.get('mensagem','')}</p><br><small>Nexus EF Business — nexusefbusiness.com.br</small>"
+    }).encode()
+    req = ur2.Request("https://api.resend.com/emails", data=payload, method="POST",
+        headers={"Authorization": "Bearer re_4FHQ6SYU_5WBE2MfqARXSBmuNQ7gPBqEh", "Content-Type": "application/json"})
+    with ur2.urlopen(req, timeout=10) as r:
+        result = j2.loads(r.read())
+    return {"ok": True, "email_enviado_para": t.get("email"), "resend_id": result.get("id")}
+
+# Observações e tags por cliente (Platform)
+@app.patch("/tenants/{tenant_id}/observacoes")
+def tenant_observacoes(tenant_id: str, data: dict, db=Depends(get_db), user=Depends(get_current_user)):
+    obs = data.get("observacoes","")
+    tags = data.get("tags","")
+    db.execute(text("""
+        UPDATE tenants SET 
+            observacoes = :obs,
+            tags = :tags
+        WHERE id = :id
+    """), {"obs": obs, "tags": tags, "id": tenant_id})
+    db.commit()
+    return {"ok": True}
+
+# Contábil — converter trial para pago
+@app.post("/contabil/tenants/{tenant_id}/converter-trial")
+def contabil_converter_trial(tenant_id: str, data: dict, dbc=Depends(get_contabil_db), user=Depends(get_current_user)):
+    plano = data.get("plano", "STARTER")
+    dbc.execute(_text2("""
+        UPDATE tenants SET status = 'ACTIVE', plano = :plano, "updatedAt" = NOW()
+        WHERE id = :id
+    """), {"plano": plano, "id": tenant_id})
+    dbc.commit()
+    return {"ok": True, "plano_ativado": plano}
+
+# Admin churn combinado
+@app.get("/admin/churn")
+def admin_churn(db=Depends(get_db), dbc=Depends(get_contabil_db), user=Depends(get_current_user)):
+    # Platform cancelados no mês
+    p_churn = db.execute(text("""
+        SELECT COUNT(*) as n FROM tenants 
+        WHERE status = 'suspenso' 
+        AND updated_at >= DATE_TRUNC('month', NOW())
+    """)).fetchone().n
+    # Contábil cancelados no mês  
+    c_churn = dbc.execute(_text2("""
+        SELECT COUNT(*) as n FROM tenants 
+        WHERE status = 'CANCELLED'
+        AND "updatedAt" >= DATE_TRUNC('month', NOW())
+    """)).fetchone().n
+    
+    p_total = db.execute(text("SELECT COUNT(*) as n FROM tenants")).fetchone().n
+    c_total = dbc.execute(_text2("SELECT COUNT(*) as n FROM tenants")).fetchone().n
+    
+    return {
+        "platform": {"churn_mes": p_churn, "total": p_total, "rate": round(p_churn/p_total*100,1) if p_total>0 else 0},
+        "contabil": {"churn_mes": c_churn, "total": c_total, "rate": round(c_churn/c_total*100,1) if c_total>0 else 0},
+        "total_churn": p_churn + c_churn
+    }
