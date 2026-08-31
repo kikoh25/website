@@ -555,9 +555,9 @@ def contabil_stats(db=Depends(get_contabil_db), user=Depends(get_current_user)):
     stats = db.execute(_text2("""
         SELECT
             COUNT(*) as total_tenants,
-            COUNT(*) FILTER (WHERE status = 'ATIVO') as tenants_ativos,
+            COUNT(*) FILTER (WHERE status = 'ACTIVE') as tenants_ativos,
             COUNT(*) FILTER (WHERE status = 'TRIAL') as tenants_trial,
-            COUNT(*) FILTER (WHERE status = 'CANCELADO') as tenants_cancelados,
+            COUNT(*) FILTER (WHERE status = 'CANCELLED') as tenants_cancelados,
             COUNT(*) FILTER (WHERE plano = 'STARTER') as plano_starter,
             COUNT(*) FILTER (WHERE plano = 'PROFISSIONAL') as plano_profissional,
             COUNT(*) FILTER (WHERE plano = 'ENTERPRISE') as plano_enterprise
