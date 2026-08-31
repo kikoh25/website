@@ -1756,9 +1756,21 @@ async function doLogin(){
     }catch(e){}
     sessionStorage.setItem('nexus_token',TOKEN);
     sessionStorage.setItem('nexus_platform_token',PLATFORM_TOKEN);
-    document.getElementById('login-screen').style.display='none';
-    document.getElementById('app').style.display='flex';
-    loadAll();
+    const ls=document.getElementById('login-screen');
+    const ap=document.getElementById('app');
+    if(!ls||!ap){
+      err.style.display='block';
+      err.textContent='Erro: elementos login-screen ou app não encontrados no DOM';
+      btn.disabled=false; btn.textContent='Entrar no painel';
+      return;
+    }
+    ls.style.display='none';
+    ap.style.display='flex';
+    try{ loadAll(); }catch(le){
+      err.style.display='block';
+      err.textContent='Login OK mas erro ao carregar painel: '+le.message;
+      ls.style.display='flex'; ap.style.display='none';
+    }
   }catch(e){
     err.style.display='block';
     err.textContent = 'Erro: ' + (e.message||'Falha ao conectar com a API');
