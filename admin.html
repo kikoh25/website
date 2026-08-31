@@ -206,6 +206,25 @@
     @media(max-width:1100px){.stats-grid{grid-template-columns:1fr 1fr}.quick-grid{grid-template-columns:1fr 1fr}}
     @media(max-width:700px){:root{--sidebar:0px}.sidebar{transform:translateX(-240px)}.main{margin-left:0}.form-row{grid-template-columns:1fr}.stats-grid{grid-template-columns:1fr}}
   
+/* DOCUMENTAÇÃO */
+.doc-body p{font-size:.85rem;color:var(--text-2);line-height:1.75;margin-bottom:.75rem}
+.doc-subsection{font-size:.8rem;font-weight:700;color:var(--indigo);margin:1.1rem 0 .5rem;padding-left:.75rem;border-left:3px solid var(--purple)}
+.doc-list{padding-left:1.25rem;display:flex;flex-direction:column;gap:.4rem;margin-bottom:.75rem}
+.doc-list li{font-size:.82rem;color:var(--text-2);line-height:1.6}
+.doc-list li strong{color:var(--indigo)}
+.doc-info{background:var(--bg);border-radius:8px;padding:.75rem;margin-bottom:.75rem}
+.doc-row{display:flex;gap:1rem;padding:.4rem 0;border-bottom:1px solid var(--border);font-size:.8rem;align-items:flex-start}
+.doc-row:last-child{border-bottom:none}
+.doc-label{font-weight:700;color:var(--indigo);min-width:140px;flex-shrink:0}
+.doc-tip{background:rgba(124,58,237,.06);border:1px solid rgba(124,58,237,.15);border-radius:7px;padding:.65rem .9rem;font-size:.78rem;color:var(--text-2);line-height:1.65;margin-top:.75rem}
+.doc-link{transition:all .15s}
+.doc-link:hover{color:var(--purple)!important;border-left-color:var(--purple)!important}
+code{background:var(--bg);padding:.1rem .35rem;border-radius:4px;font-family:JetBrains Mono,monospace;font-size:.78rem;color:var(--purple)}
+kbd{background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:.15rem .45rem;font-size:.75rem;font-family:JetBrains Mono,monospace}
+body.dark .doc-info{background:#13111f}
+body.dark code{background:#13111f;color:#C4B5FD}
+body.dark .doc-tip{background:rgba(124,58,237,.1)}
+
 /* DARK MODE */
 body.dark{--bg:#0f0d1a;--surface:#1a1827;--border:#2D2A4A;--text:#E8E6FF;--text-2:#9B97C0;--text-3:#5A5780;background:#0f0d1a}
 body.dark .sidebar{background:#0f0d1a;border-right-color:#2D2A4A}
@@ -262,6 +281,7 @@ body.dark .nav-item:hover,body.dark .nav-item.active{background:rgba(124,58,237,
     <button class="nav-item" onclick="showView('atividade',this)"><span class="nav-icon">📋</span>Atividade</button>
     <button class="nav-item" onclick="showView('suporte',this)"><span class="nav-icon">🎫</span>Suporte</button>
     <button class="nav-item" onclick="showView('configuracoes',this)"><span class="nav-icon">⚙️</span>Configurações</button>
+    <button class="nav-item" onclick="showView('docs',this)"><span class="nav-icon">📖</span>Documentação</button>
 
     <div class="sidebar-footer">
       <div class="sidebar-user">
@@ -1159,6 +1179,352 @@ body.dark .nav-item:hover,body.dark .nav-item.active{background:rgba(124,58,237,
   </div>
 </div>
 
+      <!-- DOCUMENTAÇÃO -->
+      <div class="view" id="view-docs">
+        <div class="section-header">
+          <div><div class="section-title-sm">Documentação</div><div class="section-desc">Guia completo de uso do painel administrativo</div></div>
+          <input type="text" id="docs-search" placeholder="🔍 Buscar na documentação..." style="padding:.45rem .9rem;border:1px solid var(--border);border-radius:7px;font-size:.82rem;width:260px" oninput="docsSearch()"/>
+        </div>
+
+        <div style="display:flex;gap:1.5rem;align-items:flex-start">
+
+          <!-- ÍNDICE LATERAL -->
+          <div style="width:220px;flex-shrink:0;position:sticky;top:80px">
+            <div style="background:#fff;border:1px solid var(--border);border-radius:10px;padding:1rem;font-size:.78rem">
+              <div style="font-weight:700;color:var(--indigo);margin-bottom:.75rem;font-size:.8rem">Índice</div>
+              <div style="display:flex;flex-direction:column;gap:.3rem">
+                <a href="#doc-acesso" onclick="docsScrollTo('doc-acesso')" style="color:var(--purple);text-decoration:none;padding:.2rem 0;border-left:2px solid transparent;padding-left:.5rem" class="doc-link">🔐 Acesso</a>
+                <a href="#doc-dashboard" onclick="docsScrollTo('doc-dashboard')" style="color:var(--text-2);text-decoration:none;padding:.2rem 0;border-left:2px solid transparent;padding-left:.5rem" class="doc-link">📊 Dashboard</a>
+                <a href="#doc-clientes" onclick="docsScrollTo('doc-clientes')" style="color:var(--text-2);text-decoration:none;padding:.2rem 0;border-left:2px solid transparent;padding-left:.5rem" class="doc-link">🏢 Clientes</a>
+                <a href="#doc-platform" onclick="docsScrollTo('doc-platform')" style="color:var(--text-2);text-decoration:none;padding:.2rem 0;border-left:2px solid transparent;padding-left:.5rem" class="doc-link">🖥️ Nexus Platform</a>
+                <a href="#doc-contabil" onclick="docsScrollTo('doc-contabil')" style="color:var(--text-2);text-decoration:none;padding:.2rem 0;border-left:2px solid transparent;padding-left:.5rem" class="doc-link">📊 Nexus Contábil</a>
+                <a href="#doc-financeiro" onclick="docsScrollTo('doc-financeiro')" style="color:var(--text-2);text-decoration:none;padding:.2rem 0;border-left:2px solid transparent;padding-left:.5rem" class="doc-link">💰 Financeiro</a>
+                <a href="#doc-suporte" onclick="docsScrollTo('doc-suporte')" style="color:var(--text-2);text-decoration:none;padding:.2rem 0;border-left:2px solid transparent;padding-left:.5rem" class="doc-link">🎫 Suporte</a>
+                <a href="#doc-config" onclick="docsScrollTo('doc-config')" style="color:var(--text-2);text-decoration:none;padding:.2rem 0;border-left:2px solid transparent;padding-left:.5rem" class="doc-link">⚙️ Configurações</a>
+                <a href="#doc-ux" onclick="docsScrollTo('doc-ux')" style="color:var(--text-2);text-decoration:none;padding:.2rem 0;border-left:2px solid transparent;padding-left:.5rem" class="doc-link">✨ Atalhos e UX</a>
+                <a href="#doc-infra" onclick="docsScrollTo('doc-infra')" style="color:var(--text-2);text-decoration:none;padding:.2rem 0;border-left:2px solid transparent;padding-left:.5rem" class="doc-link">🔧 Infraestrutura</a>
+              </div>
+            </div>
+          </div>
+
+          <!-- CONTEÚDO -->
+          <div style="flex:1;display:flex;flex-direction:column;gap:1.25rem" id="docs-content">
+
+            <!-- ACESSO -->
+            <div class="doc-section" id="doc-acesso" style="background:#fff;border:1px solid var(--border);border-radius:12px;padding:1.75rem">
+              <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:1.1rem">
+                <span style="font-size:1.3rem">🔐</span>
+                <h2 style="font-family:Lora,serif;font-size:1.15rem;font-weight:700;color:var(--indigo)">Acesso ao Admin</h2>
+              </div>
+              <div class="doc-body">
+                <p>O painel administrativo está disponível em <code>nexusefbusiness.com.br/admin.html</code>.</p>
+                <div class="doc-info">
+                  <div class="doc-row"><span class="doc-label">URL</span><span><code>nexusefbusiness.com.br/admin.html</code></span></div>
+                  <div class="doc-row"><span class="doc-label">Usuário</span><span><code>erick</code></span></div>
+                  <div class="doc-row"><span class="doc-label">Senha</span><span><code>Nexus@2026#</code></span></div>
+                </div>
+                <p style="margin-top:.85rem">Ao fazer login, o painel carrega automaticamente o Dashboard combinado com dados em tempo real da Nexus Platform e do Nexus Contábil.</p>
+                <div class="doc-tip">💡 Use <strong>Ctrl+K</strong> a qualquer momento para abrir a busca global e localizar clientes por nome, e-mail ou CNPJ.</div>
+              </div>
+            </div>
+
+            <!-- DASHBOARD -->
+            <div class="doc-section" id="doc-dashboard" style="background:#fff;border:1px solid var(--border);border-radius:12px;padding:1.75rem">
+              <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:1.1rem">
+                <span style="font-size:1.3rem">📊</span>
+                <h2 style="font-family:Lora,serif;font-size:1.15rem;font-weight:700;color:var(--indigo)">Dashboard</h2>
+              </div>
+              <div class="doc-body">
+                <p>Visão consolidada em tempo real de todos os produtos. Carrega automaticamente ao entrar no admin.</p>
+                <div class="doc-subsection">📈 Métricas principais</div>
+                <ul class="doc-list">
+                  <li><strong>MRR Total</strong> — Receita mensal recorrente combinada (Platform + Contábil)</li>
+                  <li><strong>Clientes pagos</strong> — Total de clientes ativos com plano pago em ambos os produtos</li>
+                  <li><strong>Em trial</strong> — Total em período gratuito. Inclui taxa de conversão por produto</li>
+                  <li><strong>Tickets suporte</strong> — Tickets abertos nas últimas 24h no Nexus Contábil</li>
+                  <li><strong>MRR Platform / Contábil</strong> — Breakdown por produto com quantidade de pagos e trials</li>
+                  <li><strong>Novos (7d / 30d)</strong> — Novos cadastros no período, somando ambos os produtos</li>
+                </ul>
+                <div class="doc-subsection">📉 Churn e CSAT</div>
+                <ul class="doc-list">
+                  <li><strong>CSAT médio</strong> — Avaliação média dos usuários da Nexus Platform em estrelas (1–5)</li>
+                  <li><strong>Churn mês</strong> — Cancelamentos no mês atual. Separado por Platform e Contábil</li>
+                  <li><strong>Notificações rápidas</strong> — Alerta de trials expirando e escritórios inativos há 30+ dias</li>
+                </ul>
+                <div class="doc-subsection">📈 Gráfico de crescimento</div>
+                <p>Barras empilhadas dos últimos 6 meses separando novos cadastros da Platform (roxo) e do Contábil (azul).</p>
+                <div class="doc-subsection">💰 MRR por produto e conversão</div>
+                <p>Barras horizontais mostrando a proporção do MRR por produto e a taxa de conversão trial → pago por produto, com cor verde (>50%), amarelo (>25%) ou vermelho (&lt;25%).</p>
+                <div class="doc-tip">💡 O badge 🔔 no topo do admin pisca com a contagem de alertas ativos (trial expirando + inadimplentes). Atualiza automaticamente a cada 60 segundos.</div>
+              </div>
+            </div>
+
+            <!-- CLIENTES -->
+            <div class="doc-section" id="doc-clientes" style="background:#fff;border:1px solid var(--border);border-radius:12px;padding:1.75rem">
+              <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:1.1rem">
+                <span style="font-size:1.3rem">🏢</span>
+                <h2 style="font-family:Lora,serif;font-size:1.15rem;font-weight:700;color:var(--indigo)">Clientes</h2>
+              </div>
+              <div class="doc-body">
+                <p>Lista unificada de clientes do Admin + tenants da Nexus Platform. Clientes da Platform aparecem com badge roxo e os do Admin com badge cinza.</p>
+                <div class="doc-subsection">🔍 Filtros disponíveis</div>
+                <ul class="doc-list">
+                  <li><strong>Busca</strong> — Filtra por nome da empresa, e-mail ou CNPJ em tempo real</li>
+                  <li><strong>Status</strong> — Filtra por Ativo ou Suspenso</li>
+                  <li><strong>Produto</strong> — Filtra por Nexus Platform ou Admin</li>
+                  <li><strong>Exportar CSV</strong> — Exporta a lista filtrada atual para Excel/planilha</li>
+                </ul>
+                <div class="doc-subsection">⚡ Ações por cliente</div>
+                <ul class="doc-list">
+                  <li><strong>⏸ / ▶</strong> — Suspender ou reativar o cliente</li>
+                  <li><strong>📝 Observações</strong> — Abre modal para adicionar tags (ex: VIP, Em risco, Parceiro) e notas internas visíveis só no admin</li>
+                  <li><strong>📞 Histórico</strong> — Registra e visualiza histórico de contatos: ligação, e-mail, WhatsApp, reunião ou nota interna</li>
+                  <li><strong>🗑 Excluir</strong> — Remove o cliente do Admin (não afeta a Nexus Platform)</li>
+                </ul>
+                <div class="doc-subsection">🏷️ Tags</div>
+                <p>As tags aparecem diretamente na linha da tabela. Separe múltiplas tags por vírgula no campo de observações: <code>VIP, Em risco, Parceiro</code>.</p>
+                <div class="doc-tip">💡 Clientes vindos da Nexus Platform não podem ser excluídos por aqui. Para gerenciá-los, use a seção Nexus Platform.</div>
+              </div>
+            </div>
+
+            <!-- NEXUS PLATFORM -->
+            <div class="doc-section" id="doc-platform" style="background:#fff;border:1px solid var(--border);border-radius:12px;padding:1.75rem">
+              <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:1.1rem">
+                <span style="font-size:1.3rem">🖥️</span>
+                <h2 style="font-family:Lora,serif;font-size:1.15rem;font-weight:700;color:var(--indigo)">Nexus Platform</h2>
+              </div>
+              <div class="doc-body">
+                <p>Gestão completa dos tenants da Nexus Platform em tempo real via Platform API (<code>platform-api.nexusefbusiness.com.br</code>).</p>
+                <div class="doc-subsection">📋 O que aparece na tabela</div>
+                <ul class="doc-list">
+                  <li><strong>Nome e slug</strong> — Identificação do tenant e seu subdomínio interno</li>
+                  <li><strong>Plano atual</strong> — Free, Starter ou Pro com badge colorido</li>
+                  <li><strong>Usuários</strong> — Quantidade usada vs limite do plano com barra de progresso. Fica vermelho ao atingir 80%</li>
+                  <li><strong>Tickets</strong> — Total de tickets abertos. Mostra quantos têm SLA vencido em vermelho</li>
+                  <li><strong>Ativos</strong> — Quantidade usada vs limite com barra de progresso. Fica vermelho ao atingir 80%</li>
+                  <li><strong>Status</strong> — Ativo (verde) ou Suspenso (vermelho)</li>
+                  <li><strong>Criado em</strong> — Data do cadastro</li>
+                </ul>
+                <div class="doc-subsection">⚡ Ações disponíveis</div>
+                <ul class="doc-list">
+                  <li><strong>Mudar plano</strong> — Select inline: Free, Starter (R$149/mês) ou Pro (R$349/mês). Aplica imediatamente os novos limites</li>
+                  <li><strong>🔒 Suspender</strong> — Bloqueia o acesso do tenant e invalida todas as sessões ativas</li>
+                  <li><strong>▶ Reativar</strong> — Restaura o acesso do tenant</li>
+                  <li><strong>📧 E-mail</strong> — Abre modal para escrever assunto e mensagem. Enviado via Resend para o admin do tenant</li>
+                  <li><strong>🔑 Resetar senha</strong> — Gera uma senha temporária aleatória de 12 caracteres e exibe na tela. O admin do tenant precisará alterar no primeiro acesso</li>
+                  <li><strong>👁️ Impersonar</strong> — Abre a conta do tenant em nova aba já logado, usando autologin token. Útil para suporte</li>
+                </ul>
+                <div class="doc-subsection">📂 Detalhe do tenant</div>
+                <p>Clique em qualquer linha da tabela para abrir o painel de detalhes com:</p>
+                <ul class="doc-list">
+                  <li><strong>Usuários</strong> — Lista com nome, e-mail, perfil, status e botão de ativar/suspender</li>
+                  <li><strong>Tickets recentes</strong> — Últimos chamados com prioridade e status SLA</li>
+                </ul>
+                <div class="doc-tip">💡 Ao mudar o plano, os limites de técnicos, usuários e ativos são atualizados imediatamente no banco. Sessões ativas continuam válidas.</div>
+              </div>
+            </div>
+
+            <!-- NEXUS CONTÁBIL -->
+            <div class="doc-section" id="doc-contabil" style="background:#fff;border:1px solid var(--border);border-radius:12px;padding:1.75rem">
+              <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:1.1rem">
+                <span style="font-size:1.3rem">📊</span>
+                <h2 style="font-family:Lora,serif;font-size:1.15rem;font-weight:700;color:var(--indigo)">Nexus Contábil</h2>
+              </div>
+              <div class="doc-body">
+                <p>Gestão completa dos escritórios contábeis via consulta direta ao banco <code>nexuscontabil</code>.</p>
+                <div class="doc-subsection">📊 Stats do topo</div>
+                <ul class="doc-list">
+                  <li><strong>Total escritórios</strong> — Todos os tenants cadastrados no Contábil</li>
+                  <li><strong>Ativos</strong> — Status ACTIVE no banco</li>
+                  <li><strong>Em trial</strong> — Status TRIAL</li>
+                  <li><strong>Empresas gerenciadas</strong> — Total de empresas em todos os escritórios</li>
+                  <li><strong>MRR estimado</strong> — Calculado pelos planos ativos (Starter R$297, Profissional R$497, Enterprise R$697)</li>
+                  <li><strong>Por plano</strong> — Quantidade em cada plano</li>
+                </ul>
+                <div class="doc-subsection">📑 Abas disponíveis</div>
+                <ul class="doc-list">
+                  <li><strong>Escritórios</strong> — Tabela completa com todas as ações</li>
+                  <li><strong>Trial expirando</strong> — Escritórios com trial acabando nos próximos 7 dias. Urgência por cor: verde (5-7d), amarelo (3-5d), vermelho (1-2d)</li>
+                  <li><strong>Inativos</strong> — Escritórios ativos sem nenhum login há 30+ dias com botão de suspender</li>
+                  <li><strong>Crescimento</strong> — Gráfico mensal de novos escritórios + MRR breakdown com barras proporcionais</li>
+                </ul>
+                <div class="doc-subsection">⚡ Ações por escritório</div>
+                <ul class="doc-list">
+                  <li><strong>Mudar plano</strong> — STARTER, PROFISSIONAL ou ENTERPRISE. Aplica imediatamente</li>
+                  <li><strong>⏸ Suspender</strong> — Bloqueia acesso (status SUSPENDED)</li>
+                  <li><strong>▶ Reativar</strong> — Restaura acesso (status ACTIVE)</li>
+                  <li><strong>✕ Cancelar</strong> — Cancela definitivamente (status CANCELLED)</li>
+                  <li><strong>⏰ +7 dias</strong> — Estende o trial em 7 dias. Pode ser usado múltiplas vezes</li>
+                  <li><strong>💳 Converter</strong> — Converte trial para plano pago. Abre modal de seleção de plano e ativa imediatamente</li>
+                </ul>
+                <div class="doc-subsection">📂 Detalhe do escritório (clique na linha)</div>
+                <ul class="doc-list">
+                  <li><strong>Empresas</strong> — Lista com nome, CNPJ e regime tributário</li>
+                  <li><strong>Usuários</strong> — Nome, e-mail, perfil (ADMIN/OPERADOR/VISUALIZADOR), status e último login</li>
+                  <li><strong>Tickets</strong> — Histórico de tickets de suporte com tipo e status</li>
+                  <li><strong>Documentos/mês</strong> — Gráfico de barras dos XMLs importados nos últimos 12 meses</li>
+                  <li><strong>Auditoria</strong> — Registro imutável de todas as ações: quem fez, o quê e quando</li>
+                </ul>
+                <div class="doc-tip">💡 Os status do Contábil são: ACTIVE (ativo), TRIAL (trial), SUSPENDED (suspenso), CANCELLED (cancelado). Diferentes dos valores da Platform.</div>
+              </div>
+            </div>
+
+            <!-- FINANCEIRO -->
+            <div class="doc-section" id="doc-financeiro" style="background:#fff;border:1px solid var(--border);border-radius:12px;padding:1.75rem">
+              <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:1.1rem">
+                <span style="font-size:1.3rem">💰</span>
+                <h2 style="font-family:Lora,serif;font-size:1.15rem;font-weight:700;color:var(--indigo)">Financeiro</h2>
+              </div>
+              <div class="doc-body">
+                <p>Dados financeiros reais integrados com o Asaas (gateway de pagamentos do Nexus Contábil).</p>
+                <div class="doc-subsection">📊 Métricas do topo</div>
+                <ul class="doc-list">
+                  <li><strong>MRR Real</strong> — Soma de todas as assinaturas ativas no Asaas</li>
+                  <li><strong>ARR Estimado</strong> — MRR × 12 (receita anual projetada)</li>
+                  <li><strong>Inadimplentes</strong> — Pagamentos com status OVERDUE no Asaas</li>
+                  <li><strong>Churn rate</strong> — Percentual de assinaturas canceladas vs total no Asaas</li>
+                </ul>
+                <div class="doc-subsection">📈 Projeção 3 meses</div>
+                <p>Projeção conservadora com crescimento de 5% ao mês sobre o MRR atual.</p>
+                <div class="doc-subsection">📑 Abas</div>
+                <ul class="doc-list">
+                  <li><strong>Assinaturas</strong> — Todas as assinaturas ativas no Asaas com valor, ciclo, próxima cobrança e forma de pagamento</li>
+                  <li><strong>Pagamentos</strong> — Histórico completo de cobranças com status (Pago, Pendente, Vencido)</li>
+                  <li><strong>Inadimplentes</strong> — Lista de pagamentos vencidos com dias em atraso e link direto para cobrar o cliente</li>
+                  <li><strong>Manual</strong> — Receitas registradas manualmente no Admin (sistema legado)</li>
+                </ul>
+                <div class="doc-subsection">📥 Exportar CSV</div>
+                <p>O botão "Exportar CSV" no topo exporta todos os pagamentos carregados na aba Pagamentos para um arquivo CSV compatível com Excel.</p>
+                <div class="doc-tip">💡 Os dados do Asaas são carregados ao clicar em cada aba. Se der erro de conexão, verifique se o domínio api.asaas.com está na lista de egress da VPS.</div>
+              </div>
+            </div>
+
+            <!-- SUPORTE -->
+            <div class="doc-section" id="doc-suporte" style="background:#fff;border:1px solid var(--border);border-radius:12px;padding:1.75rem">
+              <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:1.1rem">
+                <span style="font-size:1.3rem">🎫</span>
+                <h2 style="font-family:Lora,serif;font-size:1.15rem;font-weight:700;color:var(--indigo)">Suporte Unificado</h2>
+              </div>
+              <div class="doc-body">
+                <p>Fila única de tickets de suporte do Nexus Contábil. Os tickets da Platform ficam dentro do detalhe de cada tenant.</p>
+                <div class="doc-subsection">🔍 Filtros</div>
+                <ul class="doc-list">
+                  <li><strong>Todos</strong> — Todos os tickets independente do status</li>
+                  <li><strong>🔴 Abertos</strong> — Tickets com status "aberto" aguardando atendimento</li>
+                  <li><strong>✅ Fechados</strong> — Tickets já resolvidos</li>
+                  <li><strong>📊 Contábil</strong> — Filtra só tickets do Nexus Contábil</li>
+                  <li><strong>Busca por texto</strong> — Filtra por título do ticket ou nome do escritório</li>
+                </ul>
+                <div class="doc-subsection">⚡ Ações</div>
+                <ul class="doc-list">
+                  <li><strong>✅ Fechar</strong> — Marca o ticket como fechado no banco do Contábil</li>
+                  <li><strong>🔄 Reabrir</strong> — Reabre um ticket já fechado</li>
+                </ul>
+                <div class="doc-tip">💡 O badge 🔔 no header do admin mostra a contagem de tickets abertos + trials expirando. Clique nele para ir direto ao suporte.</div>
+              </div>
+            </div>
+
+            <!-- CONFIGURAÇÕES -->
+            <div class="doc-section" id="doc-config" style="background:#fff;border:1px solid var(--border);border-radius:12px;padding:1.75rem">
+              <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:1.1rem">
+                <span style="font-size:1.3rem">⚙️</span>
+                <h2 style="font-family:Lora,serif;font-size:1.15rem;font-weight:700;color:var(--indigo)">Configurações</h2>
+              </div>
+              <div class="doc-body">
+                <div class="doc-subsection">🖥️ Planos Nexus Platform</div>
+                <p>Edite os limites de cada plano: preço, máx. técnicos, máx. usuários e máx. ativos. Clique em "Salvar" para aplicar.</p>
+                <div class="doc-info">
+                  <div class="doc-row"><span class="doc-label">Free (trial)</span><span>1 técnico · 5 usuários · 15 ativos · R$0</span></div>
+                  <div class="doc-row"><span class="doc-label">Starter (chamados)</span><span>2 técnicos · 20 usuários · 50 ativos · R$149/mês</span></div>
+                  <div class="doc-row"><span class="doc-label">Pro (completo)</span><span>5 técnicos · 100 usuários · 300 ativos · R$349/mês</span></div>
+                </div>
+                <div class="doc-subsection">📊 Planos Nexus Contábil</div>
+                <div class="doc-info">
+                  <div class="doc-row"><span class="doc-label">Starter</span><span>5 empresas · 2.000 XMLs · 2 usuários · R$297/mês</span></div>
+                  <div class="doc-row"><span class="doc-label">Profissional</span><span>25 empresas · 15.000 XMLs · 5 usuários · R$497/mês</span></div>
+                  <div class="doc-row"><span class="doc-label">Enterprise</span><span>Ilimitado · R$697/mês</span></div>
+                </div>
+                <div class="doc-tip">⚠️ As alterações de limite são aplicadas em memória e ficam ativas até o próximo restart da Platform API. Para tornar permanente, edite o arquivo <code>/opt/nexus-admin-api/nexusplatform_api.py</code> e reinicie com <code>systemctl restart nexus-platform-api</code>.</div>
+                <div class="doc-subsection">⏰ Duração do Trial</div>
+                <p>Configure quantos dias dura o período gratuito de cada produto. Aplique e comunique ao time de vendas para alinhar.</p>
+                <div class="doc-subsection">🔧 Features por plano</div>
+                <p>Ative ou desative funcionalidades específicas por plano. Salvo em memória — para persistir, edite o código da API.</p>
+              </div>
+            </div>
+
+            <!-- ATALHOS E UX -->
+            <div class="doc-section" id="doc-ux" style="background:#fff;border:1px solid var(--border);border-radius:12px;padding:1.75rem">
+              <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:1.1rem">
+                <span style="font-size:1.3rem">✨</span>
+                <h2 style="font-family:Lora,serif;font-size:1.15rem;font-weight:700;color:var(--indigo)">Atalhos e UX</h2>
+              </div>
+              <div class="doc-body">
+                <div class="doc-subsection">⌨️ Atalhos de teclado</div>
+                <div class="doc-info">
+                  <div class="doc-row"><span class="doc-label"><kbd>Ctrl+K</kbd></span><span>Abre a busca global. Busca por nome, e-mail ou CNPJ em todos os produtos simultaneamente. Clique no resultado para navegar direto ao detalhe</span></div>
+                  <div class="doc-row"><span class="doc-label"><kbd>ESC</kbd></span><span>Fecha a busca global ou qualquer modal aberto</span></div>
+                </div>
+                <div class="doc-subsection">🌙 Dark mode</div>
+                <p>Clique no botão 🌙 no header para alternar entre modo claro e escuro. A preferência é salva automaticamente e persiste entre sessões.</p>
+                <div class="doc-subsection">📥 Exportar tabelas</div>
+                <p>Qualquer tabela do admin pode ser exportada para CSV. Cada seção tem seu botão de exportação específico. O arquivo inclui apenas os dados visíveis (filtros aplicados).</p>
+                <div class="doc-subsection">📄 Paginação</div>
+                <p>Tabelas grandes são paginadas automaticamente em grupos de 20 itens. Use os controles no rodapé da tabela para navegar entre páginas.</p>
+                <div class="doc-subsection">🔔 Notificações automáticas</div>
+                <p>O badge no ícone 🔔 do header atualiza a cada 60 segundos com a contagem de alertas ativos: trials expirando nos próximos 7 dias + pagamentos inadimplentes no Asaas.</p>
+              </div>
+            </div>
+
+            <!-- INFRAESTRUTURA -->
+            <div class="doc-section" id="doc-infra" style="background:#fff;border:1px solid var(--border);border-radius:12px;padding:1.75rem">
+              <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:1.1rem">
+                <span style="font-size:1.3rem">🔧</span>
+                <h2 style="font-family:Lora,serif;font-size:1.15rem;font-weight:700;color:var(--indigo)">Infraestrutura</h2>
+              </div>
+              <div class="doc-body">
+                <div class="doc-subsection">🖥️ Servidores e serviços</div>
+                <div class="doc-info">
+                  <div class="doc-row"><span class="doc-label">VPS</span><span>Hostinger KVM 2 · IP 179.198.120.161 · Ubuntu 24.04 · São Paulo</span></div>
+                  <div class="doc-row"><span class="doc-label">Platform API</span><span>systemd <code>nexus-platform-api</code> · porta 8002 · <code>/opt/nexus-admin-api/nexusplatform_api.py</code></span></div>
+                  <div class="doc-row"><span class="doc-label">Admin API</span><span>systemd <code>nexus-admin-api</code> · porta 8001 · <code>/opt/nexus-admin-api/main.py</code></span></div>
+                  <div class="doc-row"><span class="doc-label">Nexus Platform</span><span>PM2 <code>nexusplatform</code> · porta 3300 · <code>/opt/nexusplatform/</code></span></div>
+                  <div class="doc-row"><span class="doc-label">Nexus Contábil API</span><span>PM2 <code>nexuscontabil-api</code> · porta 3400 · <code>/opt/nexuscontabil/backend/</code></span></div>
+                  <div class="doc-row"><span class="doc-label">Nexus Contábil Frontend</span><span>PM2 <code>nexuscontabil-frontend</code> · <code>/opt/nexuscontabil/frontend/</code></span></div>
+                  <div class="doc-row"><span class="doc-label">n8n</span><span>Docker · porta 5678</span></div>
+                  <div class="doc-row"><span class="doc-label">Nginx</span><span>Proxy reverso para todos os serviços · SSL via Certbot</span></div>
+                </div>
+                <div class="doc-subsection">🗄️ Bancos de dados</div>
+                <div class="doc-info">
+                  <div class="doc-row"><span class="doc-label">nexusplatform</span><span>PostgreSQL · usuário <code>nexus_user</code> · Nexus Platform + Platform API</span></div>
+                  <div class="doc-row"><span class="doc-label">nexuscontabil</span><span>PostgreSQL · usuário <code>nexuscontabil</code> · Nexus Contábil + Admin</span></div>
+                  <div class="doc-row"><span class="doc-label">nexus (admin)</span><span>PostgreSQL · usuário <code>nexusadmin</code> · Admin API (clientes, contratos, financeiro)</span></div>
+                </div>
+                <div class="doc-subsection">🔄 Deploy</div>
+                <div class="doc-info">
+                  <div class="doc-row"><span class="doc-label">Site / Admin</span><span>GitHub Actions → push na branch <code>main</code> → deploy automático via SSH</span></div>
+                  <div class="doc-row"><span class="doc-label">Platform API</span><span>Após git pull na VPS: <code>cp nexusplatform_api.py /opt/nexus-admin-api/ && systemctl restart nexus-platform-api</code></span></div>
+                  <div class="doc-row"><span class="doc-label">Contábil Frontend</span><span>Na pasta <code>/opt/nexuscontabil/frontend</code>: <code>npm run build && pm2 restart nexuscontabil-frontend</code></span></div>
+                </div>
+                <div class="doc-subsection">🚨 Comandos úteis de emergência</div>
+                <div style="background:#0f0d1a;border-radius:8px;padding:1rem;font-family:JetBrains Mono,monospace;font-size:.75rem;color:#C4B5FD;line-height:1.9;margin-top:.5rem">
+                  <div><span style="color:#6B7280"># Ver status de todos os serviços</span></div>
+                  <div>pm2 status && systemctl status nexus-platform-api nexus-admin-api</div>
+                  <div style="margin-top:.5rem"><span style="color:#6B7280"># Reiniciar tudo</span></div>
+                  <div>pm2 restart all && systemctl restart nexus-platform-api nexus-admin-api</div>
+                  <div style="margin-top:.5rem"><span style="color:#6B7280"># Ver logs da Platform API</span></div>
+                  <div>journalctl -u nexus-platform-api -f</div>
+                  <div style="margin-top:.5rem"><span style="color:#6B7280"># Ver logs da Nexus Platform</span></div>
+                  <div>pm2 logs nexusplatform --lines 50</div>
+                  <div style="margin-top:.5rem"><span style="color:#6B7280"># Deploy completo</span></div>
+                  <div>cd /var/www/nexusefbusiness/html && git fetch origin && git reset --hard origin/main && cp nexusplatform_api.py /opt/nexus-admin-api/ && systemctl restart nexus-platform-api</div>
+                </div>
+              </div>
+            </div>
+
+          </div><!-- fim docs-content -->
+        </div><!-- fim flex -->
+      </div><!-- fim view-docs -->
+
 <!-- MODAL CONVERTER TRIAL -->
 <div class="modal-backdrop" id="modal-converter-trial" style="display:none">
   <div class="modal" style="max-width:400px">
@@ -1341,7 +1707,7 @@ function doLogout(){
 }
 
 // ── NAV ──
-const viewTitles={dashboard:['Dashboard','Visão geral da Nexus EF Business'],clientes:['Clientes','Gestão de clientes'],contratos:['Contratos','Contratos e acordos'],tenants:['Nexus Platform','Gestão de tenants em tempo real'],leadnow:['LeadNow','Instâncias de IA para eventos'],contabil:['Nexus Contábil','Gestão de escritórios contábeis'],acessos:['Controle de Acessos','Usuários responsáveis por tenant'],financeiro:['Financeiro','Receita real Asaas + histórico de cobranças'],atividade:['Log de Atividades','Histórico de ações'],suporte:['Suporte','Tickets unificados Platform + Contábil'],configuracoes:['Configurações','Planos e limites dos produtos']};
+const viewTitles={dashboard:['Dashboard','Visão geral da Nexus EF Business'],clientes:['Clientes','Gestão de clientes'],contratos:['Contratos','Contratos e acordos'],tenants:['Nexus Platform','Gestão de tenants em tempo real'],leadnow:['LeadNow','Instâncias de IA para eventos'],contabil:['Nexus Contábil','Gestão de escritórios contábeis'],acessos:['Controle de Acessos','Usuários responsáveis por tenant'],financeiro:['Financeiro','Receita real Asaas + histórico de cobranças'],atividade:['Log de Atividades','Histórico de ações'],suporte:['Suporte','Tickets unificados Platform + Contábil'],configuracoes:['Configurações','Planos e limites dos produtos'],docs:['Documentação','Guia completo de uso do painel administrativo']};
 function showView(id,btn){
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
@@ -2754,6 +3120,22 @@ async function salvarConfigTrial(){
   }catch(e){toast('Erro.','error')}
 }
 
+function docsScrollTo(id){
+  const el=document.getElementById(id);
+  if(el){el.scrollIntoView({behavior:'smooth',block:'start'});
+    document.querySelectorAll('.doc-link').forEach(l=>{l.style.color='var(--text-2)';l.style.borderLeftColor='transparent'});
+    const link=document.querySelector(`[onclick="docsScrollTo('${id}')"]`);
+    if(link){link.style.color='var(--purple)';link.style.borderLeftColor='var(--purple)';}
+  }
+}
+function docsSearch(){
+  const q=document.getElementById('docs-search').value.toLowerCase();
+  document.querySelectorAll('.doc-section').forEach(sec=>{
+    const txt=sec.textContent.toLowerCase();
+    sec.style.display=!q||txt.includes(q)?'':'none';
+  });
+}
+
 function loadAll(){
   loadStats();
   renderAtividade('activity-dash');
@@ -2774,6 +3156,22 @@ function loadAll(){
     }catch(e){}
   }, 60000);
 }
+function docsScrollTo(id){
+  const el=document.getElementById(id);
+  if(el){el.scrollIntoView({behavior:'smooth',block:'start'});
+    document.querySelectorAll('.doc-link').forEach(l=>{l.style.color='var(--text-2)';l.style.borderLeftColor='transparent'});
+    const link=document.querySelector(`[onclick="docsScrollTo('${id}')"]`);
+    if(link){link.style.color='var(--purple)';link.style.borderLeftColor='var(--purple)';}
+  }
+}
+function docsSearch(){
+  const q=document.getElementById('docs-search').value.toLowerCase();
+  document.querySelectorAll('.doc-section').forEach(sec=>{
+    const txt=sec.textContent.toLowerCase();
+    sec.style.display=!q||txt.includes(q)?'':'none';
+  });
+}
+
 function loadAll(){
   loadStats();
   renderAtividade('activity-dash');
@@ -3412,6 +3810,22 @@ async function salvarConfigTrial(){
   }catch(e){toast('Erro.','error')}
 }
 
+function docsScrollTo(id){
+  const el=document.getElementById(id);
+  if(el){el.scrollIntoView({behavior:'smooth',block:'start'});
+    document.querySelectorAll('.doc-link').forEach(l=>{l.style.color='var(--text-2)';l.style.borderLeftColor='transparent'});
+    const link=document.querySelector(`[onclick="docsScrollTo('${id}')"]`);
+    if(link){link.style.color='var(--purple)';link.style.borderLeftColor='var(--purple)';}
+  }
+}
+function docsSearch(){
+  const q=document.getElementById('docs-search').value.toLowerCase();
+  document.querySelectorAll('.doc-section').forEach(sec=>{
+    const txt=sec.textContent.toLowerCase();
+    sec.style.display=!q||txt.includes(q)?'':'none';
+  });
+}
+
 function loadAll(){
   loadStats();
   renderAtividade('activity-dash');
@@ -3432,6 +3846,22 @@ function loadAll(){
     }catch(e){}
   }, 60000);
 }
+function docsScrollTo(id){
+  const el=document.getElementById(id);
+  if(el){el.scrollIntoView({behavior:'smooth',block:'start'});
+    document.querySelectorAll('.doc-link').forEach(l=>{l.style.color='var(--text-2)';l.style.borderLeftColor='transparent'});
+    const link=document.querySelector(`[onclick="docsScrollTo('${id}')"]`);
+    if(link){link.style.color='var(--purple)';link.style.borderLeftColor='var(--purple)';}
+  }
+}
+function docsSearch(){
+  const q=document.getElementById('docs-search').value.toLowerCase();
+  document.querySelectorAll('.doc-section').forEach(sec=>{
+    const txt=sec.textContent.toLowerCase();
+    sec.style.display=!q||txt.includes(q)?'':'none';
+  });
+}
+
 function loadAll(){
   loadStats();
   renderAtividade('activity-dash');
