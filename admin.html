@@ -205,7 +205,19 @@
 
     @media(max-width:1100px){.stats-grid{grid-template-columns:1fr 1fr}.quick-grid{grid-template-columns:1fr 1fr}}
     @media(max-width:700px){:root{--sidebar:0px}.sidebar{transform:translateX(-240px)}.main{margin-left:0}.form-row{grid-template-columns:1fr}.stats-grid{grid-template-columns:1fr}}
-  </style>
+  
+/* DARK MODE */
+body.dark{--bg:#0f0d1a;--surface:#1a1827;--border:#2D2A4A;--text:#E8E6FF;--text-2:#9B97C0;--text-3:#5A5780;background:#0f0d1a}
+body.dark .sidebar{background:#0f0d1a;border-right-color:#2D2A4A}
+body.dark .header{background:rgba(15,13,26,.95);border-bottom-color:#2D2A4A}
+body.dark .stat-card,body.dark .detail-panel,body.dark .table-wrap table,body.dark .modal{background:#1a1827;border-color:#2D2A4A}
+body.dark thead{background:#13111f}
+body.dark tbody tr:hover{background:#1e1b30}
+body.dark .btn-ghost{border-color:#2D2A4A;color:var(--text-2)}
+body.dark .form-control{background:#13111f;border-color:#2D2A4A;color:var(--text)}
+body.dark select{background:#13111f;color:var(--text)}
+body.dark .nav-item:hover,body.dark .nav-item.active{background:rgba(124,58,237,.15)}
+</style>
 </head>
 <body>
 
@@ -291,7 +303,23 @@
           </div>
         </div>
 
-        <!-- GRÁFICO CRESCIMENTO -->
+        <!-- NPS/CSAT -->
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1.5rem">
+          <div style="background:#fff;border:1px solid var(--border);border-radius:10px;padding:1.25rem;text-align:center">
+            <div style="font-size:.78rem;font-weight:700;color:var(--text-2);margin-bottom:.5rem">⭐ CSAT Médio</div>
+            <div id="dash-nps"><div class="loading"><div class="spinner"></div></div></div>
+          </div>
+          <div style="background:#fff;border:1px solid var(--border);border-radius:10px;padding:1.25rem;text-align:center">
+            <div style="font-size:.78rem;font-weight:700;color:var(--text-2);margin-bottom:.5rem">📉 Churn Mês</div>
+            <div id="dash-churn-detalhes"><div class="loading"><div class="spinner"></div></div></div>
+          </div>
+          <div style="background:#fff;border:1px solid var(--border);border-radius:10px;padding:1.25rem;text-align:center">
+            <div style="font-size:.78rem;font-weight:700;color:var(--text-2);margin-bottom:.5rem">🔄 Notificações</div>
+            <div id="dash-notif-preview" style="font-size:.8rem;color:var(--text-2)">Carregando...</div>
+          </div>
+        </div>
+
+<!-- GRÁFICO CRESCIMENTO -->
         <div style="display:grid;grid-template-columns:2fr 1fr;gap:1rem;margin-bottom:1.5rem">
           <div style="background:#fff;border:1px solid var(--border);border-radius:10px;padding:1.25rem">
             <div style="font-size:.82rem;font-weight:700;color:var(--indigo);margin-bottom:1rem">📈 Crescimento combinado — últimos 6 meses</div>
@@ -337,7 +365,21 @@
           <div><div class="section-title-sm">Clientes cadastrados</div><div class="section-desc">Gerencie os clientes da Nexus EF Business</div></div>
           <div style="display:flex;gap:.65rem;align-items:center">
             <div class="search-bar">🔍 <input type="text" placeholder="Buscar..." oninput="filterTable('tb-clientes',this.value)"/></div>
+            <div style="display:flex;gap:.5rem;align-items:center">
+            <input type="text" id="cli-search" placeholder="Buscar cliente..." style="padding:.4rem .8rem;border:1px solid var(--border);border-radius:6px;font-size:.8rem;width:180px" oninput="filtrarClientes()"/>
+            <select id="cli-filtro-status" onchange="filtrarClientes()" style="padding:.4rem;border:1px solid var(--border);border-radius:6px;font-size:.8rem">
+              <option value="">Todos os status</option>
+              <option value="Ativo">Ativos</option>
+              <option value="Suspenso">Suspensos</option>
+            </select>
+            <select id="cli-filtro-produto" onchange="filtrarClientes()" style="padding:.4rem;border:1px solid var(--border);border-radius:6px;font-size:.8rem">
+              <option value="">Todos os produtos</option>
+              <option value="platform">Nexus Platform</option>
+              <option value="admin">Admin</option>
+            </select>
+            <button class="btn btn-ghost btn-sm" onclick="exportarTabela('tbody-clientes','clientes')">📥 CSV</button>
             <button class="btn btn-primary" onclick="openModal('modal-cliente')">+ Novo cliente</button>
+          </div>
           </div>
         </div>
         <div class="table-wrap">
@@ -572,7 +614,28 @@
           <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem" id="cfg-cards-contabil"></div>
         </div>
 
-        <div style="margin-top:1.5rem;background:#fff;border:1px solid var(--border);border-radius:10px;padding:1.25rem">
+        <!-- CONFIG TRIAL E FEATURES -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1.5rem">
+          <div style="background:#fff;border:1px solid var(--border);border-radius:10px;padding:1.25rem">
+            <div style="font-size:.85rem;font-weight:700;color:var(--indigo);margin-bottom:1rem">⏰ Duração do Trial</div>
+            <div class="form-group"><label class="form-label">Trial Platform (dias)</label><input class="form-control" id="cfg-trial-platform" type="number" value="14"/></div>
+            <div class="form-group"><label class="form-label">Trial Contábil (dias)</label><input class="form-control" id="cfg-trial-contabil" type="number" value="7"/></div>
+            <button class="btn btn-primary btn-sm" style="width:100%" onclick="salvarConfigTrial()">💾 Salvar configuração de trial</button>
+          </div>
+          <div style="background:#fff;border:1px solid var(--border);border-radius:10px;padding:1.25rem">
+            <div style="font-size:.85rem;font-weight:700;color:var(--indigo);margin-bottom:1rem">🔧 Features por plano</div>
+            <div style="font-size:.8rem;color:var(--text-2);line-height:1.7;margin-bottom:1rem">Ative ou desative funcionalidades por plano. Salvo em memória — para tornar permanente, edite <code>nexusplatform_api.py</code>.</div>
+            <div style="display:flex;flex-direction:column;gap:.5rem">
+              <label style="display:flex;align-items:center;gap:.5rem;font-size:.82rem;cursor:pointer"><input type="checkbox" id="feat-relatorios" checked/> Relatórios avançados (Starter+)</label>
+              <label style="display:flex;align-items:center;gap:.5rem;font-size:.82rem;cursor:pointer"><input type="checkbox" id="feat-auditoria" checked/> Auditoria (Todos)</label>
+              <label style="display:flex;align-items:center;gap:.5rem;font-size:.82rem;cursor:pointer"><input type="checkbox" id="feat-api-erp" /> API ERP (Enterprise)</label>
+              <label style="display:flex;align-items:center;gap:.5rem;font-size:.82rem;cursor:pointer"><input type="checkbox" id="feat-portal-cliente" checked/> Portal do cliente (Profissional+)</label>
+            </div>
+            <button class="btn btn-primary btn-sm" style="width:100%;margin-top:1rem" onclick="toast('Features salvas!','success')">💾 Salvar features</button>
+          </div>
+        </div>
+
+        <div style="margin-top:1rem;background:#fff;border:1px solid var(--border);border-radius:10px;padding:1.25rem">
           <div style="font-size:.85rem;font-weight:700;color:var(--indigo);margin-bottom:.5rem">⚠️ Nota sobre configurações</div>
           <p style="font-size:.8rem;color:var(--text-2);line-height:1.7">As alterações de limite são aplicadas em memória e ficam ativas até o próximo restart do servidor. Para torná-las permanentes, edite o arquivo <code>nexusplatform_api.py</code> diretamente.</p>
         </div>
@@ -617,7 +680,28 @@
           <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem" id="cfg-cards-contabil"></div>
         </div>
 
-        <div style="margin-top:1.5rem;background:#fff;border:1px solid var(--border);border-radius:10px;padding:1.25rem">
+        <!-- CONFIG TRIAL E FEATURES -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1.5rem">
+          <div style="background:#fff;border:1px solid var(--border);border-radius:10px;padding:1.25rem">
+            <div style="font-size:.85rem;font-weight:700;color:var(--indigo);margin-bottom:1rem">⏰ Duração do Trial</div>
+            <div class="form-group"><label class="form-label">Trial Platform (dias)</label><input class="form-control" id="cfg-trial-platform" type="number" value="14"/></div>
+            <div class="form-group"><label class="form-label">Trial Contábil (dias)</label><input class="form-control" id="cfg-trial-contabil" type="number" value="7"/></div>
+            <button class="btn btn-primary btn-sm" style="width:100%" onclick="salvarConfigTrial()">💾 Salvar configuração de trial</button>
+          </div>
+          <div style="background:#fff;border:1px solid var(--border);border-radius:10px;padding:1.25rem">
+            <div style="font-size:.85rem;font-weight:700;color:var(--indigo);margin-bottom:1rem">🔧 Features por plano</div>
+            <div style="font-size:.8rem;color:var(--text-2);line-height:1.7;margin-bottom:1rem">Ative ou desative funcionalidades por plano. Salvo em memória — para tornar permanente, edite <code>nexusplatform_api.py</code>.</div>
+            <div style="display:flex;flex-direction:column;gap:.5rem">
+              <label style="display:flex;align-items:center;gap:.5rem;font-size:.82rem;cursor:pointer"><input type="checkbox" id="feat-relatorios" checked/> Relatórios avançados (Starter+)</label>
+              <label style="display:flex;align-items:center;gap:.5rem;font-size:.82rem;cursor:pointer"><input type="checkbox" id="feat-auditoria" checked/> Auditoria (Todos)</label>
+              <label style="display:flex;align-items:center;gap:.5rem;font-size:.82rem;cursor:pointer"><input type="checkbox" id="feat-api-erp" /> API ERP (Enterprise)</label>
+              <label style="display:flex;align-items:center;gap:.5rem;font-size:.82rem;cursor:pointer"><input type="checkbox" id="feat-portal-cliente" checked/> Portal do cliente (Profissional+)</label>
+            </div>
+            <button class="btn btn-primary btn-sm" style="width:100%;margin-top:1rem" onclick="toast('Features salvas!','success')">💾 Salvar features</button>
+          </div>
+        </div>
+
+        <div style="margin-top:1rem;background:#fff;border:1px solid var(--border);border-radius:10px;padding:1.25rem">
           <div style="font-size:.85rem;font-weight:700;color:var(--indigo);margin-bottom:.5rem">⚠️ Nota sobre configurações</div>
           <p style="font-size:.8rem;color:var(--text-2);line-height:1.7">As alterações de limite são aplicadas em memória e ficam ativas até o próximo restart do servidor. Para torná-las permanentes, edite o arquivo <code>nexusplatform_api.py</code> diretamente.</p>
         </div>
@@ -883,7 +967,28 @@
           <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem" id="cfg-cards-contabil"></div>
         </div>
 
-        <div style="margin-top:1.5rem;background:#fff;border:1px solid var(--border);border-radius:10px;padding:1.25rem">
+        <!-- CONFIG TRIAL E FEATURES -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1.5rem">
+          <div style="background:#fff;border:1px solid var(--border);border-radius:10px;padding:1.25rem">
+            <div style="font-size:.85rem;font-weight:700;color:var(--indigo);margin-bottom:1rem">⏰ Duração do Trial</div>
+            <div class="form-group"><label class="form-label">Trial Platform (dias)</label><input class="form-control" id="cfg-trial-platform" type="number" value="14"/></div>
+            <div class="form-group"><label class="form-label">Trial Contábil (dias)</label><input class="form-control" id="cfg-trial-contabil" type="number" value="7"/></div>
+            <button class="btn btn-primary btn-sm" style="width:100%" onclick="salvarConfigTrial()">💾 Salvar configuração de trial</button>
+          </div>
+          <div style="background:#fff;border:1px solid var(--border);border-radius:10px;padding:1.25rem">
+            <div style="font-size:.85rem;font-weight:700;color:var(--indigo);margin-bottom:1rem">🔧 Features por plano</div>
+            <div style="font-size:.8rem;color:var(--text-2);line-height:1.7;margin-bottom:1rem">Ative ou desative funcionalidades por plano. Salvo em memória — para tornar permanente, edite <code>nexusplatform_api.py</code>.</div>
+            <div style="display:flex;flex-direction:column;gap:.5rem">
+              <label style="display:flex;align-items:center;gap:.5rem;font-size:.82rem;cursor:pointer"><input type="checkbox" id="feat-relatorios" checked/> Relatórios avançados (Starter+)</label>
+              <label style="display:flex;align-items:center;gap:.5rem;font-size:.82rem;cursor:pointer"><input type="checkbox" id="feat-auditoria" checked/> Auditoria (Todos)</label>
+              <label style="display:flex;align-items:center;gap:.5rem;font-size:.82rem;cursor:pointer"><input type="checkbox" id="feat-api-erp" /> API ERP (Enterprise)</label>
+              <label style="display:flex;align-items:center;gap:.5rem;font-size:.82rem;cursor:pointer"><input type="checkbox" id="feat-portal-cliente" checked/> Portal do cliente (Profissional+)</label>
+            </div>
+            <button class="btn btn-primary btn-sm" style="width:100%;margin-top:1rem" onclick="toast('Features salvas!','success')">💾 Salvar features</button>
+          </div>
+        </div>
+
+        <div style="margin-top:1rem;background:#fff;border:1px solid var(--border);border-radius:10px;padding:1.25rem">
           <div style="font-size:.85rem;font-weight:700;color:var(--indigo);margin-bottom:.5rem">⚠️ Nota sobre configurações</div>
           <p style="font-size:.8rem;color:var(--text-2);line-height:1.7">As alterações de limite são aplicadas em memória e ficam ativas até o próximo restart do servidor. Para torná-las permanentes, edite o arquivo <code>nexusplatform_api.py</code> diretamente.</p>
         </div>
@@ -928,7 +1033,28 @@
           <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem" id="cfg-cards-contabil"></div>
         </div>
 
-        <div style="margin-top:1.5rem;background:#fff;border:1px solid var(--border);border-radius:10px;padding:1.25rem">
+        <!-- CONFIG TRIAL E FEATURES -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1.5rem">
+          <div style="background:#fff;border:1px solid var(--border);border-radius:10px;padding:1.25rem">
+            <div style="font-size:.85rem;font-weight:700;color:var(--indigo);margin-bottom:1rem">⏰ Duração do Trial</div>
+            <div class="form-group"><label class="form-label">Trial Platform (dias)</label><input class="form-control" id="cfg-trial-platform" type="number" value="14"/></div>
+            <div class="form-group"><label class="form-label">Trial Contábil (dias)</label><input class="form-control" id="cfg-trial-contabil" type="number" value="7"/></div>
+            <button class="btn btn-primary btn-sm" style="width:100%" onclick="salvarConfigTrial()">💾 Salvar configuração de trial</button>
+          </div>
+          <div style="background:#fff;border:1px solid var(--border);border-radius:10px;padding:1.25rem">
+            <div style="font-size:.85rem;font-weight:700;color:var(--indigo);margin-bottom:1rem">🔧 Features por plano</div>
+            <div style="font-size:.8rem;color:var(--text-2);line-height:1.7;margin-bottom:1rem">Ative ou desative funcionalidades por plano. Salvo em memória — para tornar permanente, edite <code>nexusplatform_api.py</code>.</div>
+            <div style="display:flex;flex-direction:column;gap:.5rem">
+              <label style="display:flex;align-items:center;gap:.5rem;font-size:.82rem;cursor:pointer"><input type="checkbox" id="feat-relatorios" checked/> Relatórios avançados (Starter+)</label>
+              <label style="display:flex;align-items:center;gap:.5rem;font-size:.82rem;cursor:pointer"><input type="checkbox" id="feat-auditoria" checked/> Auditoria (Todos)</label>
+              <label style="display:flex;align-items:center;gap:.5rem;font-size:.82rem;cursor:pointer"><input type="checkbox" id="feat-api-erp" /> API ERP (Enterprise)</label>
+              <label style="display:flex;align-items:center;gap:.5rem;font-size:.82rem;cursor:pointer"><input type="checkbox" id="feat-portal-cliente" checked/> Portal do cliente (Profissional+)</label>
+            </div>
+            <button class="btn btn-primary btn-sm" style="width:100%;margin-top:1rem" onclick="toast('Features salvas!','success')">💾 Salvar features</button>
+          </div>
+        </div>
+
+        <div style="margin-top:1rem;background:#fff;border:1px solid var(--border);border-radius:10px;padding:1.25rem">
           <div style="font-size:.85rem;font-weight:700;color:var(--indigo);margin-bottom:.5rem">⚠️ Nota sobre configurações</div>
           <p style="font-size:.8rem;color:var(--text-2);line-height:1.7">As alterações de limite são aplicadas em memória e ficam ativas até o próximo restart do servidor. Para torná-las permanentes, edite o arquivo <code>nexusplatform_api.py</code> diretamente.</p>
         </div>
@@ -1030,6 +1156,43 @@
       <div class="form-group"><label>Status</label><select id="ln-status"><option>Ativo</option><option>Configurando</option><option>Encerrado</option></select></div>
     </div>
     <div class="modal-footer"><button class="btn btn-ghost" onclick="closeModal('modal-leadnow')">Cancelar</button><button class="btn btn-primary" onclick="saveLeadNow()">Criar instância</button></div>
+  </div>
+</div>
+
+<!-- MODAL OBSERVAÇÕES/TAGS -->
+<div class="modal-backdrop" id="modal-obs" style="display:none">
+  <div class="modal" style="max-width:420px">
+    <div class="modal-header"><div class="modal-title">📝 Observações internas</div><button class="modal-close" onclick="closeModal('modal-obs')">✕</button></div>
+    <div class="modal-body">
+      <div class="form-group"><label class="form-label">Tags</label><input class="form-control" id="obs-tags" placeholder="Ex: VIP, Em risco, Parceiro (separadas por vírgula)"/></div>
+      <div class="form-group"><label class="form-label">Observações</label><textarea class="form-control" id="obs-texto" rows="4" placeholder="Notas internas sobre este cliente..."></textarea></div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-ghost" onclick="closeModal('modal-obs')">Cancelar</button><button class="btn btn-primary" onclick="salvarObsCliente()">💾 Salvar</button></div>
+  </div>
+</div>
+
+<!-- MODAL HISTÓRICO DE CONTATO -->
+<div class="modal-backdrop" id="modal-hist-contato" style="display:none">
+  <div class="modal" style="max-width:560px">
+    <div class="modal-header"><div class="modal-title">📞 Histórico de contato — <span id="hist-cliente-nome"></span></div><button class="modal-close" onclick="closeModal('modal-hist-contato')">✕</button></div>
+    <div class="modal-body">
+      <div style="display:flex;gap:.5rem;margin-bottom:1rem">
+        <select class="form-control" id="contato-tipo" style="width:140px">
+          <option value="ligacao">📞 Ligação</option>
+          <option value="email">📧 E-mail</option>
+          <option value="whatsapp">💬 WhatsApp</option>
+          <option value="reuniao">🤝 Reunião</option>
+          <option value="nota">📝 Nota</option>
+        </select>
+        <input class="form-control" id="contato-nota" placeholder="Descrição do contato..." style="flex:1"/>
+        <button class="btn btn-primary btn-sm" onclick="salvarContato()">+ Adicionar</button>
+      </div>
+      <div class="table-wrap" style="max-height:280px;overflow-y:auto">
+        <table><thead><tr><th>Data</th><th>Tipo</th><th>Nota</th></tr></thead>
+        <tbody id="tbody-hist-contato"></tbody></table>
+      </div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-ghost" onclick="closeModal('modal-hist-contato')">Fechar</button></div>
   </div>
 </div>
 
@@ -1237,10 +1400,30 @@ async function renderClientes(){
 
     const todos = [...(adminClientes||[]).map(c=>({...c,origem:'admin'})), ...platformRows];
     document.getElementById('badge-clientes').textContent=todos.length;
+    _todosClientes=todos;
+    filtrarClientes();
 
     if(!todos.length){tb.innerHTML='<tr><td colspan="7"><div class="empty"><div class="empty-icon">🏢</div><div class="empty-text">Nenhum cliente cadastrado.</div></div></td></tr>';return}
+    renderClientesRows(todos);
+  // catch handled abover>'}}
+
+let _todosClientes=[];
+function filtrarClientes(){
+  const q=(document.getElementById('cli-search')?.value||'').toLowerCase();
+  const st=document.getElementById('cli-filtro-status')?.value||'';
+  const prod=document.getElementById('cli-filtro-produto')?.value||'';
+  let filtered=_todosClientes;
+  if(q) filtered=filtered.filter(c=>(c.empresa||'').toLowerCase().includes(q)||(c.email||'').toLowerCase().includes(q)||(c.cnpj||'').includes(q));
+  if(st) filtered=filtered.filter(c=>c.status===st);
+  if(prod) filtered=filtered.filter(c=>c.origem===prod);
+  renderClientesRows(filtered);
+}
+
+function renderClientesRows(todos){
+  const tb=document.getElementById('tbody-clientes');
+  if(!todos.length){tb.innerHTML='<tr><td colspan="7"><div class="empty"><div class="empty-icon">🏢</div><div class="empty-text">Nenhum cliente.</div></div></td></tr>';return;}
     tb.innerHTML=todos.map(c=>`<tr>
-      <td><strong>${c.empresa}</strong>${c.cnpj?`<br><small style="color:var(--text-3)">${c.cnpj}</small>`:''}<br><span class="badge ${c.origem==='platform'?'badge-purple':'badge-gray'}" style="font-size:.6rem;margin-top:2px">${c.origem==='platform'?'Nexus Platform':'Admin'}</span></td>
+      <td><strong>${c.empresa}</strong>${c.cnpj?`<br><small style="color:var(--text-3)">${c.cnpj}</small>`:''}<br><span class="badge ${c.origem==='platform'?'badge-purple':'badge-gray'}" style="font-size:.6rem;margin-top:2px">${c.origem==='platform'?'Nexus Platform':'Admin'}</span>${c.tags?`<br>${c.tags.split(',').map(t=>`<span class="badge badge-blue" style="font-size:.58rem;margin-top:1px">${t.trim()}</span>`).join(' ')}`:''}</td>
       <td>${c.responsavel}${c.cargo?`<br><small style="color:var(--text-3)">${c.cargo}</small>`:''}</td>
       <td>${c.email}${c.telefone?`<br><small style="color:var(--text-3)">${c.telefone}</small>`:''}</td>
       <td>${badge(c.plano||'—')}</td>
@@ -1249,8 +1432,10 @@ async function renderClientes(){
       <td><div style="display:flex;gap:.3rem">
         ${c.origem==='admin'?`
           <button class="btn btn-warn btn-xs" onclick="toggleClienteStatus(${c.id},'${c.status}')">${c.status==='Suspenso'?'▶':'⏸'}</button>
+          <button class="btn btn-ghost btn-xs" onclick="modalObsCliente(${c.id},'${(c.observacoes||'').replace(/'/g,"\'")}','${(c.tags||'').replace(/'/g,"\'")}')">📝</button>
+          <button class="btn btn-ghost btn-xs" onclick="modalHistContato(${c.id},'${c.empresa}')">📞</button>
           <button class="btn btn-danger btn-xs" onclick="deleteCliente(${c.id})">🗑</button>
-        `:'<span style="color:var(--text-3);font-size:.72rem">Gerenciar em Nexus Platform</span>'}
+        `:'<button class="btn btn-ghost btn-xs" onclick="modalHistContato('platform_${c.id}','${c.empresa}')">📞</button>'}
       </div></td>
     </tr>`).join('');
   }catch(e){tb.innerHTML='<tr><td colspan="7"><div class="empty"><div class="empty-icon">⚠️</div><div class="empty-text">Erro ao carregar.</div></div></td></tr>'}
@@ -1365,6 +1550,7 @@ async function renderTenants(){
             ?`<button class="btn btn-danger btn-xs" onclick="toggleTenantPlatform('${t.id}',false)" title="Suspender">🔒</button>`
             :`<button class="btn btn-success btn-xs" onclick="toggleTenantPlatform('${t.id}',true)" title="Reativar">▶</button>`}
           <button class="btn btn-ghost btn-xs" onclick="modalEmailTenant('${t.id}','${t.nome}','platform')" title="Enviar e-mail">📧</button>
+          <button class="btn btn-ghost btn-xs" onclick="impersonarTenant('${t.id}','${t.nome}')" title="Acessar como tenant">👁️</button>
           <button class="btn btn-ghost btn-xs" onclick="resetSenhaTenant('${t.id}','platform')" title="Resetar senha">🔑</button>
         </div></td>
       </tr>`;
@@ -1992,6 +2178,47 @@ async function loadDashboardCombinado(){
         </div>`;
       }).join('');
     }
+
+    // NPS/CSAT e Churn
+    try{
+      const [stats, churn] = await Promise.all([
+        platformApi('GET','/stats'),
+        platformApi('GET','/admin/churn')
+      ]);
+      const csat = stats?.csat_medio||0;
+      const npsDiv = document.getElementById('dash-nps');
+      if(npsDiv){
+        const stars = '★'.repeat(Math.round(csat))+'☆'.repeat(5-Math.round(csat));
+        npsDiv.innerHTML = csat>0
+          ?`<div style="font-size:1.5rem;font-weight:700;color:var(--purple)">${csat.toFixed(1)}</div><div style="color:#F59E0B">${stars}</div><div style="font-size:.72rem;color:var(--text-3)">CSAT médio</div>`
+          :`<div style="font-size:.82rem;color:var(--text-3)">Sem avaliações ainda</div>`;
+      }
+      const churnDiv = document.getElementById('dash-churn-detalhes');
+      if(churnDiv&&churn){
+        churnDiv.innerHTML = `
+          <div style="font-size:1.3rem;font-weight:700;color:${churn.total_churn>0?'var(--red)':'var(--green)'}">${churn.total_churn}</div>
+          <div style="font-size:.75rem;color:var(--text-2)">cancelamentos este mês</div>
+          <div style="font-size:.72rem;color:var(--text-3);margin-top:.25rem">P: ${churn.platform?.churn_mes||0} · C: ${churn.contabil?.churn_mes||0}</div>`;
+      }
+    }catch(e){}
+
+    // Notificações rápidas no dashboard
+    try{
+      const [trialExp, inativos] = await Promise.all([
+        platformApi('GET','/contabil/trial-expirando'),
+        platformApi('GET','/contabil/inativos')
+      ]);
+      const notifDiv = document.getElementById('dash-notif-preview');
+      if(notifDiv){
+        const items = [];
+        if(trialExp?.length) items.push(`⏰ ${trialExp.length} trial expirando`);
+        if(inativos?.length) items.push(`😴 ${inativos.length} inativos 30d`);
+        notifDiv.innerHTML = items.length
+          ?items.map(i=>`<div style="margin-bottom:.3rem">${i}</div>`).join('')
+          :'<div style="color:var(--green)">✅ Tudo em ordem</div>';
+      }
+    }catch(e){}
+
   }catch(e){console.error('Dashboard combinado erro:',e)}
 }
 
@@ -2353,7 +2580,178 @@ function exportarTabela(tbodyId, nomeArquivo){
   toast('CSV exportado!');
 }
 
-function loadAll(){loadStats();renderAtividade('activity-dash');loadDashboardCombinado()}
+
+// ── DARK MODE ──
+function toggleDarkMode(){
+  document.body.classList.toggle('dark');
+  const btn=document.getElementById('btn-darkmode');
+  const isDark=document.body.classList.contains('dark');
+  btn.textContent=isDark?'☀️':'🌙';
+  localStorage.setItem('admin-dark',isDark?'1':'0');
+}
+if(localStorage.getItem('admin-dark')==='1'){document.body.classList.add('dark');document.getElementById('btn-darkmode')&&(document.getElementById('btn-darkmode').textContent='☀️');}
+
+// ── PAGINAÇÃO ──
+const _paginacao = {};
+function paginar(tbodyId, rows, renderFn, pageSize=20){
+  _paginacao[tbodyId] = {rows, renderFn, pageSize, page:0};
+  paginarRender(tbodyId);
+}
+function paginarRender(tbodyId){
+  const p=_paginacao[tbodyId];
+  if(!p) return;
+  const {rows,renderFn,pageSize,page}=p;
+  const total=rows.length;
+  const totalPages=Math.ceil(total/pageSize);
+  const slice=rows.slice(page*pageSize,(page+1)*pageSize);
+  const tbody=document.getElementById(tbodyId);
+  if(tbody) tbody.innerHTML=renderFn(slice);
+  // Controles de paginação
+  const ctrlId=tbodyId+'-paginacao';
+  let ctrl=document.getElementById(ctrlId);
+  if(!ctrl){
+    ctrl=document.createElement('div');
+    ctrl.id=ctrlId;
+    ctrl.style.cssText='display:flex;align-items:center;justify-content:space-between;padding:.75rem 1.25rem;border-top:1px solid var(--border);font-size:.78rem;color:var(--text-2)';
+    tbody?.parentElement?.parentElement?.appendChild(ctrl);
+  }
+  if(totalPages<=1){ctrl.style.display='none';return;}
+  ctrl.style.display='flex';
+  ctrl.innerHTML=`<span>Mostrando ${page*pageSize+1}–${Math.min((page+1)*pageSize,total)} de ${total}</span>
+    <div style="display:flex;gap:.3rem">
+      <button class="btn btn-ghost btn-xs" onclick="paginarIr('${tbodyId}',${page-1})" ${page===0?'disabled':''}>← Anterior</button>
+      ${Array.from({length:Math.min(5,totalPages)},(_,i)=>i+Math.max(0,page-2)).filter(i=>i<totalPages).map(i=>
+        `<button class="btn btn-xs ${i===page?'btn-primary':'btn-ghost'}" onclick="paginarIr('${tbodyId}',${i})">${i+1}</button>`
+      ).join('')}
+      <button class="btn btn-ghost btn-xs" onclick="paginarIr('${tbodyId}',${page+1})" ${page>=totalPages-1?'disabled':''}>Próximo →</button>
+    </div>`;
+}
+function paginarIr(tbodyId,page){
+  if(!_paginacao[tbodyId]) return;
+  const total=_paginacao[tbodyId].rows.length;
+  const totalPages=Math.ceil(total/_paginacao[tbodyId].pageSize);
+  _paginacao[tbodyId].page=Math.max(0,Math.min(page,totalPages-1));
+  paginarRender(tbodyId);
+}
+
+// ── NPS/CSAT ──
+async function renderNpsCsat(){
+  try{
+    const stats=await platformApi('GET','/stats');
+    const csat=stats?.csat_medio||0;
+    const div=document.getElementById('dash-nps');
+    if(!div) return;
+    const stars='★'.repeat(Math.round(csat))+'☆'.repeat(5-Math.round(csat));
+    div.innerHTML=`<div style="font-size:1.5rem;font-weight:700;color:var(--purple)">${csat.toFixed(1)}</div>
+      <div style="color:#F59E0B;font-size:1rem">${stars}</div>
+      <div style="font-size:.72rem;color:var(--text-3)">CSAT médio</div>`;
+  }catch(e){}
+}
+
+// ── IMPERSONAR USUÁRIO (Platform) ──
+async function impersonarTenant(tenantId, nome){
+  if(!confirm(`Acessar conta de "${nome}" como administrador?`)) return;
+  try{
+    const res=await platformApi('POST',`/gerar-autologin`,{tenant_id:tenantId});
+    if(res?.token){
+      window.open(`https://ti.nexusefbusiness.com.br/auth/autologin?token=${res.token}`,'_blank');
+    }
+  }catch(e){toast('Erro ao gerar autologin.','error')}
+}
+
+// ── OBSERVAÇÕES E TAGS (Clientes) ──
+let _obsClienteId=null;
+function modalObsCliente(id, obs, tags){
+  _obsClienteId=id;
+  document.getElementById('obs-texto').value=obs||'';
+  document.getElementById('obs-tags').value=tags||'';
+  openModal('modal-obs');
+}
+async function salvarObsCliente(){
+  const obs=document.getElementById('obs-texto').value;
+  const tags=document.getElementById('obs-tags').value;
+  try{
+    await api('PATCH',`/clientes/${_obsClienteId}/observacoes`,{observacoes:obs,tags});
+    toast('Observações salvas!');
+    closeModal('modal-obs');
+    loadSection('clientes');
+  }catch(e){toast('Erro.','error')}
+}
+
+// ── HISTÓRICO DE CONTATO ──
+let _histClienteId=null;
+async function modalHistContato(id, nome){
+  _histClienteId=id;
+  document.getElementById('hist-cliente-nome').textContent=nome;
+  document.getElementById('tbody-hist-contato').innerHTML='<tr><td colspan="3"><div class="loading"><div class="spinner"></div></div></td></tr>';
+  openModal('modal-hist-contato');
+  try{
+    const rows=await api('GET',`/clientes/${id}/contatos`);
+    document.getElementById('tbody-hist-contato').innerHTML=rows?.length
+      ?rows.map(r=>`<tr><td><small>${new Date(r.data).toLocaleDateString('pt-BR')}</small></td><td>${badge(r.tipo)}</td><td>${r.nota}</td></tr>`).join('')
+      :'<tr><td colspan="3"><div class="empty"><div class="empty-text">Nenhum registro.</div></div></td></tr>';
+  }catch(e){document.getElementById('tbody-hist-contato').innerHTML='<tr><td colspan="3">Erro.</td></tr>';}
+}
+async function salvarContato(){
+  const tipo=document.getElementById('contato-tipo').value;
+  const nota=document.getElementById('contato-nota').value;
+  if(!nota){toast('Digite uma nota.','error');return;}
+  try{
+    await api('POST',`/clientes/${_histClienteId}/contatos`,{tipo,nota,data:new Date().toISOString()});
+    toast('Registro salvo!');
+    modalHistContato(_histClienteId, '');
+  }catch(e){toast('Erro.','error')}
+}
+
+// ── CONFIG — DURAÇÃO TRIAL E FEATURES ──
+async function salvarConfigTrial(){
+  const dias=document.getElementById('cfg-trial-dias').value;
+  try{
+    await platformApi('PATCH','/config/trial',{dias:parseInt(dias)});
+    toast(`Trial configurado para ${dias} dias!`);
+  }catch(e){toast('Erro.','error')}
+}
+
+function loadAll(){
+  loadStats();
+  renderAtividade('activity-dash');
+  loadDashboardCombinado();
+  // Polling de notificações a cada 60s
+  setInterval(async ()=>{
+    try{
+      const [trial, overdue] = await Promise.all([
+        platformApi('GET','/contabil/trial-expirando'),
+        platformApi('GET','/asaas/payments/overdue')
+      ]);
+      const total = (trial?.length||0) + (overdue?.total||0);
+      const badge = document.getElementById('notif-badge');
+      if(badge){
+        badge.textContent = total>0?total:'';
+        badge.style.display = total>0?'inline':'none';
+      }
+    }catch(e){}
+  }, 60000);
+}
+function loadAll(){
+  loadStats();
+  renderAtividade('activity-dash');
+  loadDashboardCombinado();
+  // Polling de notificações a cada 60s
+  setInterval(async ()=>{
+    try{
+      const [trial, overdue] = await Promise.all([
+        platformApi('GET','/contabil/trial-expirando'),
+        platformApi('GET','/asaas/payments/overdue')
+      ]);
+      const total = (trial?.length||0) + (overdue?.total||0);
+      const badge = document.getElementById('notif-badge');
+      if(badge){
+        badge.textContent = total>0?total:'';
+        badge.style.display = total>0?'inline':'none';
+      }
+    }catch(e){}
+  }, 60000);
+}
 // ── DASHBOARD COMBINADO ──
 let _dashChart = null;
 
@@ -2434,6 +2832,47 @@ async function loadDashboardCombinado(){
         </div>`;
       }).join('');
     }
+
+    // NPS/CSAT e Churn
+    try{
+      const [stats, churn] = await Promise.all([
+        platformApi('GET','/stats'),
+        platformApi('GET','/admin/churn')
+      ]);
+      const csat = stats?.csat_medio||0;
+      const npsDiv = document.getElementById('dash-nps');
+      if(npsDiv){
+        const stars = '★'.repeat(Math.round(csat))+'☆'.repeat(5-Math.round(csat));
+        npsDiv.innerHTML = csat>0
+          ?`<div style="font-size:1.5rem;font-weight:700;color:var(--purple)">${csat.toFixed(1)}</div><div style="color:#F59E0B">${stars}</div><div style="font-size:.72rem;color:var(--text-3)">CSAT médio</div>`
+          :`<div style="font-size:.82rem;color:var(--text-3)">Sem avaliações ainda</div>`;
+      }
+      const churnDiv = document.getElementById('dash-churn-detalhes');
+      if(churnDiv&&churn){
+        churnDiv.innerHTML = `
+          <div style="font-size:1.3rem;font-weight:700;color:${churn.total_churn>0?'var(--red)':'var(--green)'}">${churn.total_churn}</div>
+          <div style="font-size:.75rem;color:var(--text-2)">cancelamentos este mês</div>
+          <div style="font-size:.72rem;color:var(--text-3);margin-top:.25rem">P: ${churn.platform?.churn_mes||0} · C: ${churn.contabil?.churn_mes||0}</div>`;
+      }
+    }catch(e){}
+
+    // Notificações rápidas no dashboard
+    try{
+      const [trialExp, inativos] = await Promise.all([
+        platformApi('GET','/contabil/trial-expirando'),
+        platformApi('GET','/contabil/inativos')
+      ]);
+      const notifDiv = document.getElementById('dash-notif-preview');
+      if(notifDiv){
+        const items = [];
+        if(trialExp?.length) items.push(`⏰ ${trialExp.length} trial expirando`);
+        if(inativos?.length) items.push(`😴 ${inativos.length} inativos 30d`);
+        notifDiv.innerHTML = items.length
+          ?items.map(i=>`<div style="margin-bottom:.3rem">${i}</div>`).join('')
+          :'<div style="color:var(--green)">✅ Tudo em ordem</div>';
+      }
+    }catch(e){}
+
   }catch(e){console.error('Dashboard combinado erro:',e)}
 }
 
@@ -2795,7 +3234,178 @@ function exportarTabela(tbodyId, nomeArquivo){
   toast('CSV exportado!');
 }
 
-function loadAll(){loadStats();renderAtividade('activity-dash');loadDashboardCombinado()}
+
+// ── DARK MODE ──
+function toggleDarkMode(){
+  document.body.classList.toggle('dark');
+  const btn=document.getElementById('btn-darkmode');
+  const isDark=document.body.classList.contains('dark');
+  btn.textContent=isDark?'☀️':'🌙';
+  localStorage.setItem('admin-dark',isDark?'1':'0');
+}
+if(localStorage.getItem('admin-dark')==='1'){document.body.classList.add('dark');document.getElementById('btn-darkmode')&&(document.getElementById('btn-darkmode').textContent='☀️');}
+
+// ── PAGINAÇÃO ──
+const _paginacao = {};
+function paginar(tbodyId, rows, renderFn, pageSize=20){
+  _paginacao[tbodyId] = {rows, renderFn, pageSize, page:0};
+  paginarRender(tbodyId);
+}
+function paginarRender(tbodyId){
+  const p=_paginacao[tbodyId];
+  if(!p) return;
+  const {rows,renderFn,pageSize,page}=p;
+  const total=rows.length;
+  const totalPages=Math.ceil(total/pageSize);
+  const slice=rows.slice(page*pageSize,(page+1)*pageSize);
+  const tbody=document.getElementById(tbodyId);
+  if(tbody) tbody.innerHTML=renderFn(slice);
+  // Controles de paginação
+  const ctrlId=tbodyId+'-paginacao';
+  let ctrl=document.getElementById(ctrlId);
+  if(!ctrl){
+    ctrl=document.createElement('div');
+    ctrl.id=ctrlId;
+    ctrl.style.cssText='display:flex;align-items:center;justify-content:space-between;padding:.75rem 1.25rem;border-top:1px solid var(--border);font-size:.78rem;color:var(--text-2)';
+    tbody?.parentElement?.parentElement?.appendChild(ctrl);
+  }
+  if(totalPages<=1){ctrl.style.display='none';return;}
+  ctrl.style.display='flex';
+  ctrl.innerHTML=`<span>Mostrando ${page*pageSize+1}–${Math.min((page+1)*pageSize,total)} de ${total}</span>
+    <div style="display:flex;gap:.3rem">
+      <button class="btn btn-ghost btn-xs" onclick="paginarIr('${tbodyId}',${page-1})" ${page===0?'disabled':''}>← Anterior</button>
+      ${Array.from({length:Math.min(5,totalPages)},(_,i)=>i+Math.max(0,page-2)).filter(i=>i<totalPages).map(i=>
+        `<button class="btn btn-xs ${i===page?'btn-primary':'btn-ghost'}" onclick="paginarIr('${tbodyId}',${i})">${i+1}</button>`
+      ).join('')}
+      <button class="btn btn-ghost btn-xs" onclick="paginarIr('${tbodyId}',${page+1})" ${page>=totalPages-1?'disabled':''}>Próximo →</button>
+    </div>`;
+}
+function paginarIr(tbodyId,page){
+  if(!_paginacao[tbodyId]) return;
+  const total=_paginacao[tbodyId].rows.length;
+  const totalPages=Math.ceil(total/_paginacao[tbodyId].pageSize);
+  _paginacao[tbodyId].page=Math.max(0,Math.min(page,totalPages-1));
+  paginarRender(tbodyId);
+}
+
+// ── NPS/CSAT ──
+async function renderNpsCsat(){
+  try{
+    const stats=await platformApi('GET','/stats');
+    const csat=stats?.csat_medio||0;
+    const div=document.getElementById('dash-nps');
+    if(!div) return;
+    const stars='★'.repeat(Math.round(csat))+'☆'.repeat(5-Math.round(csat));
+    div.innerHTML=`<div style="font-size:1.5rem;font-weight:700;color:var(--purple)">${csat.toFixed(1)}</div>
+      <div style="color:#F59E0B;font-size:1rem">${stars}</div>
+      <div style="font-size:.72rem;color:var(--text-3)">CSAT médio</div>`;
+  }catch(e){}
+}
+
+// ── IMPERSONAR USUÁRIO (Platform) ──
+async function impersonarTenant(tenantId, nome){
+  if(!confirm(`Acessar conta de "${nome}" como administrador?`)) return;
+  try{
+    const res=await platformApi('POST',`/gerar-autologin`,{tenant_id:tenantId});
+    if(res?.token){
+      window.open(`https://ti.nexusefbusiness.com.br/auth/autologin?token=${res.token}`,'_blank');
+    }
+  }catch(e){toast('Erro ao gerar autologin.','error')}
+}
+
+// ── OBSERVAÇÕES E TAGS (Clientes) ──
+let _obsClienteId=null;
+function modalObsCliente(id, obs, tags){
+  _obsClienteId=id;
+  document.getElementById('obs-texto').value=obs||'';
+  document.getElementById('obs-tags').value=tags||'';
+  openModal('modal-obs');
+}
+async function salvarObsCliente(){
+  const obs=document.getElementById('obs-texto').value;
+  const tags=document.getElementById('obs-tags').value;
+  try{
+    await api('PATCH',`/clientes/${_obsClienteId}/observacoes`,{observacoes:obs,tags});
+    toast('Observações salvas!');
+    closeModal('modal-obs');
+    loadSection('clientes');
+  }catch(e){toast('Erro.','error')}
+}
+
+// ── HISTÓRICO DE CONTATO ──
+let _histClienteId=null;
+async function modalHistContato(id, nome){
+  _histClienteId=id;
+  document.getElementById('hist-cliente-nome').textContent=nome;
+  document.getElementById('tbody-hist-contato').innerHTML='<tr><td colspan="3"><div class="loading"><div class="spinner"></div></div></td></tr>';
+  openModal('modal-hist-contato');
+  try{
+    const rows=await api('GET',`/clientes/${id}/contatos`);
+    document.getElementById('tbody-hist-contato').innerHTML=rows?.length
+      ?rows.map(r=>`<tr><td><small>${new Date(r.data).toLocaleDateString('pt-BR')}</small></td><td>${badge(r.tipo)}</td><td>${r.nota}</td></tr>`).join('')
+      :'<tr><td colspan="3"><div class="empty"><div class="empty-text">Nenhum registro.</div></div></td></tr>';
+  }catch(e){document.getElementById('tbody-hist-contato').innerHTML='<tr><td colspan="3">Erro.</td></tr>';}
+}
+async function salvarContato(){
+  const tipo=document.getElementById('contato-tipo').value;
+  const nota=document.getElementById('contato-nota').value;
+  if(!nota){toast('Digite uma nota.','error');return;}
+  try{
+    await api('POST',`/clientes/${_histClienteId}/contatos`,{tipo,nota,data:new Date().toISOString()});
+    toast('Registro salvo!');
+    modalHistContato(_histClienteId, '');
+  }catch(e){toast('Erro.','error')}
+}
+
+// ── CONFIG — DURAÇÃO TRIAL E FEATURES ──
+async function salvarConfigTrial(){
+  const dias=document.getElementById('cfg-trial-dias').value;
+  try{
+    await platformApi('PATCH','/config/trial',{dias:parseInt(dias)});
+    toast(`Trial configurado para ${dias} dias!`);
+  }catch(e){toast('Erro.','error')}
+}
+
+function loadAll(){
+  loadStats();
+  renderAtividade('activity-dash');
+  loadDashboardCombinado();
+  // Polling de notificações a cada 60s
+  setInterval(async ()=>{
+    try{
+      const [trial, overdue] = await Promise.all([
+        platformApi('GET','/contabil/trial-expirando'),
+        platformApi('GET','/asaas/payments/overdue')
+      ]);
+      const total = (trial?.length||0) + (overdue?.total||0);
+      const badge = document.getElementById('notif-badge');
+      if(badge){
+        badge.textContent = total>0?total:'';
+        badge.style.display = total>0?'inline':'none';
+      }
+    }catch(e){}
+  }, 60000);
+}
+function loadAll(){
+  loadStats();
+  renderAtividade('activity-dash');
+  loadDashboardCombinado();
+  // Polling de notificações a cada 60s
+  setInterval(async ()=>{
+    try{
+      const [trial, overdue] = await Promise.all([
+        platformApi('GET','/contabil/trial-expirando'),
+        platformApi('GET','/asaas/payments/overdue')
+      ]);
+      const total = (trial?.length||0) + (overdue?.total||0);
+      const badge = document.getElementById('notif-badge');
+      if(badge){
+        badge.textContent = total>0?total:'';
+        badge.style.display = total>0?'inline':'none';
+      }
+    }catch(e){}
+  }, 60000);
+}
 
 // ── AUTO LOGIN ──
 window.addEventListener('load',async()=>{
