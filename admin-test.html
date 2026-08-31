@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Teste Admin</title>
+<style>body{font-family:sans-serif;padding:2rem;max-width:500px;margin:0 auto}
+input{width:100%;padding:.75rem;margin:.5rem 0;border:1px solid #ccc;border-radius:6px;font-size:1rem;box-sizing:border-box}
+button{width:100%;padding:.85rem;background:#7C3AED;color:#fff;border:none;border-radius:6px;font-size:1rem;cursor:pointer;margin-top:.5rem}
+#result{margin-top:1rem;padding:1rem;border-radius:6px;font-size:.85rem;white-space:pre-wrap;word-break:break-all}
+.ok{background:#d1fae5;color:#065f46}.err{background:#fee2e2;color:#991b1b}</style>
+</head>
+<body>
+<h2>🔧 Diagnóstico Login Admin</h2>
+<input type="text" id="u" value="erick" placeholder="Usuário"/>
+<input type="password" id="p" value="" placeholder="Senha"/>
+<button onclick="testar()">Testar login</button>
+<div id="result"></div>
+<script>
+async function testar(){
+  const r = document.getElementById('result');
+  r.className=''; r.textContent='Testando...';
+  const u = document.getElementById('u').value;
+  const p = document.getElementById('p').value;
+  try{
+    const form = new FormData();
+    form.append('username', u);
+    form.append('password', p);
+    const resp = await fetch('https://api.nexusefbusiness.com.br/token', {method:'POST', body:form});
+    const txt = await resp.text();
+    if(resp.ok){
+      r.className='ok';
+      r.textContent = '✅ LOGIN OK!\nStatus: '+resp.status+'\nResposta: '+txt;
+    } else {
+      r.className='err';
+      r.textContent = '❌ Erro HTTP '+resp.status+'\nResposta: '+txt;
+    }
+  }catch(e){
+    r.className='err';
+    r.textContent = '❌ Erro JS: '+e.message+'\n\nTipo: '+e.name;
+  }
+}
+</script>
+</body>
+</html>
