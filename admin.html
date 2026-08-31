@@ -1846,31 +1846,25 @@ async function saveCliente(){
 async function renderClientes(){
   const tb=document.getElementById('tbody-clientes');
   try{
-    // Carregar clientes do admin + tenants da Nexus Platform
     const [adminClientes, platformTenants] = await Promise.all([
       api('GET','/clientes'),
       platformApi('GET','/tenants').catch(()=>[])
     ]);
-
-    // Combinar: tenants da platform que não estão no admin
-    const adminEmails = (adminClientes||[]).map(c=>c.email);
-    const platformRows = (platformTenants||[])
+    const adminEmails=(adminClientes||[]).map(c=>c.email);
+    const platformRows=(platformTenants||[])
       .filter(t=>!adminEmails.includes(t.email_admin))
-      .map(t=>({
-        id: 'platform_'+t.id, empresa: t.nome, cnpj: t.cnpj||'',
-        responsavel: '—', cargo: '', email: t.email_admin, telefone: t.telefone||'',
-        plano: planName(t.plano), status: t.ativo?'Ativo':'Suspenso',
-        criado_em: t.criado_em, origem: 'platform'
-      }));
-
-    const todos = [...(adminClientes||[]).map(c=>({...c,origem:'admin'})), ...platformRows];
+      .map(t=>({id:'platform_'+t.id,empresa:t.nome,cnpj:t.cnpj||'',responsavel:'—',cargo:'',
+        email:t.email_admin,telefone:t.telefone||'',plano:planName(t.plano),
+        status:t.ativo?'Ativo':'Suspenso',criado_em:t.criado_em,origem:'platform',
+        observacoes:'',tags:''}));
+    const todos=[...(adminClientes||[]).map(c=>({...c,origem:'admin'})),...platformRows];
     document.getElementById('badge-clientes').textContent=todos.length;
     _todosClientes=todos;
     filtrarClientes();
-
-    if(!todos.length){tb.innerHTML='<tr><td colspan="7"><div class="empty"><div class="empty-icon">🏢</div><div class="empty-text">Nenhum cliente cadastrado.</div></div></td></tr>';return}
-    renderClientesRows(todos);
-  // catch handled abover>'}}
+  }catch(e){
+    tb.innerHTML='<tr><td colspan="7"><div class="empty"><div class="empty-icon">⚠️</div><div class="empty-text">Erro ao carregar.</div></div></td></tr>';
+  }
+}
 
 let _todosClientes=[];
 function filtrarClientes(){
@@ -1886,25 +1880,35 @@ function filtrarClientes(){
 
 function renderClientesRows(todos){
   const tb=document.getElementById('tbody-clientes');
-  if(!todos.length){tb.innerHTML='<tr><td colspan="7"><div class="empty"><div class="empty-icon">🏢</div><div class="empty-text">Nenhum cliente.</div></div></td></tr>';return;}
-    tb.innerHTML=todos.map(c=>`<tr>
-      <td><strong>${c.empresa}</strong>${c.cnpj?`<br><small style="color:var(--text-3)">${c.cnpj}</small>`:''}<br><span class="badge ${c.origem==='platform'?'badge-purple':'badge-gray'}" style="font-size:.6rem;margin-top:2px">${c.origem==='platform'?'Nexus Platform':'Admin'}</span>${c.tags?`<br>${c.tags.split(',').map(t=>`<span class="badge badge-blue" style="font-size:.58rem;margin-top:1px">${t.trim()}</span>`).join(' ')}`:''}</td>
-      <td>${c.responsavel}${c.cargo?`<br><small style="color:var(--text-3)">${c.cargo}</small>`:''}</td>
-      <td>${c.email}${c.telefone?`<br><small style="color:var(--text-3)">${c.telefone}</small>`:''}</td>
-      <td>${badge(c.plano||'—')}</td>
-      <td>${badge(c.status)}</td>
-      <td><small>${c.criado_em?new Date(c.criado_em).toLocaleDateString('pt-BR'):'—'}</small></td>
-      <td><div style="display:flex;gap:.3rem">
-        ${c.origem==='admin'?`
-          <button class="btn btn-warn btn-xs" onclick="toggleClienteStatus(${c.id},'${c.status}')">${c.status==='Suspenso'?'▶':'⏸'}</button>
-          <button class="btn btn-ghost btn-xs" onclick="modalObsCliente(${c.id},'${(c.observacoes||'').replace(/'/g,"\'")}','${(c.tags||'').replace(/'/g,"\'")}')">📝</button>
-          <button class="btn btn-ghost btn-xs" onclick="modalHistContato(${c.id},'${c.empresa}')">📞</button>
-          <button class="btn btn-danger btn-xs" onclick="deleteCliente(${c.id})">🗑</button>
-        `:'<button class="btn btn-ghost btn-xs" onclick="modalHistContato('platform_${c.id}','${c.empresa}')">📞</button>'}
-      </div></td>
-    </tr>`).join('');
-  }catch(e){tb.innerHTML='<tr><td colspan="7"><div class="empty"><div class="empty-icon">⚠️</div><div class="empty-text">Erro ao carregar.</div></div></td></tr>'}
+  if(!todos.length){
+    tb.innerHTML='<tr><td colspan="7"><div class="empty"><div class="empty-icon">🏢</div><div class="empty-text">Nenhum cliente.</div></div></td></tr>';
+    return;
+  }
+  tb.innerHTML=todos.map(c=>{
+    const tagsBadges=c.tags?c.tags.split(',').map(t=>'<span class="badge badge-blue" style="font-size:.58rem;margin-top:1px">'+t.trim()+'</span>').join(' '):'';
+    const st2=c.status==='Suspenso'?'Ativo':'Suspenso';
+    const emp=c.empresa.replace(/"/g,'');
+    const acoes=c.origem==='admin'
+      ? '<button class="btn btn-warn btn-xs" onclick="toggleClienteStatus('+c.id+',&quot;'+c.status+'&quot;)">'+(c.status==='Suspenso'?'▶':'⏸')+'</button>'
+        +'<button class="btn btn-ghost btn-xs" onclick="modalObsCliente('+c.id+')">📝</button>'
+        +'<button class="btn btn-ghost btn-xs" onclick="modalHistContato('+c.id+',&quot;'+emp+'&quot;)">📞</button>'
+        +'<button class="btn btn-danger btn-xs" onclick="deleteCliente('+c.id+')">🗑</button>'
+      : '<button class="btn btn-ghost btn-xs" onclick="modalHistContato('+c.id+',&quot;'+emp+'&quot;)">📞</button>';
+    return '<tr>'
+      +'<td><strong>'+c.empresa+'</strong>'+(c.cnpj?'<br><small style="color:var(--text-3)">'+c.cnpj+'</small>':'')
+      +'<br><span class="badge '+(c.origem==='platform'?'badge-purple':'badge-gray')+'" style="font-size:.6rem;margin-top:2px">'+(c.origem==='platform'?'Nexus Platform':'Admin')+'</span>'
+      +(tagsBadges?'<br>'+tagsBadges:'')+'</td>'
+      +'<td>'+c.responsavel+(c.cargo?'<br><small style="color:var(--text-3)">'+c.cargo+'</small>':'')+'</td>'
+      +'<td>'+c.email+(c.telefone?'<br><small style="color:var(--text-3)">'+c.telefone+'</small>':'')+'</td>'
+      +'<td>'+badge(c.plano||'—')+'</td>'
+      +'<td>'+badge(c.status)+'</td>'
+      +'<td><small>'+(c.criado_em?new Date(c.criado_em).toLocaleDateString('pt-BR'):'—')+'</small></td>'
+      +'<td><div style="display:flex;gap:.3rem">'+acoes+'</div></td>'
+      +'</tr>';
+  }).join('');
 }
+
+
 async function toggleClienteStatus(id,status){
   const novo=status==='Suspenso'?'Ativo':'Suspenso';
   try{await api('PATCH',`/clientes/${id}/status`,{status:novo});toast(`Cliente ${novo==='Suspenso'?'suspenso':'reativado'}!`);loadSection('clientes');loadStats()}
@@ -2167,20 +2171,7 @@ async function saveFinanceiro(){
     closeModal('modal-financeiro');toast('Receita registrada!');loadSection('financeiro');loadStats();
   }catch(e){toast('Erro.','error')}
 }
-async function renderFinanceiro(){
-  const tb=document.getElementById('tbody-financeiro');
-  try{
-    const data=await api('GET','/financeiro');
-    if(!data?.length){tb.innerHTML='<tr><td colspan="5"><div class="empty"><div class="empty-icon">💰</div><div class="empty-text">Nenhum registro.</div></div></td></tr>';return}
-    tb.innerHTML=data.map(f=>`<tr>
-      <td><strong>${f.cliente_nome}</strong></td>
-      <td>${f.descricao||'—'}</td>
-      <td><strong>R$${f.valor.toFixed(2)}</strong></td>
-      <td>${f.data||'—'}</td>
-      <td>${badge(f.status)}</td>
-    </tr>`).join('');
-  }catch(e){tb.innerHTML='<tr><td colspan="5"><div class="empty"><div class="empty-icon">⚠️</div><div class="empty-text">Erro.</div></div></td></tr>'}
-}
+
 
 // ── STATS ──
 async function loadStats(){
@@ -2705,341 +2696,64 @@ async function loadDashboardCombinado(){
 }
 
 // ── SUPORTE UNIFICADO ──
-let _supTickets = [];
-let _supFiltroAtual = 'todos';
 
-async function renderSuporte(){
-  document.getElementById('tbody-suporte').innerHTML = '<tr><td colspan="7"><div class="loading"><div class="spinner"></div>Carregando...</div></td></tr>';
-  try{
-    _supTickets = await platformApi('GET','/suporte/tickets');
-    supRenderTabela(_supTickets);
-  }catch(e){
-    document.getElementById('tbody-suporte').innerHTML='<tr><td colspan="7"><div class="empty"><div class="empty-icon">⚠️</div><div class="empty-text">Erro ao carregar tickets.</div></div></td></tr>';
-  }
-}
 
-function supFiltro(tipo){
-  _supFiltroAtual = tipo;
-  ['todos','aberto','fechado','contabil'].forEach(t=>{
-    const btn = document.getElementById(`sup-tab-${t}`);
-    if(!btn) return;
-    btn.style.background = t===tipo?'var(--purple)':'';
-    btn.style.color = t===tipo?'#fff':'';
-    btn.className = t===tipo?'btn btn-sm':'btn btn-ghost btn-sm';
-  });
-  supBuscar();
-}
 
-function supBuscar(){
-  const q = (document.getElementById('sup-search')?.value||'').toLowerCase();
-  let filtered = _supTickets;
-  if(_supFiltroAtual === 'contabil') filtered = filtered.filter(t=>t.produto==='contabil');
-  else if(_supFiltroAtual === 'aberto') filtered = filtered.filter(t=>t.status==='aberto'||t.status==='OPEN');
-  else if(_supFiltroAtual === 'fechado') filtered = filtered.filter(t=>t.status==='fechado'||t.status==='CLOSED'||t.status==='resolvido');
-  if(q) filtered = filtered.filter(t=>(t.titulo||'').toLowerCase().includes(q)||(t.tenant_nome||'').toLowerCase().includes(q));
-  supRenderTabela(filtered);
-}
 
-function supRenderTabela(rows){
-  const tb = document.getElementById('tbody-suporte');
-  if(!rows?.length){
-    tb.innerHTML='<tr><td colspan="7"><div class="empty"><div class="empty-icon">🎫</div><div class="empty-text">Nenhum ticket encontrado.</div></div></td></tr>';
-    return;
-  }
-  tb.innerHTML = rows.map(t=>`<tr>
-    <td>${t.produto==='contabil'?'<span class="badge" style="background:rgba(79,70,229,.1);color:#4F46E5">📊 Contábil</span>':'<span class="badge" style="background:rgba(124,58,237,.1);color:#7C3AED">🖥️ Platform</span>'}</td>
-    <td><strong>${t.tenant_nome||'—'}</strong><br><small style="color:var(--text-3)">${t.tenant_email||'—'}</small></td>
-    <td>${badge(t.tipo||'—')}</td>
-    <td><div style="max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${t.titulo||''}">${t.titulo||'—'}</div><small style="color:var(--text-3)">${t.descricao?t.descricao.substring(0,60)+'...':''}</small></td>
-    <td>${t.status==='aberto'||t.status==='OPEN'?'<span class="badge badge-yellow">Aberto</span>':t.status==='fechado'||t.status==='CLOSED'?'<span class="badge badge-green">Fechado</span>':'<span class="badge badge-blue">'+t.status+'</span>'}</td>
-    <td><small>${t.createdAt?new Date(t.createdAt).toLocaleDateString('pt-BR'):t.created_at?new Date(t.created_at).toLocaleDateString('pt-BR'):'—'}</small></td>
-    <td>
-      ${t.status==='aberto'||t.status==='OPEN'
-        ?`<button class="btn btn-success btn-xs" onclick="supFecharTicket('${t.id}','${t.produto}')">✅ Fechar</button>`
-        :t.status==='fechado'||t.status==='CLOSED'
-        ?`<button class="btn btn-ghost btn-xs" onclick="supReabrirTicket('${t.id}','${t.produto}')">🔄 Reabrir</button>`
-        :''}
-    </td>
-  </tr>`).join('');
-}
 
-async function supFecharTicket(id, produto){
-  try{
-    await platformApi('PATCH',`/suporte/tickets/${id}/status`,{status:'fechado'});
-    toast('Ticket fechado!');
-    renderSuporte();
-  }catch(e){toast('Erro.','error')}
-}
 
-async function supReabrirTicket(id, produto){
-  try{
-    await platformApi('PATCH',`/suporte/tickets/${id}/status`,{status:'aberto'});
-    toast('Ticket reaberto!');
-    renderSuporte();
-  }catch(e){toast('Erro.','error')}
-}
+
+
+
+
+
+
+
+
 
 // ── CONFIGURAÇÕES ──
-let _cfgData = null;
 
-async function renderConfiguracoes(){
-  try{
-    _cfgData = await platformApi('GET','/config/planos');
-    cfgTab('platform');
-  }catch(e){console.error(e)}
-}
 
-function cfgTab(tab){
-  ['platform','contabil'].forEach(t=>{
-    document.getElementById(`cfg-panel-${t}`).style.display = t===tab?'':'none';
-    const btn = document.getElementById(`cfg-tab-${t}`);
-    btn.style.background = t===tab?'var(--purple)':'';
-    btn.style.color = t===tab?'#fff':'';
-    btn.className = t===tab?'btn btn-sm':'btn btn-ghost btn-sm';
-  });
-  cfgRenderCards(tab);
-}
 
-function cfgRenderCards(produto){
-  const planos = _cfgData?.[produto]||{};
-  const container = document.getElementById(`cfg-cards-${produto}`);
-  container.innerHTML = Object.entries(planos).map(([key,cfg])=>`
-    <div style="background:#fff;border:1px solid var(--border);border-radius:12px;padding:1.25rem">
-      <div style="font-size:.9rem;font-weight:700;color:var(--indigo);margin-bottom:1rem">${cfg.nome||key}</div>
-      ${Object.entries(cfg).filter(([k])=>k!=='nome').map(([k,v])=>`
-        <div style="margin-bottom:.65rem">
-          <label style="font-size:.72rem;color:var(--text-2);font-weight:600;display:block;margin-bottom:.2rem">${cfgLabel(k)}</label>
-          <div style="display:flex;gap:.4rem">
-            <input type="${typeof v==='number'?'number':'text'}" value="${v}" id="cfg-${produto}-${key}-${k}"
-              style="flex:1;padding:.35rem .6rem;border:1px solid var(--border);border-radius:5px;font-size:.8rem"
-              ${v===-1?'placeholder="Ilimitado (-1)"':''}/>
-          </div>
-        </div>
-      `).join('')}
-      <button class="btn btn-primary btn-sm" style="width:100%;margin-top:.5rem" onclick="cfgSalvar('${produto}','${key}')">💾 Salvar</button>
-    </div>
-  `).join('');
-}
 
-function cfgLabel(k){
-  const map = {preco:'Preço (R$)',max_tecnicos:'Máx. técnicos',max_usuarios:'Máx. usuários',
-    max_ativos:'Máx. ativos',max_empresas:'Máx. empresas',max_xmls:'Máx. XMLs/mês'};
-  return map[k]||k;
-}
 
-async function cfgSalvar(produto, plano){
-  const cfg = _cfgData[produto][plano];
-  const data = {produto, plano};
-  Object.keys(cfg).filter(k=>k!=='nome').forEach(k=>{
-    const el = document.getElementById(`cfg-${produto}-${plano}-${k}`);
-    if(el) data[k] = isNaN(el.value)?el.value:parseFloat(el.value);
-  });
-  try{
-    await platformApi('PATCH','/config/planos',data);
-    toast(`Plano ${cfg.nome} atualizado!`);
-    _cfgData = await platformApi('GET','/config/planos');
-    cfgRenderCards(produto);
-  }catch(e){toast('Erro ao salvar.','error')}
-}
+
+
+
+
+
+
 
 
 // ── FINANCEIRO ASAAS ──
-let _finPagamentos = [];
 
-async function renderFinanceiro(){
-  try{
-    const [mrr, proj, overdue, churn, asaasChurn] = await Promise.all([
-      platformApi('GET','/asaas/mrr'),
-      platformApi('GET','/asaas/projecao'),
-      platformApi('GET','/asaas/payments/overdue'),
-      platformApi('GET','/admin/churn'),
-      platformApi('GET','/asaas/churn')
-    ]);
 
-    if(mrr){
-      document.getElementById('fin-mrr').textContent = 'R$'+(mrr.mrr_total||0).toLocaleString('pt-BR');
-    }
-    if(proj){
-      document.getElementById('fin-arr').textContent = 'R$'+(proj.arr||0).toLocaleString('pt-BR');
-      document.getElementById('fin-projecao').innerHTML = [
-        {label:'Mês 1',val:proj.mes_1},
-        {label:'Mês 2',val:proj.mes_2},
-        {label:'Mês 3 (+10%)',val:proj.mes_3}
-      ].map(m=>`<div style="background:var(--bg);border-radius:8px;padding:1rem;text-align:center">
-        <div style="font-size:.75rem;color:var(--text-2);margin-bottom:.3rem">${m.label}</div>
-        <div style="font-family:Lora,serif;font-size:1.3rem;font-weight:700;color:var(--green)">R$${m.val.toLocaleString('pt-BR')}</div>
-      </div>`).join('');
-    }
-    if(overdue){
-      document.getElementById('fin-overdue').textContent = overdue.total||0;
-    }
-    if(asaasChurn){
-      document.getElementById('fin-churn').textContent = asaasChurn.churn_rate+'%';
-      document.getElementById('fin-churn').title = `${asaasChurn.canceladas} canceladas de ${asaasChurn.canceladas+asaasChurn.ativas} totais`;
-    } else if(churn){
-      const rate = ((churn.platform?.rate||0) + (churn.contabil?.rate||0))/2;
-      document.getElementById('fin-churn').textContent = rate.toFixed(1)+'%';
-    }
 
-    finTab('assinaturas');
-  }catch(e){console.error('Financeiro erro:',e)}
-}
 
-function finTab(tab){
-  ['assinaturas','pagamentos','inadimplentes','manual'].forEach(t=>{
-    const p=document.getElementById(`fin-panel-${t}`);
-    if(p) p.style.display=t===tab?'':'none';
-    const btn=document.getElementById(`fin-tab-${t}`);
-    if(btn){btn.style.background=t===tab?'var(--purple)':'';btn.style.color=t===tab?'#fff':'';btn.className=t===tab?'btn btn-sm':'btn btn-ghost btn-sm';}
-  });
-  if(tab==='assinaturas') loadFinAssinaturas();
-  else if(tab==='pagamentos') loadFinPagamentos();
-  else if(tab==='inadimplentes') loadFinInadimplentes();
-  else if(tab==='manual') renderFinanceiroManual();
-}
 
-async function loadFinAssinaturas(){
-  const tb=document.getElementById('tbody-fin-assinaturas');
-  try{
-    const subs=await platformApi('GET','/asaas/subscriptions');
-    tb.innerHTML=subs.length
-      ?subs.map(s=>`<tr>
-        <td><small>${s.customer||'—'}</small></td>
-        <td><small>${s.description||'—'}</small></td>
-        <td style="font-weight:700;color:var(--green)">R$${(s.value||0).toLocaleString('pt-BR')}</td>
-        <td><span class="badge badge-gray">${s.cycle==='MONTHLY'?'Mensal':'Anual'}</span></td>
-        <td><small>${s.nextDueDate?new Date(s.nextDueDate+'T12:00:00').toLocaleDateString('pt-BR'):'—'}</small></td>
-        <td>${s.status==='ACTIVE'?'<span class="badge badge-green">Ativa</span>':s.status==='CANCELLED'?'<span class="badge badge-red">Cancelada</span>':'<span class="badge badge-yellow">'+s.status+'</span>'}</td>
-        <td><span class="badge badge-gray">${s.billingType||'—'}</span></td>
-      </tr>`).join('')
-      :'<tr><td colspan="7"><div class="empty"><div class="empty-text">Nenhuma assinatura.</div></div></td></tr>';
-  }catch(e){tb.innerHTML='<tr><td colspan="7">Erro ao carregar Asaas.</td></tr>';}
-}
 
-async function loadFinPagamentos(){
-  const tb=document.getElementById('tbody-fin-pagamentos');
-  try{
-    const res=await platformApi('GET','/asaas/payments');
-    _finPagamentos=res.data||[];
-    tb.innerHTML=_finPagamentos.length
-      ?_finPagamentos.map(p=>`<tr>
-        <td><small>${p.customer||'—'}</small></td>
-        <td><small>${p.description||'—'}</small></td>
-        <td style="font-weight:700">R$${(p.value||0).toLocaleString('pt-BR')}</td>
-        <td><small>${p.dueDate?new Date(p.dueDate+'T12:00:00').toLocaleDateString('pt-BR'):'—'}</small></td>
-        <td>${p.status==='RECEIVED'||p.status==='CONFIRMED'?'<span class="badge badge-green">Pago</span>':p.status==='PENDING'?'<span class="badge badge-yellow">Pendente</span>':p.status==='OVERDUE'?'<span class="badge badge-red">Vencido</span>':'<span class="badge badge-gray">'+p.status+'</span>'}</td>
-        <td><span class="badge badge-gray">${p.billingType||'—'}</span></td>
-      </tr>`).join('')
-      :'<tr><td colspan="6"><div class="empty"><div class="empty-text">Nenhum pagamento.</div></div></td></tr>';
-  }catch(e){tb.innerHTML='<tr><td colspan="6">Erro.</td></tr>';}
-}
 
-async function loadFinInadimplentes(){
-  const tb=document.getElementById('tbody-fin-inadimplentes');
-  try{
-    const res=await platformApi('GET','/asaas/payments/overdue');
-    const rows=res.data||[];
-    tb.innerHTML=rows.length
-      ?rows.map(p=>{
-        const diasAtraso=Math.ceil((new Date()-new Date(p.dueDate+'T12:00:00'))/86400000);
-        return `<tr>
-          <td><small>${p.customer||'—'}</small></td>
-          <td style="font-weight:700;color:var(--red)">R$${(p.value||0).toLocaleString('pt-BR')}</td>
-          <td><small>${p.dueDate?new Date(p.dueDate+'T12:00:00').toLocaleDateString('pt-BR'):'—'}</small></td>
-          <td><span style="color:var(--red);font-weight:700">${diasAtraso} dias</span></td>
-          <td>${p.invoiceUrl?`<a href="${p.invoiceUrl}" target="_blank" class="btn btn-ghost btn-xs">🔗 Cobrar</a>`:'—'}</td>
-        </tr>`;
-      }).join('')
-      :'<tr><td colspan="5"><div class="empty"><div class="empty-icon">✅</div><div class="empty-text">Nenhum inadimplente.</div></div></td></tr>';
-  }catch(e){tb.innerHTML='<tr><td colspan="5">Erro.</td></tr>';}
-}
 
-function exportFinanceiro(){
-  if(!_finPagamentos.length){toast('Carregue os pagamentos primeiro.','error');return;}
-  const csv=['Cliente,Descrição,Valor,Vencimento,Status,Forma'].concat(
-    _finPagamentos.map(p=>[p.customer,p.description,p.value,p.dueDate,p.status,p.billingType].map(v=>`"${v||''}"`).join(','))
-  ).join('
-');
-  const a=document.createElement('a');
-  a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
-  a.download=`financeiro_${new Date().toISOString().slice(0,10)}.csv`;
-  a.click();
-  toast('CSV exportado!');
-}
+
+
+
+
+
 
 // ── E-MAIL PARA TENANT ──
-let _emailTenantId=null, _emailTenantProduto=null;
 
-function modalEmailTenant(id, nome, produto){
-  _emailTenantId=id; _emailTenantProduto=produto;
-  document.getElementById('modal-email-titulo').textContent=`Enviar e-mail para ${nome}`;
-  document.getElementById('email-assunto').value='';
-  document.getElementById('email-mensagem').value='';
-  openModal('modal-email');
-}
 
-async function enviarEmailTenant(){
-  const assunto=document.getElementById('email-assunto').value;
-  const mensagem=document.getElementById('email-mensagem').value;
-  if(!assunto||!mensagem){toast('Preencha assunto e mensagem.','error');return;}
-  try{
-    const rota=_emailTenantProduto==='contabil'
-      ?`/contabil/tenants/${_emailTenantId}/email`
-      :`/tenants/${_emailTenantId}/email`;
-    await platformApi('POST',rota,{assunto,mensagem});
-    toast('E-mail enviado com sucesso!');
-    closeModal('modal-email');
-  }catch(e){toast('Erro ao enviar e-mail.','error')}
-}
+
+
+
 
 // ── RESET SENHA ──
-async function resetSenhaTenant(id, produto){
-  if(!confirm('Gerar nova senha temporária para o admin deste tenant?')) return;
-  try{
-    const rota=produto==='contabil'
-      ?`/contabil/tenants/${id}/reset-senha`
-      :`/tenants/${id}/reset-senha`;
-    const res=await platformApi('POST',rota,{});
-    alert(`Nova senha gerada!
 
-E-mail: ${res.email}
-Senha: ${res.nova_senha}
-
-Guarde essa senha — ela não será exibida novamente.`);
-  }catch(e){toast('Erro ao resetar senha.','error')}
-}
 
 // ── BUSCA GLOBAL ──
-function toggleBuscaGlobal(){
-  const box=document.getElementById('busca-global-box');
-  box.style.display=box.style.display==='none'?'flex':'none';
-  if(box.style.display==='flex') document.getElementById('busca-global-input').focus();
-}
 
-async function executarBuscaGlobal(){
-  const q=document.getElementById('busca-global-input').value.trim();
-  if(q.length<2) return;
-  const results=document.getElementById('busca-global-results');
-  results.innerHTML='<div class="loading"><div class="spinner"></div>Buscando...</div>';
-  try{
-    const [tenants,contabil]=await Promise.all([
-      platformApi('GET','/tenants'),
-      platformApi('GET','/contabil/tenants')
-    ]);
-    const qL=q.toLowerCase();
-    const resP=(tenants||[]).filter(t=>(t.nome||'').toLowerCase().includes(qL)||(t.email_admin||'').toLowerCase().includes(qL)||(t.slug||'').includes(qL));
-    const resC=(contabil||[]).filter(t=>(t.nome||'').toLowerCase().includes(qL)||(t.email||'').toLowerCase().includes(qL)||(t.cnpj||'').includes(q));
-    if(!resP.length&&!resC.length){results.innerHTML='<p style="padding:.75rem;color:var(--text-2);font-size:.82rem">Nenhum resultado.</p>';return;}
-    results.innerHTML=[
-      ...resP.map(t=>`<div onclick="showView('tenants');setTimeout(()=>loadTenantDetail('${t.id}','${t.nome}'),500)" style="padding:.6rem 1rem;cursor:pointer;border-bottom:1px solid var(--border);font-size:.82rem;display:flex;align-items:center;gap:.75rem">
-        <span>🖥️</span><div><strong>${t.nome}</strong><br><small style="color:var(--text-3)">${t.email_admin} · Platform</small></div>
-      </div>`),
-      ...resC.map(t=>`<div onclick="showView('contabil');setTimeout(()=>loadContabilDetail('${t.id}','${t.nome}'),500)" style="padding:.6rem 1rem;cursor:pointer;border-bottom:1px solid var(--border);font-size:.82rem;display:flex;align-items:center;gap:.75rem">
-        <span>📊</span><div><strong>${t.nome}</strong><br><small style="color:var(--text-3)">${t.email} · Contábil · ${t.cnpj||'—'}</small></div>
-      </div>`)
-    ].join('');
-  }catch(e){results.innerHTML='<p style="padding:.75rem;color:var(--red);font-size:.82rem">Erro na busca.</p>';}
-}
+
+
 
 // Atalhos de teclado
 document.addEventListener('keydown',e=>{
@@ -3051,378 +2765,59 @@ document.addEventListener('keydown',e=>{
 });
 
 // Exportar qualquer tabela
-function exportarTabela(tbodyId, nomeArquivo){
-  const tbody=document.getElementById(tbodyId);
-  if(!tbody){toast('Tabela não encontrada.','error');return;}
-  const rows=Array.from(tbody.querySelectorAll('tr')).map(tr=>
-    Array.from(tr.querySelectorAll('td')).map(td=>'"'+td.innerText.replace(/"/g,'""')+'"').join(',')
-  ).filter(r=>r);
-  if(!rows.length){toast('Nenhum dado para exportar.','error');return;}
-  const a=document.createElement('a');
-  a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(rows.join('
-'));
-  a.download=`${nomeArquivo}_${new Date().toISOString().slice(0,10)}.csv`;
-  a.click();
-  toast('CSV exportado!');
-}
+
 
 
 // ── DARK MODE ──
-function toggleDarkMode(){
-  document.body.classList.toggle('dark');
-  const btn=document.getElementById('btn-darkmode');
-  const isDark=document.body.classList.contains('dark');
-  btn.textContent=isDark?'☀️':'🌙';
-  localStorage.setItem('admin-dark',isDark?'1':'0');
-}
+
 if(localStorage.getItem('admin-dark')==='1'){document.body.classList.add('dark');document.getElementById('btn-darkmode')&&(document.getElementById('btn-darkmode').textContent='☀️');}
 
 // ── PAGINAÇÃO ──
-const _paginacao = {};
-function paginar(tbodyId, rows, renderFn, pageSize=20){
-  _paginacao[tbodyId] = {rows, renderFn, pageSize, page:0};
-  paginarRender(tbodyId);
-}
-function paginarRender(tbodyId){
-  const p=_paginacao[tbodyId];
-  if(!p) return;
-  const {rows,renderFn,pageSize,page}=p;
-  const total=rows.length;
-  const totalPages=Math.ceil(total/pageSize);
-  const slice=rows.slice(page*pageSize,(page+1)*pageSize);
-  const tbody=document.getElementById(tbodyId);
-  if(tbody) tbody.innerHTML=renderFn(slice);
-  // Controles de paginação
-  const ctrlId=tbodyId+'-paginacao';
-  let ctrl=document.getElementById(ctrlId);
-  if(!ctrl){
-    ctrl=document.createElement('div');
-    ctrl.id=ctrlId;
-    ctrl.style.cssText='display:flex;align-items:center;justify-content:space-between;padding:.75rem 1.25rem;border-top:1px solid var(--border);font-size:.78rem;color:var(--text-2)';
-    tbody?.parentElement?.parentElement?.appendChild(ctrl);
-  }
-  if(totalPages<=1){ctrl.style.display='none';return;}
-  ctrl.style.display='flex';
-  ctrl.innerHTML=`<span>Mostrando ${page*pageSize+1}–${Math.min((page+1)*pageSize,total)} de ${total}</span>
-    <div style="display:flex;gap:.3rem">
-      <button class="btn btn-ghost btn-xs" onclick="paginarIr('${tbodyId}',${page-1})" ${page===0?'disabled':''}>← Anterior</button>
-      ${Array.from({length:Math.min(5,totalPages)},(_,i)=>i+Math.max(0,page-2)).filter(i=>i<totalPages).map(i=>
-        `<button class="btn btn-xs ${i===page?'btn-primary':'btn-ghost'}" onclick="paginarIr('${tbodyId}',${i})">${i+1}</button>`
-      ).join('')}
-      <button class="btn btn-ghost btn-xs" onclick="paginarIr('${tbodyId}',${page+1})" ${page>=totalPages-1?'disabled':''}>Próximo →</button>
-    </div>`;
-}
-function paginarIr(tbodyId,page){
-  if(!_paginacao[tbodyId]) return;
-  const total=_paginacao[tbodyId].rows.length;
-  const totalPages=Math.ceil(total/_paginacao[tbodyId].pageSize);
-  _paginacao[tbodyId].page=Math.max(0,Math.min(page,totalPages-1));
-  paginarRender(tbodyId);
-}
+
+
+
+
 
 // ── NPS/CSAT ──
-async function renderNpsCsat(){
-  try{
-    const stats=await platformApi('GET','/stats');
-    const csat=stats?.csat_medio||0;
-    const div=document.getElementById('dash-nps');
-    if(!div) return;
-    const stars='★'.repeat(Math.round(csat))+'☆'.repeat(5-Math.round(csat));
-    div.innerHTML=`<div style="font-size:1.5rem;font-weight:700;color:var(--purple)">${csat.toFixed(1)}</div>
-      <div style="color:#F59E0B;font-size:1rem">${stars}</div>
-      <div style="font-size:.72rem;color:var(--text-3)">CSAT médio</div>`;
-  }catch(e){}
-}
+
 
 // ── IMPERSONAR USUÁRIO (Platform) ──
-async function impersonarTenant(tenantId, nome){
-  if(!confirm(`Acessar conta de "${nome}" como administrador?`)) return;
-  try{
-    const res=await platformApi('POST',`/gerar-autologin`,{tenant_id:tenantId});
-    if(res?.token){
-      window.open(`https://ti.nexusefbusiness.com.br/auth/autologin?token=${res.token}`,'_blank');
-    }
-  }catch(e){toast('Erro ao gerar autologin.','error')}
-}
+
 
 // ── OBSERVAÇÕES E TAGS (Clientes) ──
-let _obsClienteId=null;
-function modalObsCliente(id, obs, tags){
-  _obsClienteId=id;
-  document.getElementById('obs-texto').value=obs||'';
-  document.getElementById('obs-tags').value=tags||'';
-  openModal('modal-obs');
-}
-async function salvarObsCliente(){
-  const obs=document.getElementById('obs-texto').value;
-  const tags=document.getElementById('obs-tags').value;
-  try{
-    await api('PATCH',`/clientes/${_obsClienteId}/observacoes`,{observacoes:obs,tags});
-    toast('Observações salvas!');
-    closeModal('modal-obs');
-    loadSection('clientes');
-  }catch(e){toast('Erro.','error')}
-}
+
+
+
 
 // ── HISTÓRICO DE CONTATO ──
-let _histClienteId=null;
-async function modalHistContato(id, nome){
-  _histClienteId=id;
-  document.getElementById('hist-cliente-nome').textContent=nome;
-  document.getElementById('tbody-hist-contato').innerHTML='<tr><td colspan="3"><div class="loading"><div class="spinner"></div></div></td></tr>';
-  openModal('modal-hist-contato');
-  try{
-    const rows=await api('GET',`/clientes/${id}/contatos`);
-    document.getElementById('tbody-hist-contato').innerHTML=rows?.length
-      ?rows.map(r=>`<tr><td><small>${new Date(r.data).toLocaleDateString('pt-BR')}</small></td><td>${badge(r.tipo)}</td><td>${r.nota}</td></tr>`).join('')
-      :'<tr><td colspan="3"><div class="empty"><div class="empty-text">Nenhum registro.</div></div></td></tr>';
-  }catch(e){document.getElementById('tbody-hist-contato').innerHTML='<tr><td colspan="3">Erro.</td></tr>';}
-}
-async function salvarContato(){
-  const tipo=document.getElementById('contato-tipo').value;
-  const nota=document.getElementById('contato-nota').value;
-  if(!nota){toast('Digite uma nota.','error');return;}
-  try{
-    await api('POST',`/clientes/${_histClienteId}/contatos`,{tipo,nota,data:new Date().toISOString()});
-    toast('Registro salvo!');
-    modalHistContato(_histClienteId, '');
-  }catch(e){toast('Erro.','error')}
-}
+
+
+
 
 // ── CONFIG — DURAÇÃO TRIAL E FEATURES ──
-async function salvarConfigTrial(){
-  const dias=document.getElementById('cfg-trial-dias').value;
-  try{
-    await platformApi('PATCH','/config/trial',{dias:parseInt(dias)});
-    toast(`Trial configurado para ${dias} dias!`);
-  }catch(e){toast('Erro.','error')}
-}
 
-function toggleSidebarMobile(){
-  const sb=document.querySelector('.sidebar');
-  const ov=document.getElementById('sidebar-overlay');
-  sb.classList.toggle('open');
-  ov.style.display=sb.classList.contains('open')?'block':'none';
-}
+
+
 
 // Mostrar botão hambúrguer no mobile
-function checkMobile(){
-  const btn=document.getElementById('btn-menu-mobile');
-  if(btn) btn.style.display=window.innerWidth<=700?'block':'none';
-}
+
 window.addEventListener('resize',checkMobile);
 checkMobile();
 
-function docsScrollTo(id){
-  const el=document.getElementById(id);
-  if(el){el.scrollIntoView({behavior:'smooth',block:'start'});
-    document.querySelectorAll('.doc-link').forEach(l=>{l.style.color='var(--text-2)';l.style.borderLeftColor='transparent'});
-    const link=document.querySelector(`[onclick="docsScrollTo('${id}')"]`);
-    if(link){link.style.color='var(--purple)';link.style.borderLeftColor='var(--purple)';}
-  }
-}
-function docsSearch(){
-  const q=document.getElementById('docs-search').value.toLowerCase();
-  document.querySelectorAll('.doc-section').forEach(sec=>{
-    const txt=sec.textContent.toLowerCase();
-    sec.style.display=!q||txt.includes(q)?'':'none';
-  });
-}
 
-function loadAll(){
-  loadStats();
-  renderAtividade('activity-dash');
-  loadDashboardCombinado();
-  // Polling de notificações a cada 60s
-  setInterval(async ()=>{
-    try{
-      const [trial, overdue] = await Promise.all([
-        platformApi('GET','/contabil/trial-expirando'),
-        platformApi('GET','/asaas/payments/overdue')
-      ]);
-      const total = (trial?.length||0) + (overdue?.total||0);
-      const badge = document.getElementById('notif-badge');
-      if(badge){
-        badge.textContent = total>0?total:'';
-        badge.style.display = total>0?'inline':'none';
-      }
-    }catch(e){}
-  }, 60000);
-}
-function toggleSidebarMobile(){
-  const sb=document.querySelector('.sidebar');
-  const ov=document.getElementById('sidebar-overlay');
-  sb.classList.toggle('open');
-  ov.style.display=sb.classList.contains('open')?'block':'none';
-}
+
+
+
+
 
 // Mostrar botão hambúrguer no mobile
-function checkMobile(){
-  const btn=document.getElementById('btn-menu-mobile');
-  if(btn) btn.style.display=window.innerWidth<=700?'block':'none';
-}
+
 window.addEventListener('resize',checkMobile);
 checkMobile();
 
-function docsScrollTo(id){
-  const el=document.getElementById(id);
-  if(el){el.scrollIntoView({behavior:'smooth',block:'start'});
-    document.querySelectorAll('.doc-link').forEach(l=>{l.style.color='var(--text-2)';l.style.borderLeftColor='transparent'});
-    const link=document.querySelector(`[onclick="docsScrollTo('${id}')"]`);
-    if(link){link.style.color='var(--purple)';link.style.borderLeftColor='var(--purple)';}
-  }
-}
-function docsSearch(){
-  const q=document.getElementById('docs-search').value.toLowerCase();
-  document.querySelectorAll('.doc-section').forEach(sec=>{
-    const txt=sec.textContent.toLowerCase();
-    sec.style.display=!q||txt.includes(q)?'':'none';
-  });
-}
 
-function loadAll(){
-  loadStats();
-  renderAtividade('activity-dash');
-  loadDashboardCombinado();
-  // Polling de notificações a cada 60s
-  setInterval(async ()=>{
-    try{
-      const [trial, overdue] = await Promise.all([
-        platformApi('GET','/contabil/trial-expirando'),
-        platformApi('GET','/asaas/payments/overdue')
-      ]);
-      const total = (trial?.length||0) + (overdue?.total||0);
-      const badge = document.getElementById('notif-badge');
-      if(badge){
-        badge.textContent = total>0?total:'';
-        badge.style.display = total>0?'inline':'none';
-      }
-    }catch(e){}
-  }, 60000);
-}
-// ── DASHBOARD COMBINADO ──
-let _dashChart = null;
 
-async function loadDashboardCombinado(){
-  try{
-    const [dash, conv] = await Promise.all([
-      platformApi('GET','/admin/dashboard'),
-      platformApi('GET','/admin/conversao')
-    ]);
 
-    if(dash){
-      document.getElementById('dash-mrr-total').textContent = 'R$'+dash.mrr_total.toLocaleString('pt-BR');
-      document.getElementById('dash-mrr-delta').textContent = `Platform R$${dash.mrr_platform.toLocaleString('pt-BR')} + Contábil R$${dash.mrr_contabil.toLocaleString('pt-BR')}`;
-      document.getElementById('dash-mrr-platform').textContent = 'R$'+dash.mrr_platform.toLocaleString('pt-BR');
-      document.getElementById('dash-mrr-contabil').textContent = 'R$'+dash.mrr_contabil.toLocaleString('pt-BR');
-      const p = dash.platform, c = dash.contabil;
-      document.getElementById('dash-platform-pagos').textContent = `${p.tenants_pagos||0} pagos · ${p.tenants_trial||0} trial`;
-      document.getElementById('dash-contabil-ativos').textContent = `${c.tenants_ativos||0} ativos · ${c.tenants_trial||0} trial`;
-      document.getElementById('dash-tickets-hoje').textContent = dash.tickets_suporte_hoje||0;
-      const novos7 = (p.novos_7d||0) + (c.novos_7d||0);
-      const novos30 = (p.novos_30d||0) + (c.novos_30d||0);
-      document.getElementById('dash-novos-7d').textContent = novos7;
-      document.getElementById('dash-novos-30d').textContent = novos30;
-
-      // MRR breakdown
-      const mrrDiv = document.getElementById('dash-mrr-breakdown');
-      const mrrTotal = dash.mrr_total||1;
-      mrrDiv.innerHTML = ['Platform','Contábil'].map((nome,i)=>{
-        const val = i===0?dash.mrr_platform:dash.mrr_contabil;
-        const pct = Math.round(val/mrrTotal*100);
-        return `<div style="margin-bottom:.5rem">
-          <div style="display:flex;justify-content:space-between;font-size:.75rem;margin-bottom:.2rem">
-            <span>${nome}</span><span style="font-weight:700">R$${val.toLocaleString('pt-BR')}</span>
-          </div>
-          <div style="background:var(--bg);border-radius:4px;height:12px">
-            <div style="height:100%;background:${i===0?'#7C3AED':'#4F46E5'};width:${pct}%;border-radius:4px"></div>
-          </div>
-        </div>`;
-      }).join('');
-
-      // Gráfico crescimento
-      const meses = [...new Set([
-        ...dash.crescimento_platform.map(r=>r.mes),
-        ...dash.crescimento_contabil.map(r=>r.mes)
-      ])].sort();
-      const pMap = Object.fromEntries(dash.crescimento_platform.map(r=>[r.mes,r.novos]));
-      const cMap = Object.fromEntries(dash.crescimento_contabil.map(r=>[r.mes,r.novos]));
-      const ctx = document.getElementById('dash-chart-crescimento').getContext('2d');
-      if(_dashChart) _dashChart.destroy();
-      _dashChart = new Chart(ctx,{
-        type:'bar',
-        data:{
-          labels: meses.map(m=>{ const d=new Date(m+'-01'); return d.toLocaleDateString('pt-BR',{month:'short',year:'2-digit'}); }),
-          datasets:[
-            {label:'Platform',data:meses.map(m=>pMap[m]||0),backgroundColor:'rgba(124,58,237,.7)',borderRadius:4},
-            {label:'Contábil',data:meses.map(m=>cMap[m]||0),backgroundColor:'rgba(79,70,229,.5)',borderRadius:4}
-          ]
-        },
-        options:{plugins:{legend:{position:'bottom'}},scales:{x:{stacked:true},y:{stacked:true,beginAtZero:true,ticks:{stepSize:1}}}}
-      });
-    }
-
-    if(conv){
-      const convDiv = document.getElementById('dash-conversao-breakdown');
-      document.getElementById('dash-clientes-pagos').textContent = conv.total_clientes_pagos||0;
-      document.getElementById('dash-trial-total').textContent = conv.total_trial||0;
-      document.getElementById('dash-conversao').textContent = `Conversão: P ${conv.platform.taxa_conversao}% · C ${conv.contabil.taxa_conversao}%`;
-      convDiv.innerHTML = ['platform','contabil'].map(p=>{
-        const d = conv[p];
-        const pct = d.taxa_conversao||0;
-        return `<div style="margin-bottom:.4rem">
-          <div style="display:flex;justify-content:space-between;font-size:.73rem;margin-bottom:.15rem">
-            <span>${p==='platform'?'Platform':'Contábil'}</span><span style="font-weight:700;color:${pct>50?'var(--green)':pct>25?'var(--yellow)':'var(--red)'}">${pct}%</span>
-          </div>
-          <div style="background:var(--bg);border-radius:4px;height:10px">
-            <div style="height:100%;background:${pct>50?'var(--green)':pct>25?'var(--yellow)':'var(--red)'};width:${pct}%;border-radius:4px"></div>
-          </div>
-        </div>`;
-      }).join('');
-    }
-
-    // NPS/CSAT e Churn
-    try{
-      const [stats, churn] = await Promise.all([
-        platformApi('GET','/stats'),
-        platformApi('GET','/admin/churn')
-      ]);
-      const csat = stats?.csat_medio||0;
-      const npsDiv = document.getElementById('dash-nps');
-      if(npsDiv){
-        const stars = '★'.repeat(Math.round(csat))+'☆'.repeat(5-Math.round(csat));
-        npsDiv.innerHTML = csat>0
-          ?`<div style="font-size:1.5rem;font-weight:700;color:var(--purple)">${csat.toFixed(1)}</div><div style="color:#F59E0B">${stars}</div><div style="font-size:.72rem;color:var(--text-3)">CSAT médio</div>`
-          :`<div style="font-size:.82rem;color:var(--text-3)">Sem avaliações ainda</div>`;
-      }
-      const churnDiv = document.getElementById('dash-churn-detalhes');
-      if(churnDiv&&churn){
-        churnDiv.innerHTML = `
-          <div style="font-size:1.3rem;font-weight:700;color:${churn.total_churn>0?'var(--red)':'var(--green)'}">${churn.total_churn}</div>
-          <div style="font-size:.75rem;color:var(--text-2)">cancelamentos este mês</div>
-          <div style="font-size:.72rem;color:var(--text-3);margin-top:.25rem">P: ${churn.platform?.churn_mes||0} · C: ${churn.contabil?.churn_mes||0}</div>`;
-      }
-    }catch(e){}
-
-    // Notificações rápidas no dashboard
-    try{
-      const [trialExp, inativos] = await Promise.all([
-        platformApi('GET','/contabil/trial-expirando'),
-        platformApi('GET','/contabil/inativos')
-      ]);
-      const notifDiv = document.getElementById('dash-notif-preview');
-      if(notifDiv){
-        const items = [];
-        if(trialExp?.length) items.push(`⏰ ${trialExp.length} trial expirando`);
-        if(inativos?.length) items.push(`😴 ${inativos.length} inativos 30d`);
-        notifDiv.innerHTML = items.length
-          ?items.map(i=>`<div style="margin-bottom:.3rem">${i}</div>`).join('')
-          :'<div style="color:var(--green)">✅ Tudo em ordem</div>';
-      }
-    }catch(e){}
-
-  }catch(e){console.error('Dashboard combinado erro:',e)}
-}
 
 // ── SUPORTE UNIFICADO ──
 let _supTickets = [];
@@ -3676,11 +3071,10 @@ async function loadFinInadimplentes(){
 
 function exportFinanceiro(){
   if(!_finPagamentos.length){toast('Carregue os pagamentos primeiro.','error');return;}
-  const csv=['Cliente,Descrição,Valor,Vencimento,Status,Forma'].concat(
-    _finPagamentos.map(p=>[p.customer,p.description,p.value,p.dueDate,p.status,p.billingType].map(v=>`"${v||''}"`).join(','))
-  ).join('
-');
-  const a=document.createElement('a');
+  const csvRows=['Cliente,Descricao,Valor,Vencimento,Status,Forma'];
+  _finPagamentos.forEach(p=>{csvRows.push([p.customer,p.description,p.value,p.dueDate,p.status,p.billingType].map(v=>'"'+(v||'')+'"').join(','));});
+  const csv=csvRows.join('\n');
+    const a=document.createElement('a');
   a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
   a.download=`financeiro_${new Date().toISOString().slice(0,10)}.csv`;
   a.click();
@@ -3779,8 +3173,7 @@ function exportarTabela(tbodyId, nomeArquivo){
   ).filter(r=>r);
   if(!rows.length){toast('Nenhum dado para exportar.','error');return;}
   const a=document.createElement('a');
-  a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(rows.join('
-'));
+  a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(rows.join('\n'));;
   a.download=`${nomeArquivo}_${new Date().toISOString().slice(0,10)}.csv`;
   a.click();
   toast('CSV exportado!');
@@ -3918,57 +3311,17 @@ async function salvarConfigTrial(){
   }catch(e){toast('Erro.','error')}
 }
 
-function toggleSidebarMobile(){
-  const sb=document.querySelector('.sidebar');
-  const ov=document.getElementById('sidebar-overlay');
-  sb.classList.toggle('open');
-  ov.style.display=sb.classList.contains('open')?'block':'none';
-}
+
 
 // Mostrar botão hambúrguer no mobile
-function checkMobile(){
-  const btn=document.getElementById('btn-menu-mobile');
-  if(btn) btn.style.display=window.innerWidth<=700?'block':'none';
-}
+
 window.addEventListener('resize',checkMobile);
 checkMobile();
 
-function docsScrollTo(id){
-  const el=document.getElementById(id);
-  if(el){el.scrollIntoView({behavior:'smooth',block:'start'});
-    document.querySelectorAll('.doc-link').forEach(l=>{l.style.color='var(--text-2)';l.style.borderLeftColor='transparent'});
-    const link=document.querySelector(`[onclick="docsScrollTo('${id}')"]`);
-    if(link){link.style.color='var(--purple)';link.style.borderLeftColor='var(--purple)';}
-  }
-}
-function docsSearch(){
-  const q=document.getElementById('docs-search').value.toLowerCase();
-  document.querySelectorAll('.doc-section').forEach(sec=>{
-    const txt=sec.textContent.toLowerCase();
-    sec.style.display=!q||txt.includes(q)?'':'none';
-  });
-}
 
-function loadAll(){
-  loadStats();
-  renderAtividade('activity-dash');
-  loadDashboardCombinado();
-  // Polling de notificações a cada 60s
-  setInterval(async ()=>{
-    try{
-      const [trial, overdue] = await Promise.all([
-        platformApi('GET','/contabil/trial-expirando'),
-        platformApi('GET','/asaas/payments/overdue')
-      ]);
-      const total = (trial?.length||0) + (overdue?.total||0);
-      const badge = document.getElementById('notif-badge');
-      if(badge){
-        badge.textContent = total>0?total:'';
-        badge.style.display = total>0?'inline':'none';
-      }
-    }catch(e){}
-  }, 60000);
-}
+
+
+
 function toggleSidebarMobile(){
   const sb=document.querySelector('.sidebar');
   const ov=document.getElementById('sidebar-overlay');
