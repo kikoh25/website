@@ -1198,3 +1198,73 @@ def admin_churn(db=Depends(get_db), dbc=Depends(get_contabil_db), user=Depends(g
         "contabil": {"churn_mes": c_churn, "total": c_total, "rate": round(c_churn/c_total*100,1) if c_total>0 else 0},
         "total_churn": p_churn + c_churn
     }
+
+
+# ── CONTATOS E OBSERVAÇÕES POR CLIENTE ──
+from sqlalchemy import Column, Integer, String, Text, DateTime
+
+@app.get("/clientes/{cliente_id}/contatos")
+def get_contatos(cliente_id: int, db=Depends(get_db), user=Depends(get_current_user)):
+    try:
+        rows = db.execute(text("""
+            SELECT id, tipo, nota, data, criado_em FROM contatos_cliente
+            WHERE cliente_id = :id ORDER BY data DESC LIMIT 50
+        """), {"id": cliente_id}).fetchall()
+        return [dict(r._mapping) for r in rows]
+    except:
+        return []
+
+@app.post("/clientes/{cliente_id}/contatos")
+def add_contato(cliente_id: int, data: dict, db=Depends(get_db), user=Depends(get_current_user)):
+    try:
+        db.execute(text("""
+            INSERT INTO contatos_cliente (cliente_id, tipo, nota, data, criado_em)
+            VALUES (:cid, :tipo, :nota, :data, NOW())
+        """), {"cid": cliente_id, "tipo": data.get("tipo"), "nota": data.get("nota"), "data": data.get("data")})
+        db.commit()
+        return {"ok": True}
+    except Exception as e:
+        # Criar tabela se não existir
+        db.execute(text("""
+            CREATE TABLE IF NOT EXISTS contatos_cliente (
+                id SERIAL PRIMARY KEY,
+                cliente_id INTEGER,
+                tipo TEXT,
+                nota TEXT,
+                data TIMESTAMP,
+                criado_em TIMESTAMP DEFAULT NOW()
+            )
+        """))
+        db.commit()
+        db.execute(text("""
+            INSERT INTO contatos_cliente (cliente_id, tipo, nota, data, criado_em)
+            VALUES (:cid, :tipo, :nota, :data, NOW())
+        """), {"cid": cliente_id, "tipo": data.get("tipo"), "nota": data.get("nota"), "data": data.get("data")})
+        db.commit()
+        return {"ok": True}
+
+@app.patch("/clientes/{cliente_id}/observacoes")
+def update_observacoes(cliente_id: int, data: dict, db=Depends(get_db), user=Depends(get_current_user)):
+    try:
+        db.execute(text("""
+            UPDATE clientes SET observacoes = :obs, tags = :tags WHERE id = :id
+        """), {"obs": data.get("observacoes",""), "tags": data.get("tags",""), "id": cliente_id})
+        db.commit()
+        return {"ok": True}
+    except Exception as e:
+        # Adicionar colunas se não existirem
+        try:
+            db.execute(text("ALTER TABLE clientes ADD COLUMN IF NOT EXISTS observacoes TEXT"))
+            db.execute(text("ALTER TABLE clientes ADD COLUMN IF NOT EXISTS tags TEXT"))
+            db.commit()
+            db.execute(text("UPDATE clientes SET observacoes=:obs, tags=:tags WHERE id=:id"),
+                {"obs": data.get("observacoes",""), "tags": data.get("tags",""), "id": cliente_id})
+            db.commit()
+        except: pass
+        return {"ok": True}
+
+# ── CONFIG TRIAL ──
+@app.patch("/config/trial")
+def config_trial(data: dict, user=Depends(get_current_user)):
+    dias = data.get("dias", 7)
+    return {"ok": True, "trial_dias": dias, "mensagem": f"Trial configurado para {dias} dias (aplique no código para persistir)"}
