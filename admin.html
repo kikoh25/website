@@ -659,7 +659,7 @@ function planName(p){
   const map={
     trial:'Free',chamados:'Starter',completo:'Pro',inventario:'Inventário',
     STARTER:'Starter',PROFISSIONAL:'Profissional',ENTERPRISE:'Enterprise',
-    TRIAL:'Trial',ATIVO:'Ativo',CANCELADO:'Cancelado'
+    TRIAL:'Trial',ACTIVE:'Ativo',SUSPENDED:'Suspenso',CANCELLED:'Cancelado'
   };
   return map[p]||p;
 }
@@ -1092,9 +1092,14 @@ async function renderContabil(){
           <option value="PROFISSIONAL">Profissional</option>
           <option value="ENTERPRISE">Enterprise</option>
         </select>
-        ${t.status!=='CANCELADO'
-          ?`<button class="btn btn-danger btn-xs" onclick="toggleContabilStatus('${t.id}','CANCELADO')">🔒</button>`
-          :`<button class="btn btn-success btn-xs" onclick="toggleContabilStatus('${t.id}','ATIVO')">▶</button>`
+        ${t.status==='ACTIVE'
+          ?`<button class="btn btn-danger btn-xs" onclick="toggleContabilStatus('${t.id}','SUSPENDED')" title="Suspender">🔒</button>`
+          :t.status==='SUSPENDED'
+          ?`<button class="btn btn-success btn-xs" onclick="toggleContabilStatus('${t.id}','ACTIVE')" title="Reativar">▶</button>
+           <button class="btn btn-danger btn-xs" onclick="toggleContabilStatus('${t.id}','CANCELLED')" title="Cancelar">✕</button>`
+          :t.status==='TRIAL'
+          ?`<button class="btn btn-success btn-xs" onclick="toggleContabilStatus('${t.id}','ACTIVE')" title="Ativar">▶</button>`
+          :`<button class="btn btn-success btn-xs" onclick="toggleContabilStatus('${t.id}','ACTIVE')" title="Reativar">▶</button>`
         }
       </div></td>
     </tr>`).join('');
@@ -1126,8 +1131,9 @@ async function mudarPlanoContabil(id, plano){
 }
 
 async function toggleContabilStatus(id, status){
-  try{await platformApi('PATCH',`/contabil/tenants/${id}/status`,{status});toast(status==='ATIVO'?'Escritório reativado!':'Escritório cancelado!');renderContabil()}
-  catch(e){toast('Erro.','error')}
+  const msgs={ACTIVE:'Escritório reativado!',SUSPENDED:'Escritório suspenso!',CANCELLED:'Escritório cancelado!'};
+  try{await platformApi('PATCH',`/contabil/tenants/${id}/status`,{status});toast(msgs[status]||'Status atualizado!');renderContabil()}
+  catch(e){toast('Erro ao atualizar status.','error')}
 }
 
 function loadAll(){loadStats();renderAtividade('activity-dash')}
