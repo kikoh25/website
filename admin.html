@@ -1746,7 +1746,7 @@ async function doLogin(){
   try{
     const form=new FormData(); form.append('username',user); form.append('password',pass);
     const r=await fetch(API+'/token',{method:'POST',body:form});
-    if(!r.ok) throw new Error();
+    if(!r.ok) throw new Error('HTTP '+r.status+' — '+r.statusText);
     TOKEN=(await r.json()).access_token;
     sessionStorage.setItem('nexus_creds', JSON.stringify({u:user,p:pass}));
     try{
@@ -1759,7 +1759,10 @@ async function doLogin(){
     document.getElementById('login-screen').style.display='none';
     document.getElementById('app').style.display='flex';
     loadAll();
-  }catch(e){err.style.display='block'}
+  }catch(e){
+    err.style.display='block';
+    err.textContent = 'Erro: ' + (e.message||'Falha ao conectar com a API');
+  }
   btn.disabled=false; btn.textContent='Entrar no painel';
 }
 function doLogout(){
