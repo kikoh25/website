@@ -1159,6 +1159,27 @@ body.dark .nav-item:hover,body.dark .nav-item.active{background:rgba(124,58,237,
   </div>
 </div>
 
+<!-- MODAL CONVERTER TRIAL -->
+<div class="modal-backdrop" id="modal-converter-trial" style="display:none">
+  <div class="modal" style="max-width:400px">
+    <div class="modal-header"><div class="modal-title">💳 Converter para plano pago</div><button class="modal-close" onclick="closeModal('modal-converter-trial')">✕</button></div>
+    <div class="modal-body">
+      <p style="font-size:.85rem;color:var(--text-2);margin-bottom:1rem">Selecione o plano para ativar o escritório <strong id="converter-trial-nome"></strong>:</p>
+      <div class="form-group">
+        <select class="form-control" id="converter-trial-plano">
+          <option value="STARTER">Starter — R$ 297/mês</option>
+          <option value="PROFISSIONAL">Profissional — R$ 497/mês</option>
+          <option value="ENTERPRISE">Enterprise — R$ 697/mês</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-converter-trial')">Cancelar</button>
+      <button class="btn btn-primary" onclick="confirmarConverterTrial()">✅ Converter e ativar</button>
+    </div>
+  </div>
+</div>
+
 <!-- MODAL OBSERVAÇÕES/TAGS -->
 <div class="modal-backdrop" id="modal-obs" style="display:none">
   <div class="modal" style="max-width:420px">
@@ -1932,6 +1953,7 @@ async function loadCtTrial(){
       <td><div style="display:flex;gap:.3rem">
         <button class="btn btn-ghost btn-xs" onclick="extenderTrialById('${r.id}')">⏰ +7 dias</button>
         <button class="btn btn-success btn-xs" onclick="toggleContabilStatus('${r.id}','ACTIVE')">▶ Ativar</button>
+          <button class="btn btn-primary btn-xs" onclick="modalConverterTrial('${r.id}','${r.nome}')">💳 Converter</button>
       </div></td>
     </tr>`).join('');
   }catch(e){tb.innerHTML='<tr><td colspan="6">Erro</td></tr>';}
@@ -2083,6 +2105,22 @@ async function toggleContabilStatus(id, status){
     toast(msgs[status]||'Status atualizado!');
     renderContabil();
   }catch(e){toast('Erro ao atualizar status.','error')}
+}
+
+let _converterTrialId = null;
+function modalConverterTrial(id, nome){
+  _converterTrialId = id;
+  document.getElementById('converter-trial-nome').textContent = nome;
+  openModal('modal-converter-trial');
+}
+async function confirmarConverterTrial(){
+  const plano = document.getElementById('converter-trial-plano').value;
+  try{
+    await platformApi('POST', `/contabil/tenants/${_converterTrialId}/converter-trial`, {plano});
+    toast(`Convertido para ${planName(plano)} com sucesso!`);
+    closeModal('modal-converter-trial');
+    renderContabil();
+  }catch(e){toast('Erro ao converter.','error')}
 }
 
 async function extenderTrialById(id){
@@ -2366,11 +2404,12 @@ let _finPagamentos = [];
 
 async function renderFinanceiro(){
   try{
-    const [mrr, proj, overdue, churn] = await Promise.all([
+    const [mrr, proj, overdue, churn, asaasChurn] = await Promise.all([
       platformApi('GET','/asaas/mrr'),
       platformApi('GET','/asaas/projecao'),
       platformApi('GET','/asaas/payments/overdue'),
-      platformApi('GET','/admin/churn')
+      platformApi('GET','/admin/churn'),
+      platformApi('GET','/asaas/churn')
     ]);
 
     if(mrr){
@@ -2390,7 +2429,10 @@ async function renderFinanceiro(){
     if(overdue){
       document.getElementById('fin-overdue').textContent = overdue.total||0;
     }
-    if(churn){
+    if(asaasChurn){
+      document.getElementById('fin-churn').textContent = asaasChurn.churn_rate+'%';
+      document.getElementById('fin-churn').title = `${asaasChurn.canceladas} canceladas de ${asaasChurn.canceladas+asaasChurn.ativas} totais`;
+    } else if(churn){
       const rate = ((churn.platform?.rate||0) + (churn.contabil?.rate||0))/2;
       document.getElementById('fin-churn').textContent = rate.toFixed(1)+'%';
     }
@@ -3020,11 +3062,12 @@ let _finPagamentos = [];
 
 async function renderFinanceiro(){
   try{
-    const [mrr, proj, overdue, churn] = await Promise.all([
+    const [mrr, proj, overdue, churn, asaasChurn] = await Promise.all([
       platformApi('GET','/asaas/mrr'),
       platformApi('GET','/asaas/projecao'),
       platformApi('GET','/asaas/payments/overdue'),
-      platformApi('GET','/admin/churn')
+      platformApi('GET','/admin/churn'),
+      platformApi('GET','/asaas/churn')
     ]);
 
     if(mrr){
@@ -3044,7 +3087,10 @@ async function renderFinanceiro(){
     if(overdue){
       document.getElementById('fin-overdue').textContent = overdue.total||0;
     }
-    if(churn){
+    if(asaasChurn){
+      document.getElementById('fin-churn').textContent = asaasChurn.churn_rate+'%';
+      document.getElementById('fin-churn').title = `${asaasChurn.canceladas} canceladas de ${asaasChurn.canceladas+asaasChurn.ativas} totais`;
+    } else if(churn){
       const rate = ((churn.platform?.rate||0) + (churn.contabil?.rate||0))/2;
       document.getElementById('fin-churn').textContent = rate.toFixed(1)+'%';
     }
