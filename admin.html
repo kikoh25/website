@@ -242,6 +242,7 @@
     <div class="sidebar-section">Produtos</div>
     <button class="nav-item" onclick="showView('tenants',this)"><span class="nav-icon">🖥️</span>Nexus Platform</button>
     <button class="nav-item" onclick="showView('leadnow',this)"><span class="nav-icon">⚡</span>LeadNow</button>
+    <button class="nav-item" onclick="showView('contabil',this)"><span class="nav-icon">📊</span>Nexus Contábil</button>
 
     <div class="sidebar-section">Operação</div>
     <button class="nav-item" onclick="showView('acessos',this)"><span class="nav-icon">🔑</span>Acessos</button>
@@ -380,6 +381,55 @@
         <div class="table-wrap">
           <table><thead><tr><th>Cliente</th><th>Evento</th><th>Base de conhecimento</th><th>Leads</th><th>Período</th><th>Status</th><th>Ações</th></tr></thead>
           <tbody id="tbody-leadnow"><tr><td colspan="7"><div class="loading"><div class="spinner"></div>Carregando...</div></td></tr></tbody></table>
+        </div>
+      </div>
+
+      <!-- NEXUS CONTÁBIL -->
+      <div class="view" id="view-contabil">
+        <div class="section-header">
+          <div><div class="section-title-sm">Nexus Contábil</div><div class="section-desc">Gestão de escritórios contábeis em tempo real</div></div>
+          <button class="btn btn-ghost btn-sm" onclick="loadSection('contabil')">🔄 Atualizar</button>
+        </div>
+
+        <div class="stats-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:1.25rem">
+          <div class="stat-card"><span class="stat-icon">🏢</span><div class="stat-label">Total escritórios</div><div class="stat-value" id="ct-total">—</div></div>
+          <div class="stat-card"><span class="stat-icon">✅</span><div class="stat-label">Ativos</div><div class="stat-value" id="ct-ativos">—</div></div>
+          <div class="stat-card"><span class="stat-icon">🔬</span><div class="stat-label">Em trial</div><div class="stat-value" id="ct-trial">—</div></div>
+          <div class="stat-card"><span class="stat-icon">🏭</span><div class="stat-label">Empresas gerenciadas</div><div class="stat-value" id="ct-empresas">—</div></div>
+        </div>
+
+        <div class="stats-grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:1.5rem">
+          <div class="stat-card"><span class="stat-icon">🟢</span><div class="stat-label">Plano Starter</div><div class="stat-value" id="ct-starter">—</div></div>
+          <div class="stat-card"><span class="stat-icon">⭐</span><div class="stat-label">Plano Profissional</div><div class="stat-value" id="ct-profissional">—</div></div>
+          <div class="stat-card"><span class="stat-icon">🚀</span><div class="stat-label">Plano Enterprise</div><div class="stat-value" id="ct-enterprise">—</div></div>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Escritório</th><th>E-mail</th><th>Plano</th><th>Status</th><th>Empresas</th><th>Usuários</th><th>XMLs/mês</th><th>Trial até</th><th>Criado</th><th>Ações</th></tr></thead>
+            <tbody id="tbody-contabil"><tr><td colspan="10"><div class="loading"><div class="spinner"></div>Carregando...</div></td></tr></tbody>
+          </table>
+        </div>
+
+        <div id="contabil-detail" style="display:none">
+          <div class="detail-panel">
+            <div class="detail-panel-header">
+              <div class="table-header-title" id="contabil-detail-title">Detalhes do Escritório</div>
+              <button class="btn btn-ghost btn-sm" onclick="document.getElementById('contabil-detail').style.display='none'">✕ Fechar</button>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:0">
+              <div style="border-right:1px solid var(--border)">
+                <div style="padding:.75rem 1.25rem;border-bottom:1px solid var(--border);font-size:.78rem;font-weight:700;color:var(--text-2)">🏭 Empresas</div>
+                <table><thead><tr><th>Nome</th><th>CNPJ</th><th>Regime</th></tr></thead>
+                <tbody id="tbody-ct-empresas"><tr><td colspan="3"><div class="loading"><div class="spinner"></div></div></td></tr></tbody></table>
+              </div>
+              <div>
+                <div style="padding:.75rem 1.25rem;border-bottom:1px solid var(--border);font-size:.78rem;font-weight:700;color:var(--text-2)">👥 Usuários</div>
+                <table><thead><tr><th>Nome</th><th>E-mail</th><th>Perfil</th><th>Status</th></tr></thead>
+                <tbody id="tbody-ct-usuarios"><tr><td colspan="4"><div class="loading"><div class="spinner"></div></div></td></tr></tbody></table>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -606,7 +656,11 @@ function badge(s){
 }
 
 function planName(p){
-  const map={trial:'Free',chamados:'Starter',completo:'Pro',inventario:'Inventário'};
+  const map={
+    trial:'Free',chamados:'Starter',completo:'Pro',inventario:'Inventário',
+    STARTER:'Starter',PROFISSIONAL:'Profissional',ENTERPRISE:'Enterprise',
+    TRIAL:'Trial',ATIVO:'Ativo',CANCELADO:'Cancelado'
+  };
   return map[p]||p;
 }
 function filterTable(tableId,q){
@@ -999,10 +1053,83 @@ function loadSection(id){
   else if(id==='contratos') renderContratos();
   else if(id==='tenants') renderTenants();
   else if(id==='leadnow') renderLeadNow();
+  else if(id==='contabil') renderContabil();
   else if(id==='acessos') renderAcessos();
   else if(id==='financeiro'){loadStats();renderFinanceiro()}
   else if(id==='atividade') renderAtividade('activity-full');
 }
+async function renderContabil(){
+  try{
+    const [stats, tenants] = await Promise.all([
+      platformApi('GET','/contabil/stats'),
+      platformApi('GET','/contabil/tenants')
+    ]);
+    if(stats){
+      document.getElementById('ct-total').textContent=stats.total_tenants||0;
+      document.getElementById('ct-ativos').textContent=stats.tenants_ativos||0;
+      document.getElementById('ct-trial').textContent=stats.tenants_trial||0;
+      document.getElementById('ct-empresas').textContent=stats.total_empresas||0;
+      document.getElementById('ct-starter').textContent=stats.plano_starter||0;
+      document.getElementById('ct-profissional').textContent=stats.plano_profissional||0;
+      document.getElementById('ct-enterprise').textContent=stats.plano_enterprise||0;
+    }
+    const tb=document.getElementById('tbody-contabil');
+    if(!tenants?.length){tb.innerHTML='<tr><td colspan="10"><div class="empty"><div class="empty-icon">📊</div><div class="empty-text">Nenhum escritório cadastrado.</div></div></td></tr>';return}
+    tb.innerHTML=tenants.map(t=>`<tr style="cursor:pointer" onclick="loadContabilDetail('${t.id}','${t.nome}')">
+      <td><strong>${t.nome||'—'}</strong><br><small style="color:var(--text-3)">${t.cnpj||'—'}</small></td>
+      <td><small>${t.email||'—'}</small></td>
+      <td>${badge(planName(t.plano))}</td>
+      <td>${t.status==='ATIVO'?'<span class="badge badge-green">Ativo</span>':t.status==='TRIAL'?'<span class="badge badge-blue">Trial</span>':t.status==='CANCELADO'?'<span class="badge badge-red">Cancelado</span>':'<span class="badge badge-gray">'+t.status+'</span>'}</td>
+      <td>${t.total_empresas||0}</td>
+      <td>${t.total_usuarios||0}</td>
+      <td><span style="font-family:JetBrains Mono,monospace;font-size:.75rem">${t.xmlsUsadosMes||0}</span></td>
+      <td><small>${t.trialEndsAt?new Date(t.trialEndsAt).toLocaleDateString('pt-BR'):'—'}</small></td>
+      <td><small>${t.createdAt?new Date(t.createdAt).toLocaleDateString('pt-BR'):'—'}</small></td>
+      <td onclick="event.stopPropagation()"><div style="display:flex;gap:.3rem;flex-wrap:wrap">
+        <select class="btn btn-ghost btn-xs" onchange="mudarPlanoContabil('${t.id}',this.value)" style="padding:.2rem .4rem">
+          <option value="">Plano</option>
+          <option value="STARTER">Starter</option>
+          <option value="PROFISSIONAL">Profissional</option>
+          <option value="ENTERPRISE">Enterprise</option>
+        </select>
+        ${t.status!=='CANCELADO'
+          ?`<button class="btn btn-danger btn-xs" onclick="toggleContabilStatus('${t.id}','CANCELADO')">🔒</button>`
+          :`<button class="btn btn-success btn-xs" onclick="toggleContabilStatus('${t.id}','ATIVO')">▶</button>`
+        }
+      </div></td>
+    </tr>`).join('');
+  }catch(e){
+    document.getElementById('tbody-contabil').innerHTML='<tr><td colspan="10"><div class="empty"><div class="empty-icon">⚠️</div><div class="empty-text">Erro ao conectar com Nexus Contábil.</div></div></td></tr>';
+  }
+}
+
+async function loadContabilDetail(id, nome){
+  const panel=document.getElementById('contabil-detail');
+  panel.style.display='block';
+  document.getElementById('contabil-detail-title').textContent=`${nome} — Empresas e Usuários`;
+  panel.scrollIntoView({behavior:'smooth',block:'nearest'});
+  try{
+    const d=await platformApi('GET',`/contabil/tenants/${id}`);
+    document.getElementById('tbody-ct-empresas').innerHTML=d.empresas?.length
+      ?d.empresas.map(e=>`<tr><td>${e.nome}</td><td><small style="font-family:JetBrains Mono,monospace">${e.cnpj||'—'}</small></td><td>${badge(e.regime||'—')}</td></tr>`).join('')
+      :'<tr><td colspan="3"><div class="empty"><div class="empty-text">Nenhuma empresa.</div></div></td></tr>';
+    document.getElementById('tbody-ct-usuarios').innerHTML=d.usuarios?.length
+      ?d.usuarios.map(u=>`<tr><td>${u.nome}</td><td><small>${u.email}</small></td><td>${badge(u.perfil)}</td><td>${u.ativo?'<span class="badge badge-green">Ativo</span>':'<span class="badge badge-red">Inativo</span>'}</td></tr>`).join('')
+      :'<tr><td colspan="4"><div class="empty"><div class="empty-text">Nenhum usuário.</div></div></td></tr>';
+  }catch(e){toast('Erro ao carregar detalhes.','error')}
+}
+
+async function mudarPlanoContabil(id, plano){
+  if(!plano) return;
+  try{await platformApi('PATCH',`/contabil/tenants/${id}/plano`,{plano});toast(`Plano alterado para ${plano}!`);renderContabil()}
+  catch(e){toast('Erro.','error')}
+}
+
+async function toggleContabilStatus(id, status){
+  try{await platformApi('PATCH',`/contabil/tenants/${id}/status`,{status});toast(status==='ATIVO'?'Escritório reativado!':'Escritório cancelado!');renderContabil()}
+  catch(e){toast('Erro.','error')}
+}
+
 function loadAll(){loadStats();renderAtividade('activity-dash')}
 
 // ── AUTO LOGIN ──
