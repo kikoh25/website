@@ -641,6 +641,317 @@
       <!-- FINANCEIRO -->
       <div class="view" id="view-financeiro">
         <div class="section-header">
+          <div><div class="section-title-sm">Financeiro</div><div class="section-desc">Receita real via Asaas + histórico de cobranças</div></div>
+          <div style="display:flex;gap:.5rem">
+            <button class="btn btn-ghost btn-sm" onclick="exportFinanceiro()">📥 Exportar CSV</button>
+            <button class="btn btn-ghost btn-sm" onclick="loadSection('financeiro')">🔄 Atualizar</button>
+          </div>
+        </div>
+
+        <!-- STATS MRR REAL -->
+        <div class="stats-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:1rem">
+          <div class="stat-card" style="border-left:3px solid var(--green)"><span class="stat-icon">💰</span><div class="stat-label">MRR Real (Asaas)</div><div class="stat-value" id="fin-mrr" style="color:var(--green)">—</div><div class="stat-delta">Assinaturas ativas</div></div>
+          <div class="stat-card"><span class="stat-icon">📅</span><div class="stat-label">ARR Estimado</div><div class="stat-value" id="fin-arr">—</div><div class="stat-delta">MRR × 12</div></div>
+          <div class="stat-card"><span class="stat-icon">⚠️</span><div class="stat-label">Inadimplentes</div><div class="stat-value" id="fin-overdue" style="color:var(--red)">—</div><div class="stat-delta">Pagamentos vencidos</div></div>
+          <div class="stat-card"><span class="stat-icon">📉</span><div class="stat-label">Churn rate</div><div class="stat-value" id="fin-churn">—</div><div class="stat-delta">Cancelamentos/mês</div></div>
+        </div>
+
+        <!-- PROJEÇÃO -->
+        <div style="background:#fff;border:1px solid var(--border);border-radius:10px;padding:1.25rem;margin-bottom:1rem">
+          <div style="font-size:.82rem;font-weight:700;color:var(--indigo);margin-bottom:1rem">📈 Projeção MRR — próximos 3 meses (+5%/mês)</div>
+          <div id="fin-projecao" style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem"></div>
+        </div>
+
+        <!-- ABAS -->
+        <div style="display:flex;gap:.5rem;margin-bottom:1rem">
+          <button class="btn btn-sm" id="fin-tab-assinaturas" onclick="finTab('assinaturas')" style="background:var(--purple);color:#fff">📋 Assinaturas</button>
+          <button class="btn btn-ghost btn-sm" id="fin-tab-pagamentos" onclick="finTab('pagamentos')">💳 Pagamentos</button>
+          <button class="btn btn-ghost btn-sm" id="fin-tab-inadimplentes" onclick="finTab('inadimplentes')">⚠️ Inadimplentes</button>
+          <button class="btn btn-ghost btn-sm" id="fin-tab-manual" onclick="finTab('manual')">✏️ Manual</button>
+        </div>
+
+        <!-- ASSINATURAS -->
+        <div id="fin-panel-assinaturas">
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Cliente</th><th>Plano / Descrição</th><th>Valor</th><th>Ciclo</th><th>Próx. cobrança</th><th>Status</th><th>Forma</th></tr></thead>
+              <tbody id="tbody-fin-assinaturas"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- PAGAMENTOS -->
+        <div id="fin-panel-pagamentos" style="display:none">
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Cliente</th><th>Descrição</th><th>Valor</th><th>Vencimento</th><th>Status</th><th>Forma</th></tr></thead>
+              <tbody id="tbody-fin-pagamentos"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- INADIMPLENTES -->
+        <div id="fin-panel-inadimplentes" style="display:none">
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Cliente</th><th>Valor</th><th>Vencimento</th><th>Dias em atraso</th><th>Link cobrança</th></tr></thead>
+              <tbody id="tbody-fin-inadimplentes"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- MANUAL (legado) -->
+        <div id="fin-panel-manual" style="display:none">
+          <div class="section-header" style="margin-bottom:1rem">
+            <div></div>
+            <button class="btn btn-primary" onclick="openModal('modal-financeiro')">+ Registrar receita manual</button>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Cliente</th><th>Valor</th><th>Data</th><th>Status</th><th>Descrição</th><th>Ações</th></tr></thead>
+              <tbody id="tbody-financeiro"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="view" id="view-leadnow">
+        <div class="section-header">
+          <div><div class="section-title-sm">LeadNow</div><div class="section-desc">Instâncias de IA para eventos B2B</div></div>
+          <button class="btn btn-primary" onclick="openModal('modal-leadnow')">+ Nova instância</button>
+        </div>
+        <div class="alert alert-info">ℹ️ Cada instância é configurada com a base de conhecimento específica do cliente para um evento.</div>
+        <div class="table-wrap">
+          <table><thead><tr><th>Cliente</th><th>Evento</th><th>Base de conhecimento</th><th>Leads</th><th>Período</th><th>Status</th><th>Ações</th></tr></thead>
+          <tbody id="tbody-leadnow"><tr><td colspan="7"><div class="loading"><div class="spinner"></div>Carregando...</div></td></tr></tbody></table>
+        </div>
+      </div>
+
+      <!-- NEXUS CONTÁBIL -->
+      <div class="view" id="view-contabil">
+        <div class="section-header">
+          <div><div class="section-title-sm">Nexus Contábil</div><div class="section-desc">Gestão completa dos escritórios contábeis</div></div>
+          <button class="btn btn-ghost btn-sm" onclick="loadSection('contabil')">🔄 Atualizar</button>
+        </div>
+
+        <!-- ALERTAS -->
+        <div id="ct-alertas" style="margin-bottom:1rem"></div>
+
+        <!-- STATS PRINCIPAIS -->
+        <div class="stats-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:1rem">
+          <div class="stat-card"><span class="stat-icon">🏢</span><div class="stat-label">Total escritórios</div><div class="stat-value" id="ct-total">—</div></div>
+          <div class="stat-card"><span class="stat-icon">✅</span><div class="stat-label">Ativos</div><div class="stat-value" id="ct-ativos">—</div></div>
+          <div class="stat-card"><span class="stat-icon">🔬</span><div class="stat-label">Em trial</div><div class="stat-value" id="ct-trial">—</div></div>
+          <div class="stat-card"><span class="stat-icon">🏭</span><div class="stat-label">Empresas gerenciadas</div><div class="stat-value" id="ct-empresas">—</div></div>
+        </div>
+        <div class="stats-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:1.5rem">
+          <div class="stat-card"><span class="stat-icon">💰</span><div class="stat-label">MRR estimado</div><div class="stat-value" id="ct-mrr" style="color:var(--green)">—</div></div>
+          <div class="stat-card"><span class="stat-icon">🟢</span><div class="stat-label">Starter</div><div class="stat-value" id="ct-starter">—</div></div>
+          <div class="stat-card"><span class="stat-icon">⭐</span><div class="stat-label">Profissional</div><div class="stat-value" id="ct-profissional">—</div></div>
+          <div class="stat-card"><span class="stat-icon">🚀</span><div class="stat-label">Enterprise</div><div class="stat-value" id="ct-enterprise">—</div></div>
+        </div>
+
+        <!-- ABAS -->
+        <div style="display:flex;gap:.5rem;margin-bottom:1rem;border-bottom:1px solid var(--border);padding-bottom:.5rem">
+          <button class="btn btn-sm" id="ct-tab-escritorios" onclick="ctTab('escritorios')" style="background:var(--purple);color:#fff">🏢 Escritórios</button>
+          <button class="btn btn-ghost btn-sm" id="ct-tab-trial" onclick="ctTab('trial')">⏰ Trial expirando</button>
+          <button class="btn btn-ghost btn-sm" id="ct-tab-inativos" onclick="ctTab('inativos')">😴 Inativos</button>
+          <button class="btn btn-ghost btn-sm" id="ct-tab-crescimento" onclick="ctTab('crescimento')">📈 Crescimento</button>
+        </div>
+
+        <!-- ABA ESCRITÓRIOS -->
+        <div id="ct-panel-escritorios">
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Escritório</th><th>Plano</th><th>Status</th><th>Empresas</th><th>Usuários</th><th>XMLs/mês</th><th>Trial até</th><th>Criado em</th><th>Ações</th></tr></thead>
+              <tbody id="tbody-contabil"><tr><td colspan="9"><div class="loading"><div class="spinner"></div>Carregando...</div></td></tr></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- ABA TRIAL EXPIRANDO -->
+        <div id="ct-panel-trial" style="display:none">
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Escritório</th><th>E-mail</th><th>Plano</th><th>Trial expira</th><th>Dias restantes</th><th>Ações</th></tr></thead>
+              <tbody id="tbody-ct-trial"><tr><td colspan="6"><div class="loading"><div class="spinner"></div>Carregando...</div></td></tr></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- ABA INATIVOS -->
+        <div id="ct-panel-inativos" style="display:none">
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Escritório</th><th>Plano</th><th>Último acesso</th><th>Dias sem acesso</th><th>Ações</th></tr></thead>
+              <tbody id="tbody-ct-inativos"><tr><td colspan="5"><div class="loading"><div class="spinner"></div>Carregando...</div></td></tr></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- ABA CRESCIMENTO -->
+        <div id="ct-panel-crescimento" style="display:none">
+          <div style="background:#fff;border:1px solid var(--border);border-radius:10px;padding:1.5rem">
+            <div style="font-size:.85rem;font-weight:700;color:var(--indigo);margin-bottom:1rem">📈 Crescimento mensal — últimos 12 meses</div>
+            <canvas id="ct-chart-crescimento" height="80"></canvas>
+          </div>
+          <div style="background:#fff;border:1px solid var(--border);border-radius:10px;padding:1.5rem;margin-top:1rem">
+            <div style="font-size:.85rem;font-weight:700;color:var(--indigo);margin-bottom:1rem">💰 MRR por plano</div>
+            <div id="ct-mrr-detalhes"></div>
+          </div>
+        </div>
+
+        <!-- DETALHE ESCRITÓRIO -->
+        <div id="contabil-detail" style="display:none;margin-top:1.5rem">
+          <div class="detail-panel">
+            <div class="detail-panel-header" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem">
+              <div class="table-header-title" id="contabil-detail-title">Detalhes</div>
+              <div style="display:flex;gap:.5rem">
+                <button class="btn btn-ghost btn-sm" id="ct-btn-extend" onclick="extenderTrial()">⏰ +7 dias trial</button>
+                <button class="btn btn-ghost btn-sm" onclick="document.getElementById('contabil-detail').style.display='none'">✕ Fechar</button>
+              </div>
+            </div>
+
+            <!-- Sub-abas do detalhe -->
+            <div style="display:flex;gap:.4rem;padding:.75rem 1.25rem;border-bottom:1px solid var(--border)">
+              <button class="btn btn-xs" id="ct-dtab-empresas" onclick="ctDetailTab('empresas')" style="background:var(--purple);color:#fff">🏭 Empresas</button>
+              <button class="btn btn-ghost btn-xs" id="ct-dtab-usuarios" onclick="ctDetailTab('usuarios')">👥 Usuários</button>
+              <button class="btn btn-ghost btn-xs" id="ct-dtab-tickets" onclick="ctDetailTab('tickets')">🎫 Tickets</button>
+              <button class="btn btn-ghost btn-xs" id="ct-dtab-docs" onclick="ctDetailTab('docs')">📄 Documentos/mês</button>
+              <button class="btn btn-ghost btn-xs" id="ct-dtab-auditoria" onclick="ctDetailTab('auditoria')">🔍 Auditoria</button>
+            </div>
+
+            <div id="ct-detail-empresas">
+              <table><thead><tr><th>Nome</th><th>CNPJ</th><th>Regime</th></tr></thead>
+              <tbody id="tbody-ct-empresas"></tbody></table>
+            </div>
+            <div id="ct-detail-usuarios" style="display:none">
+              <table><thead><tr><th>Nome</th><th>E-mail</th><th>Perfil</th><th>Status</th><th>Último login</th></tr></thead>
+              <tbody id="tbody-ct-usuarios"></tbody></table>
+            </div>
+            <div id="ct-detail-tickets" style="display:none">
+              <table><thead><tr><th>Tipo</th><th>Título</th><th>Status</th><th>Criado em</th></tr></thead>
+              <tbody id="tbody-ct-tickets"></tbody></table>
+            </div>
+            <div id="ct-detail-docs" style="display:none;padding:1.25rem">
+              <canvas id="ct-chart-docs" height="100"></canvas>
+            </div>
+            <div id="ct-detail-auditoria" style="display:none">
+              <table><thead><tr><th>Ação</th><th>Entidade</th><th>Descrição</th><th>Usuário</th><th>Data</th></tr></thead>
+              <tbody id="tbody-ct-auditoria"></tbody></table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SUPORTE UNIFICADO -->
+      <div class="view" id="view-suporte">
+        <div class="section-header">
+          <div><div class="section-title-sm">Suporte</div><div class="section-desc">Tickets unificados — Nexus Platform e Nexus Contábil</div></div>
+          <button class="btn btn-ghost btn-sm" onclick="loadSection('suporte')">🔄 Atualizar</button>
+        </div>
+        <div style="display:flex;gap:.5rem;margin-bottom:1rem;flex-wrap:wrap">
+          <button class="btn btn-sm" id="sup-tab-todos" onclick="supFiltro('todos')" style="background:var(--purple);color:#fff">Todos</button>
+          <button class="btn btn-ghost btn-sm" id="sup-tab-aberto" onclick="supFiltro('aberto')">🔴 Abertos</button>
+          <button class="btn btn-ghost btn-sm" id="sup-tab-fechado" onclick="supFiltro('fechado')">✅ Fechados</button>
+          <button class="btn btn-ghost btn-sm" id="sup-tab-contabil" onclick="supFiltro('contabil')">📊 Contábil</button>
+          <input type="text" id="sup-search" placeholder="Buscar por título ou escritório..." style="margin-left:auto;padding:.4rem .8rem;border:1px solid var(--border);border-radius:6px;font-size:.8rem;width:220px" oninput="supBuscar()"/>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Produto</th><th>Escritório</th><th>Tipo</th><th>Título</th><th>Status</th><th>Criado em</th><th>Ações</th></tr></thead>
+            <tbody id="tbody-suporte"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- CONFIGURAÇÕES -->
+      <div class="view" id="view-configuracoes">
+        <div class="section-header">
+          <div><div class="section-title-sm">Configurações</div><div class="section-desc">Planos, limites e configurações dos produtos</div></div>
+        </div>
+
+        <div style="display:flex;gap:.5rem;margin-bottom:1.25rem">
+          <button class="btn btn-sm" id="cfg-tab-platform" onclick="cfgTab('platform')" style="background:var(--purple);color:#fff">🖥️ Nexus Platform</button>
+          <button class="btn btn-ghost btn-sm" id="cfg-tab-contabil" onclick="cfgTab('contabil')">📊 Nexus Contábil</button>
+        </div>
+
+        <div id="cfg-panel-platform">
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem" id="cfg-cards-platform"></div>
+        </div>
+        <div id="cfg-panel-contabil" style="display:none">
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem" id="cfg-cards-contabil"></div>
+        </div>
+
+        <div style="margin-top:1.5rem;background:#fff;border:1px solid var(--border);border-radius:10px;padding:1.25rem">
+          <div style="font-size:.85rem;font-weight:700;color:var(--indigo);margin-bottom:.5rem">⚠️ Nota sobre configurações</div>
+          <p style="font-size:.8rem;color:var(--text-2);line-height:1.7">As alterações de limite são aplicadas em memória e ficam ativas até o próximo restart do servidor. Para torná-las permanentes, edite o arquivo <code>nexusplatform_api.py</code> diretamente.</p>
+        </div>
+      </div>
+
+      <!-- ACESSOS -->      <!-- SUPORTE UNIFICADO -->
+      <div class="view" id="view-suporte">
+        <div class="section-header">
+          <div><div class="section-title-sm">Suporte</div><div class="section-desc">Tickets unificados — Nexus Platform e Nexus Contábil</div></div>
+          <button class="btn btn-ghost btn-sm" onclick="loadSection('suporte')">🔄 Atualizar</button>
+        </div>
+        <div style="display:flex;gap:.5rem;margin-bottom:1rem;flex-wrap:wrap">
+          <button class="btn btn-sm" id="sup-tab-todos" onclick="supFiltro('todos')" style="background:var(--purple);color:#fff">Todos</button>
+          <button class="btn btn-ghost btn-sm" id="sup-tab-aberto" onclick="supFiltro('aberto')">🔴 Abertos</button>
+          <button class="btn btn-ghost btn-sm" id="sup-tab-fechado" onclick="supFiltro('fechado')">✅ Fechados</button>
+          <button class="btn btn-ghost btn-sm" id="sup-tab-contabil" onclick="supFiltro('contabil')">📊 Contábil</button>
+          <input type="text" id="sup-search" placeholder="Buscar por título ou escritório..." style="margin-left:auto;padding:.4rem .8rem;border:1px solid var(--border);border-radius:6px;font-size:.8rem;width:220px" oninput="supBuscar()"/>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Produto</th><th>Escritório</th><th>Tipo</th><th>Título</th><th>Status</th><th>Criado em</th><th>Ações</th></tr></thead>
+            <tbody id="tbody-suporte"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- CONFIGURAÇÕES -->
+      <div class="view" id="view-configuracoes">
+        <div class="section-header">
+          <div><div class="section-title-sm">Configurações</div><div class="section-desc">Planos, limites e configurações dos produtos</div></div>
+        </div>
+
+        <div style="display:flex;gap:.5rem;margin-bottom:1.25rem">
+          <button class="btn btn-sm" id="cfg-tab-platform" onclick="cfgTab('platform')" style="background:var(--purple);color:#fff">🖥️ Nexus Platform</button>
+          <button class="btn btn-ghost btn-sm" id="cfg-tab-contabil" onclick="cfgTab('contabil')">📊 Nexus Contábil</button>
+        </div>
+
+        <div id="cfg-panel-platform">
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem" id="cfg-cards-platform"></div>
+        </div>
+        <div id="cfg-panel-contabil" style="display:none">
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem" id="cfg-cards-contabil"></div>
+        </div>
+
+        <div style="margin-top:1.5rem;background:#fff;border:1px solid var(--border);border-radius:10px;padding:1.25rem">
+          <div style="font-size:.85rem;font-weight:700;color:var(--indigo);margin-bottom:.5rem">⚠️ Nota sobre configurações</div>
+          <p style="font-size:.8rem;color:var(--text-2);line-height:1.7">As alterações de limite são aplicadas em memória e ficam ativas até o próximo restart do servidor. Para torná-las permanentes, edite o arquivo <code>nexusplatform_api.py</code> diretamente.</p>
+        </div>
+      </div>
+
+      <!-- ACESSOS -->
+      <div class="view" id="view-acessos">
+        <div class="section-header">
+          <div><div class="section-title-sm">Controle de Acessos</div><div class="section-desc">Usuários responsáveis por tenant na Nexus Platform</div></div>
+          <button class="btn btn-ghost btn-sm" onclick="loadSection('acessos')">🔄 Atualizar</button>
+        </div>
+        <div class="alert alert-warn">⚠️ Suspender um tenant desativa o acesso imediatamente e invalida todas as sessões ativas.</div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Cliente/Tenant</th><th>Responsável</th><th>E-mail</th><th>Produto</th><th>Último acesso</th><th>Plano</th><th>Status</th><th>Ações</th></tr></thead>
+            <tbody id="tbody-acessos"><tr><td colspan="8"><div class="loading"><div class="spinner"></div>Carregando...</div></td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- FINANCEIRO -->
+      <div class="view" id="view-financeiro">
+        <div class="section-header">
           <div><div class="section-title-sm">Financeiro</div><div class="section-desc">Receitas e contratos</div></div>
           <button class="btn btn-primary" onclick="openModal('modal-financeiro')">+ Registrar receita</button>
         </div>
@@ -719,6 +1030,30 @@
       <div class="form-group"><label>Status</label><select id="ln-status"><option>Ativo</option><option>Configurando</option><option>Encerrado</option></select></div>
     </div>
     <div class="modal-footer"><button class="btn btn-ghost" onclick="closeModal('modal-leadnow')">Cancelar</button><button class="btn btn-primary" onclick="saveLeadNow()">Criar instância</button></div>
+  </div>
+</div>
+
+<!-- MODAL E-MAIL -->
+<div class="modal-backdrop" id="modal-email" style="display:none">
+  <div class="modal" style="max-width:480px">
+    <div class="modal-header"><div class="modal-title" id="modal-email-titulo">Enviar e-mail</div><button class="modal-close" onclick="closeModal('modal-email')">✕</button></div>
+    <div class="modal-body">
+      <div class="form-group"><label class="form-label">Assunto</label><input class="form-control" id="email-assunto" placeholder="Ex: Aviso sobre sua conta"/></div>
+      <div class="form-group"><label class="form-label">Mensagem</label><textarea class="form-control" id="email-mensagem" rows="5" placeholder="Digite a mensagem..."></textarea></div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-ghost" onclick="closeModal('modal-email')">Cancelar</button><button class="btn btn-primary" onclick="enviarEmailTenant()">📧 Enviar</button></div>
+  </div>
+</div>
+
+<!-- BUSCA GLOBAL -->
+<div id="busca-global-box" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(15,13,42,.7);backdrop-filter:blur(6px);z-index:9999;align-items:flex-start;justify-content:center;padding-top:8rem">
+  <div style="background:#fff;border-radius:14px;width:100%;max-width:540px;box-shadow:0 24px 64px rgba(0,0,0,.25);overflow:hidden">
+    <div style="display:flex;align-items:center;gap:.75rem;padding:.85rem 1.1rem;border-bottom:1px solid var(--border)">
+      <span style="font-size:1.1rem">🔍</span>
+      <input id="busca-global-input" placeholder="Buscar por nome, e-mail ou CNPJ... (Ctrl+K)" style="flex:1;border:none;outline:none;font-size:.9rem;font-family:Inter,sans-serif" oninput="executarBuscaGlobal()"/>
+      <kbd style="font-size:.7rem;background:var(--bg);padding:.15rem .4rem;border-radius:4px;color:var(--text-3);cursor:pointer" onclick="toggleBuscaGlobal()">ESC</kbd>
+    </div>
+    <div id="busca-global-results" style="max-height:320px;overflow-y:auto"><p style="padding:1rem;color:var(--text-3);font-size:.82rem;text-align:center">Digite para buscar em todos os produtos...</p></div>
   </div>
 </div>
 
@@ -822,7 +1157,7 @@ function doLogout(){
 }
 
 // ── NAV ──
-const viewTitles={dashboard:['Dashboard','Visão geral da Nexus EF Business'],clientes:['Clientes','Gestão de clientes'],contratos:['Contratos','Contratos e acordos'],tenants:['Nexus Platform','Gestão de tenants em tempo real'],leadnow:['LeadNow','Instâncias de IA para eventos'],contabil:['Nexus Contábil','Gestão de escritórios contábeis'],acessos:['Controle de Acessos','Usuários responsáveis por tenant'],financeiro:['Financeiro','Receitas e contratos'],atividade:['Log de Atividades','Histórico de ações'],suporte:['Suporte','Tickets unificados Platform + Contábil'],configuracoes:['Configurações','Planos e limites dos produtos']};
+const viewTitles={dashboard:['Dashboard','Visão geral da Nexus EF Business'],clientes:['Clientes','Gestão de clientes'],contratos:['Contratos','Contratos e acordos'],tenants:['Nexus Platform','Gestão de tenants em tempo real'],leadnow:['LeadNow','Instâncias de IA para eventos'],contabil:['Nexus Contábil','Gestão de escritórios contábeis'],acessos:['Controle de Acessos','Usuários responsáveis por tenant'],financeiro:['Financeiro','Receita real Asaas + histórico de cobranças'],atividade:['Log de Atividades','Histórico de ações'],suporte:['Suporte','Tickets unificados Platform + Contábil'],configuracoes:['Configurações','Planos e limites dos produtos']};
 function showView(id,btn){
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
@@ -990,27 +1325,50 @@ async function renderTenants(){
     }
     const data=await platformApi('GET','/tenants');
     if(!data?.length){tb.innerHTML='<tr><td colspan="9"><div class="empty"><div class="empty-icon">🖥️</div><div class="empty-text">Nenhum tenant.</div></div></td></tr>';return}
-    tb.innerHTML=data.map(t=>`<tr style="cursor:pointer" onclick="loadTenantDetail('${t.id}','${t.nome}')">
-      <td><strong>${t.nome}</strong><br><small style="color:var(--text-3);font-family:JetBrains Mono,monospace">${t.slug}</small></td>
-      <td><small>${t.email_admin}</small></td>
-      <td>${badge(planName(t.plano))}</td>
-      <td>${t.total_usuarios||0}</td>
-      <td>${t.total_tickets||0}</td>
-      <td>${t.total_ativos||0}</td>
-      <td>${t.ativo?'<span class="badge badge-green">Ativo</span>':'<span class="badge badge-red">Suspenso</span>'}</td>
-      <td><small>${t.criado_em?new Date(t.criado_em).toLocaleDateString('pt-BR'):'—'}</small></td>
-      <td onclick="event.stopPropagation()"><div style="display:flex;gap:.3rem;flex-wrap:wrap">
-        <select class="btn btn-ghost btn-xs" onchange="mudarPlano('${t.id}',this.value)" style="padding:.2rem .4rem">
-          <option value="">Mudar plano</option>
-          <option value="trial">Free</option>
-          <option value="chamados">Starter — R$149/mês</option>
-          <option value="completo">Pro — R$349/mês</option>
-        </select>
-        ${t.ativo
-          ?`<button class="btn btn-danger btn-xs" onclick="toggleTenantPlatform('${t.id}',false)">🔒</button>`
-          :`<button class="btn btn-success btn-xs" onclick="toggleTenantPlatform('${t.id}',true)">▶</button>`}
-      </div></td>
-    </tr>`).join('');
+    const limites={trial:{u:5,a:15},chamados:{u:20,a:50},completo:{u:100,a:300}};
+    tb.innerHTML=data.map(t=>{
+      const lim=limites[t.plano]||{u:5,a:15};
+      const pctU=Math.min(100,Math.round((t.total_usuarios||0)/lim.u*100));
+      const pctA=Math.min(100,Math.round((t.total_ativos||0)/lim.a*100));
+      const alertU=pctU>=80,alertA=pctA>=80;
+      return `<tr style="cursor:pointer" onclick="loadTenantDetail('${t.id}','${t.nome}')">
+        <td><strong>${t.nome}</strong><br><small style="color:var(--text-3);font-family:JetBrains Mono,monospace">${t.slug}</small></td>
+        <td><small>${t.email_admin}</small></td>
+        <td>${badge(planName(t.plano))}</td>
+        <td>
+          <div style="display:flex;align-items:center;gap:.4rem">
+            <span style="font-size:.8rem;${alertU?'color:var(--red);font-weight:700':''}">${t.total_usuarios||0}/${lim.u}</span>
+          </div>
+          <div style="background:var(--bg);border-radius:3px;height:5px;width:60px;margin-top:2px">
+            <div style="height:100%;background:${alertU?'var(--red)':'var(--purple)'};width:${pctU}%;border-radius:3px"></div>
+          </div>
+        </td>
+        <td>${t.total_tickets||0}${t.sla_vencido>0?` <span style="color:var(--red);font-size:.7rem">(${t.sla_vencido} SLA⚠️)</span>`:''}</td>
+        <td>
+          <div style="display:flex;align-items:center;gap:.4rem">
+            <span style="font-size:.8rem;${alertA?'color:var(--red);font-weight:700':''}">${t.total_ativos||0}/${lim.a}</span>
+          </div>
+          <div style="background:var(--bg);border-radius:3px;height:5px;width:60px;margin-top:2px">
+            <div style="height:100%;background:${alertA?'var(--red)':'var(--green)'};width:${pctA}%;border-radius:3px"></div>
+          </div>
+        </td>
+        <td>${t.ativo?'<span class="badge badge-green">Ativo</span>':'<span class="badge badge-red">Suspenso</span>'}</td>
+        <td><small>${t.criado_em?new Date(t.criado_em).toLocaleDateString('pt-BR'):'—'}</small></td>
+        <td onclick="event.stopPropagation()"><div style="display:flex;gap:.3rem;flex-wrap:wrap">
+          <select class="btn btn-ghost btn-xs" onchange="mudarPlano('${t.id}',this.value)" style="padding:.2rem .4rem">
+            <option value="">Plano</option>
+            <option value="trial" ${t.plano==='trial'?'selected':''}>Free</option>
+            <option value="chamados" ${t.plano==='chamados'?'selected':''}>Starter</option>
+            <option value="completo" ${t.plano==='completo'?'selected':''}>Pro</option>
+          </select>
+          ${t.ativo
+            ?`<button class="btn btn-danger btn-xs" onclick="toggleTenantPlatform('${t.id}',false)" title="Suspender">🔒</button>`
+            :`<button class="btn btn-success btn-xs" onclick="toggleTenantPlatform('${t.id}',true)" title="Reativar">▶</button>`}
+          <button class="btn btn-ghost btn-xs" onclick="modalEmailTenant('${t.id}','${t.nome}','platform')" title="Enviar e-mail">📧</button>
+          <button class="btn btn-ghost btn-xs" onclick="resetSenhaTenant('${t.id}','platform')" title="Resetar senha">🔑</button>
+        </div></td>
+      </tr>`;
+    }).join('');
   }catch(e){tb.innerHTML='<tr><td colspan="9"><div class="empty"><div class="empty-icon">⚠️</div><div class="empty-text">Erro ao conectar com Nexus Platform API.</div></div></td></tr>'}
 }
 
@@ -1245,6 +1603,7 @@ function loadSection(id){
   else if(id==='leadnow') renderLeadNow();
   else if(id==='contabil') renderContabil();
   else if(id==='suporte') renderSuporte();
+  else if(id==='financeiro') renderFinanceiro();
   else if(id==='configuracoes') renderConfiguracoes();
   else if(id==='acessos') renderAcessos();
   else if(id==='financeiro'){loadStats();renderFinanceiro()}
@@ -1774,6 +2133,226 @@ async function cfgSalvar(produto, plano){
   }catch(e){toast('Erro ao salvar.','error')}
 }
 
+
+// ── FINANCEIRO ASAAS ──
+let _finPagamentos = [];
+
+async function renderFinanceiro(){
+  try{
+    const [mrr, proj, overdue, churn] = await Promise.all([
+      platformApi('GET','/asaas/mrr'),
+      platformApi('GET','/asaas/projecao'),
+      platformApi('GET','/asaas/payments/overdue'),
+      platformApi('GET','/admin/churn')
+    ]);
+
+    if(mrr){
+      document.getElementById('fin-mrr').textContent = 'R$'+(mrr.mrr_total||0).toLocaleString('pt-BR');
+    }
+    if(proj){
+      document.getElementById('fin-arr').textContent = 'R$'+(proj.arr||0).toLocaleString('pt-BR');
+      document.getElementById('fin-projecao').innerHTML = [
+        {label:'Mês 1',val:proj.mes_1},
+        {label:'Mês 2',val:proj.mes_2},
+        {label:'Mês 3 (+10%)',val:proj.mes_3}
+      ].map(m=>`<div style="background:var(--bg);border-radius:8px;padding:1rem;text-align:center">
+        <div style="font-size:.75rem;color:var(--text-2);margin-bottom:.3rem">${m.label}</div>
+        <div style="font-family:Lora,serif;font-size:1.3rem;font-weight:700;color:var(--green)">R$${m.val.toLocaleString('pt-BR')}</div>
+      </div>`).join('');
+    }
+    if(overdue){
+      document.getElementById('fin-overdue').textContent = overdue.total||0;
+    }
+    if(churn){
+      const rate = ((churn.platform?.rate||0) + (churn.contabil?.rate||0))/2;
+      document.getElementById('fin-churn').textContent = rate.toFixed(1)+'%';
+    }
+
+    finTab('assinaturas');
+  }catch(e){console.error('Financeiro erro:',e)}
+}
+
+function finTab(tab){
+  ['assinaturas','pagamentos','inadimplentes','manual'].forEach(t=>{
+    const p=document.getElementById(`fin-panel-${t}`);
+    if(p) p.style.display=t===tab?'':'none';
+    const btn=document.getElementById(`fin-tab-${t}`);
+    if(btn){btn.style.background=t===tab?'var(--purple)':'';btn.style.color=t===tab?'#fff':'';btn.className=t===tab?'btn btn-sm':'btn btn-ghost btn-sm';}
+  });
+  if(tab==='assinaturas') loadFinAssinaturas();
+  else if(tab==='pagamentos') loadFinPagamentos();
+  else if(tab==='inadimplentes') loadFinInadimplentes();
+  else if(tab==='manual') renderFinanceiroManual();
+}
+
+async function loadFinAssinaturas(){
+  const tb=document.getElementById('tbody-fin-assinaturas');
+  try{
+    const subs=await platformApi('GET','/asaas/subscriptions');
+    tb.innerHTML=subs.length
+      ?subs.map(s=>`<tr>
+        <td><small>${s.customer||'—'}</small></td>
+        <td><small>${s.description||'—'}</small></td>
+        <td style="font-weight:700;color:var(--green)">R$${(s.value||0).toLocaleString('pt-BR')}</td>
+        <td><span class="badge badge-gray">${s.cycle==='MONTHLY'?'Mensal':'Anual'}</span></td>
+        <td><small>${s.nextDueDate?new Date(s.nextDueDate+'T12:00:00').toLocaleDateString('pt-BR'):'—'}</small></td>
+        <td>${s.status==='ACTIVE'?'<span class="badge badge-green">Ativa</span>':s.status==='CANCELLED'?'<span class="badge badge-red">Cancelada</span>':'<span class="badge badge-yellow">'+s.status+'</span>'}</td>
+        <td><span class="badge badge-gray">${s.billingType||'—'}</span></td>
+      </tr>`).join('')
+      :'<tr><td colspan="7"><div class="empty"><div class="empty-text">Nenhuma assinatura.</div></div></td></tr>';
+  }catch(e){tb.innerHTML='<tr><td colspan="7">Erro ao carregar Asaas.</td></tr>';}
+}
+
+async function loadFinPagamentos(){
+  const tb=document.getElementById('tbody-fin-pagamentos');
+  try{
+    const res=await platformApi('GET','/asaas/payments');
+    _finPagamentos=res.data||[];
+    tb.innerHTML=_finPagamentos.length
+      ?_finPagamentos.map(p=>`<tr>
+        <td><small>${p.customer||'—'}</small></td>
+        <td><small>${p.description||'—'}</small></td>
+        <td style="font-weight:700">R$${(p.value||0).toLocaleString('pt-BR')}</td>
+        <td><small>${p.dueDate?new Date(p.dueDate+'T12:00:00').toLocaleDateString('pt-BR'):'—'}</small></td>
+        <td>${p.status==='RECEIVED'||p.status==='CONFIRMED'?'<span class="badge badge-green">Pago</span>':p.status==='PENDING'?'<span class="badge badge-yellow">Pendente</span>':p.status==='OVERDUE'?'<span class="badge badge-red">Vencido</span>':'<span class="badge badge-gray">'+p.status+'</span>'}</td>
+        <td><span class="badge badge-gray">${p.billingType||'—'}</span></td>
+      </tr>`).join('')
+      :'<tr><td colspan="6"><div class="empty"><div class="empty-text">Nenhum pagamento.</div></div></td></tr>';
+  }catch(e){tb.innerHTML='<tr><td colspan="6">Erro.</td></tr>';}
+}
+
+async function loadFinInadimplentes(){
+  const tb=document.getElementById('tbody-fin-inadimplentes');
+  try{
+    const res=await platformApi('GET','/asaas/payments/overdue');
+    const rows=res.data||[];
+    tb.innerHTML=rows.length
+      ?rows.map(p=>{
+        const diasAtraso=Math.ceil((new Date()-new Date(p.dueDate+'T12:00:00'))/86400000);
+        return `<tr>
+          <td><small>${p.customer||'—'}</small></td>
+          <td style="font-weight:700;color:var(--red)">R$${(p.value||0).toLocaleString('pt-BR')}</td>
+          <td><small>${p.dueDate?new Date(p.dueDate+'T12:00:00').toLocaleDateString('pt-BR'):'—'}</small></td>
+          <td><span style="color:var(--red);font-weight:700">${diasAtraso} dias</span></td>
+          <td>${p.invoiceUrl?`<a href="${p.invoiceUrl}" target="_blank" class="btn btn-ghost btn-xs">🔗 Cobrar</a>`:'—'}</td>
+        </tr>`;
+      }).join('')
+      :'<tr><td colspan="5"><div class="empty"><div class="empty-icon">✅</div><div class="empty-text">Nenhum inadimplente.</div></div></td></tr>';
+  }catch(e){tb.innerHTML='<tr><td colspan="5">Erro.</td></tr>';}
+}
+
+function exportFinanceiro(){
+  if(!_finPagamentos.length){toast('Carregue os pagamentos primeiro.','error');return;}
+  const csv=['Cliente,Descrição,Valor,Vencimento,Status,Forma'].concat(
+    _finPagamentos.map(p=>[p.customer,p.description,p.value,p.dueDate,p.status,p.billingType].map(v=>`"${v||''}"`).join(','))
+  ).join('
+');
+  const a=document.createElement('a');
+  a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
+  a.download=`financeiro_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  toast('CSV exportado!');
+}
+
+// ── E-MAIL PARA TENANT ──
+let _emailTenantId=null, _emailTenantProduto=null;
+
+function modalEmailTenant(id, nome, produto){
+  _emailTenantId=id; _emailTenantProduto=produto;
+  document.getElementById('modal-email-titulo').textContent=`Enviar e-mail para ${nome}`;
+  document.getElementById('email-assunto').value='';
+  document.getElementById('email-mensagem').value='';
+  openModal('modal-email');
+}
+
+async function enviarEmailTenant(){
+  const assunto=document.getElementById('email-assunto').value;
+  const mensagem=document.getElementById('email-mensagem').value;
+  if(!assunto||!mensagem){toast('Preencha assunto e mensagem.','error');return;}
+  try{
+    const rota=_emailTenantProduto==='contabil'
+      ?`/contabil/tenants/${_emailTenantId}/email`
+      :`/tenants/${_emailTenantId}/email`;
+    await platformApi('POST',rota,{assunto,mensagem});
+    toast('E-mail enviado com sucesso!');
+    closeModal('modal-email');
+  }catch(e){toast('Erro ao enviar e-mail.','error')}
+}
+
+// ── RESET SENHA ──
+async function resetSenhaTenant(id, produto){
+  if(!confirm('Gerar nova senha temporária para o admin deste tenant?')) return;
+  try{
+    const rota=produto==='contabil'
+      ?`/contabil/tenants/${id}/reset-senha`
+      :`/tenants/${id}/reset-senha`;
+    const res=await platformApi('POST',rota,{});
+    alert(`Nova senha gerada!
+
+E-mail: ${res.email}
+Senha: ${res.nova_senha}
+
+Guarde essa senha — ela não será exibida novamente.`);
+  }catch(e){toast('Erro ao resetar senha.','error')}
+}
+
+// ── BUSCA GLOBAL ──
+function toggleBuscaGlobal(){
+  const box=document.getElementById('busca-global-box');
+  box.style.display=box.style.display==='none'?'flex':'none';
+  if(box.style.display==='flex') document.getElementById('busca-global-input').focus();
+}
+
+async function executarBuscaGlobal(){
+  const q=document.getElementById('busca-global-input').value.trim();
+  if(q.length<2) return;
+  const results=document.getElementById('busca-global-results');
+  results.innerHTML='<div class="loading"><div class="spinner"></div>Buscando...</div>';
+  try{
+    const [tenants,contabil]=await Promise.all([
+      platformApi('GET','/tenants'),
+      platformApi('GET','/contabil/tenants')
+    ]);
+    const qL=q.toLowerCase();
+    const resP=(tenants||[]).filter(t=>(t.nome||'').toLowerCase().includes(qL)||(t.email_admin||'').toLowerCase().includes(qL)||(t.slug||'').includes(qL));
+    const resC=(contabil||[]).filter(t=>(t.nome||'').toLowerCase().includes(qL)||(t.email||'').toLowerCase().includes(qL)||(t.cnpj||'').includes(q));
+    if(!resP.length&&!resC.length){results.innerHTML='<p style="padding:.75rem;color:var(--text-2);font-size:.82rem">Nenhum resultado.</p>';return;}
+    results.innerHTML=[
+      ...resP.map(t=>`<div onclick="showView('tenants');setTimeout(()=>loadTenantDetail('${t.id}','${t.nome}'),500)" style="padding:.6rem 1rem;cursor:pointer;border-bottom:1px solid var(--border);font-size:.82rem;display:flex;align-items:center;gap:.75rem">
+        <span>🖥️</span><div><strong>${t.nome}</strong><br><small style="color:var(--text-3)">${t.email_admin} · Platform</small></div>
+      </div>`),
+      ...resC.map(t=>`<div onclick="showView('contabil');setTimeout(()=>loadContabilDetail('${t.id}','${t.nome}'),500)" style="padding:.6rem 1rem;cursor:pointer;border-bottom:1px solid var(--border);font-size:.82rem;display:flex;align-items:center;gap:.75rem">
+        <span>📊</span><div><strong>${t.nome}</strong><br><small style="color:var(--text-3)">${t.email} · Contábil · ${t.cnpj||'—'}</small></div>
+      </div>`)
+    ].join('');
+  }catch(e){results.innerHTML='<p style="padding:.75rem;color:var(--red);font-size:.82rem">Erro na busca.</p>';}
+}
+
+// Atalhos de teclado
+document.addEventListener('keydown',e=>{
+  if((e.ctrlKey||e.metaKey)&&e.key==='k'){e.preventDefault();toggleBuscaGlobal();}
+  if(e.key==='Escape'){
+    document.getElementById('busca-global-box').style.display='none';
+    document.querySelectorAll('.modal-backdrop').forEach(m=>m.style.display='none');
+  }
+});
+
+// Exportar qualquer tabela
+function exportarTabela(tbodyId, nomeArquivo){
+  const tbody=document.getElementById(tbodyId);
+  if(!tbody){toast('Tabela não encontrada.','error');return;}
+  const rows=Array.from(tbody.querySelectorAll('tr')).map(tr=>
+    Array.from(tr.querySelectorAll('td')).map(td=>'"'+td.innerText.replace(/"/g,'""')+'"').join(',')
+  ).filter(r=>r);
+  if(!rows.length){toast('Nenhum dado para exportar.','error');return;}
+  const a=document.createElement('a');
+  a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(rows.join('
+'));
+  a.download=`${nomeArquivo}_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  toast('CSV exportado!');
+}
+
 function loadAll(){loadStats();renderAtividade('activity-dash');loadDashboardCombinado()}
 // ── DASHBOARD COMBINADO ──
 let _dashChart = null;
@@ -1994,6 +2573,226 @@ async function cfgSalvar(produto, plano){
     _cfgData = await platformApi('GET','/config/planos');
     cfgRenderCards(produto);
   }catch(e){toast('Erro ao salvar.','error')}
+}
+
+
+// ── FINANCEIRO ASAAS ──
+let _finPagamentos = [];
+
+async function renderFinanceiro(){
+  try{
+    const [mrr, proj, overdue, churn] = await Promise.all([
+      platformApi('GET','/asaas/mrr'),
+      platformApi('GET','/asaas/projecao'),
+      platformApi('GET','/asaas/payments/overdue'),
+      platformApi('GET','/admin/churn')
+    ]);
+
+    if(mrr){
+      document.getElementById('fin-mrr').textContent = 'R$'+(mrr.mrr_total||0).toLocaleString('pt-BR');
+    }
+    if(proj){
+      document.getElementById('fin-arr').textContent = 'R$'+(proj.arr||0).toLocaleString('pt-BR');
+      document.getElementById('fin-projecao').innerHTML = [
+        {label:'Mês 1',val:proj.mes_1},
+        {label:'Mês 2',val:proj.mes_2},
+        {label:'Mês 3 (+10%)',val:proj.mes_3}
+      ].map(m=>`<div style="background:var(--bg);border-radius:8px;padding:1rem;text-align:center">
+        <div style="font-size:.75rem;color:var(--text-2);margin-bottom:.3rem">${m.label}</div>
+        <div style="font-family:Lora,serif;font-size:1.3rem;font-weight:700;color:var(--green)">R$${m.val.toLocaleString('pt-BR')}</div>
+      </div>`).join('');
+    }
+    if(overdue){
+      document.getElementById('fin-overdue').textContent = overdue.total||0;
+    }
+    if(churn){
+      const rate = ((churn.platform?.rate||0) + (churn.contabil?.rate||0))/2;
+      document.getElementById('fin-churn').textContent = rate.toFixed(1)+'%';
+    }
+
+    finTab('assinaturas');
+  }catch(e){console.error('Financeiro erro:',e)}
+}
+
+function finTab(tab){
+  ['assinaturas','pagamentos','inadimplentes','manual'].forEach(t=>{
+    const p=document.getElementById(`fin-panel-${t}`);
+    if(p) p.style.display=t===tab?'':'none';
+    const btn=document.getElementById(`fin-tab-${t}`);
+    if(btn){btn.style.background=t===tab?'var(--purple)':'';btn.style.color=t===tab?'#fff':'';btn.className=t===tab?'btn btn-sm':'btn btn-ghost btn-sm';}
+  });
+  if(tab==='assinaturas') loadFinAssinaturas();
+  else if(tab==='pagamentos') loadFinPagamentos();
+  else if(tab==='inadimplentes') loadFinInadimplentes();
+  else if(tab==='manual') renderFinanceiroManual();
+}
+
+async function loadFinAssinaturas(){
+  const tb=document.getElementById('tbody-fin-assinaturas');
+  try{
+    const subs=await platformApi('GET','/asaas/subscriptions');
+    tb.innerHTML=subs.length
+      ?subs.map(s=>`<tr>
+        <td><small>${s.customer||'—'}</small></td>
+        <td><small>${s.description||'—'}</small></td>
+        <td style="font-weight:700;color:var(--green)">R$${(s.value||0).toLocaleString('pt-BR')}</td>
+        <td><span class="badge badge-gray">${s.cycle==='MONTHLY'?'Mensal':'Anual'}</span></td>
+        <td><small>${s.nextDueDate?new Date(s.nextDueDate+'T12:00:00').toLocaleDateString('pt-BR'):'—'}</small></td>
+        <td>${s.status==='ACTIVE'?'<span class="badge badge-green">Ativa</span>':s.status==='CANCELLED'?'<span class="badge badge-red">Cancelada</span>':'<span class="badge badge-yellow">'+s.status+'</span>'}</td>
+        <td><span class="badge badge-gray">${s.billingType||'—'}</span></td>
+      </tr>`).join('')
+      :'<tr><td colspan="7"><div class="empty"><div class="empty-text">Nenhuma assinatura.</div></div></td></tr>';
+  }catch(e){tb.innerHTML='<tr><td colspan="7">Erro ao carregar Asaas.</td></tr>';}
+}
+
+async function loadFinPagamentos(){
+  const tb=document.getElementById('tbody-fin-pagamentos');
+  try{
+    const res=await platformApi('GET','/asaas/payments');
+    _finPagamentos=res.data||[];
+    tb.innerHTML=_finPagamentos.length
+      ?_finPagamentos.map(p=>`<tr>
+        <td><small>${p.customer||'—'}</small></td>
+        <td><small>${p.description||'—'}</small></td>
+        <td style="font-weight:700">R$${(p.value||0).toLocaleString('pt-BR')}</td>
+        <td><small>${p.dueDate?new Date(p.dueDate+'T12:00:00').toLocaleDateString('pt-BR'):'—'}</small></td>
+        <td>${p.status==='RECEIVED'||p.status==='CONFIRMED'?'<span class="badge badge-green">Pago</span>':p.status==='PENDING'?'<span class="badge badge-yellow">Pendente</span>':p.status==='OVERDUE'?'<span class="badge badge-red">Vencido</span>':'<span class="badge badge-gray">'+p.status+'</span>'}</td>
+        <td><span class="badge badge-gray">${p.billingType||'—'}</span></td>
+      </tr>`).join('')
+      :'<tr><td colspan="6"><div class="empty"><div class="empty-text">Nenhum pagamento.</div></div></td></tr>';
+  }catch(e){tb.innerHTML='<tr><td colspan="6">Erro.</td></tr>';}
+}
+
+async function loadFinInadimplentes(){
+  const tb=document.getElementById('tbody-fin-inadimplentes');
+  try{
+    const res=await platformApi('GET','/asaas/payments/overdue');
+    const rows=res.data||[];
+    tb.innerHTML=rows.length
+      ?rows.map(p=>{
+        const diasAtraso=Math.ceil((new Date()-new Date(p.dueDate+'T12:00:00'))/86400000);
+        return `<tr>
+          <td><small>${p.customer||'—'}</small></td>
+          <td style="font-weight:700;color:var(--red)">R$${(p.value||0).toLocaleString('pt-BR')}</td>
+          <td><small>${p.dueDate?new Date(p.dueDate+'T12:00:00').toLocaleDateString('pt-BR'):'—'}</small></td>
+          <td><span style="color:var(--red);font-weight:700">${diasAtraso} dias</span></td>
+          <td>${p.invoiceUrl?`<a href="${p.invoiceUrl}" target="_blank" class="btn btn-ghost btn-xs">🔗 Cobrar</a>`:'—'}</td>
+        </tr>`;
+      }).join('')
+      :'<tr><td colspan="5"><div class="empty"><div class="empty-icon">✅</div><div class="empty-text">Nenhum inadimplente.</div></div></td></tr>';
+  }catch(e){tb.innerHTML='<tr><td colspan="5">Erro.</td></tr>';}
+}
+
+function exportFinanceiro(){
+  if(!_finPagamentos.length){toast('Carregue os pagamentos primeiro.','error');return;}
+  const csv=['Cliente,Descrição,Valor,Vencimento,Status,Forma'].concat(
+    _finPagamentos.map(p=>[p.customer,p.description,p.value,p.dueDate,p.status,p.billingType].map(v=>`"${v||''}"`).join(','))
+  ).join('
+');
+  const a=document.createElement('a');
+  a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
+  a.download=`financeiro_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  toast('CSV exportado!');
+}
+
+// ── E-MAIL PARA TENANT ──
+let _emailTenantId=null, _emailTenantProduto=null;
+
+function modalEmailTenant(id, nome, produto){
+  _emailTenantId=id; _emailTenantProduto=produto;
+  document.getElementById('modal-email-titulo').textContent=`Enviar e-mail para ${nome}`;
+  document.getElementById('email-assunto').value='';
+  document.getElementById('email-mensagem').value='';
+  openModal('modal-email');
+}
+
+async function enviarEmailTenant(){
+  const assunto=document.getElementById('email-assunto').value;
+  const mensagem=document.getElementById('email-mensagem').value;
+  if(!assunto||!mensagem){toast('Preencha assunto e mensagem.','error');return;}
+  try{
+    const rota=_emailTenantProduto==='contabil'
+      ?`/contabil/tenants/${_emailTenantId}/email`
+      :`/tenants/${_emailTenantId}/email`;
+    await platformApi('POST',rota,{assunto,mensagem});
+    toast('E-mail enviado com sucesso!');
+    closeModal('modal-email');
+  }catch(e){toast('Erro ao enviar e-mail.','error')}
+}
+
+// ── RESET SENHA ──
+async function resetSenhaTenant(id, produto){
+  if(!confirm('Gerar nova senha temporária para o admin deste tenant?')) return;
+  try{
+    const rota=produto==='contabil'
+      ?`/contabil/tenants/${id}/reset-senha`
+      :`/tenants/${id}/reset-senha`;
+    const res=await platformApi('POST',rota,{});
+    alert(`Nova senha gerada!
+
+E-mail: ${res.email}
+Senha: ${res.nova_senha}
+
+Guarde essa senha — ela não será exibida novamente.`);
+  }catch(e){toast('Erro ao resetar senha.','error')}
+}
+
+// ── BUSCA GLOBAL ──
+function toggleBuscaGlobal(){
+  const box=document.getElementById('busca-global-box');
+  box.style.display=box.style.display==='none'?'flex':'none';
+  if(box.style.display==='flex') document.getElementById('busca-global-input').focus();
+}
+
+async function executarBuscaGlobal(){
+  const q=document.getElementById('busca-global-input').value.trim();
+  if(q.length<2) return;
+  const results=document.getElementById('busca-global-results');
+  results.innerHTML='<div class="loading"><div class="spinner"></div>Buscando...</div>';
+  try{
+    const [tenants,contabil]=await Promise.all([
+      platformApi('GET','/tenants'),
+      platformApi('GET','/contabil/tenants')
+    ]);
+    const qL=q.toLowerCase();
+    const resP=(tenants||[]).filter(t=>(t.nome||'').toLowerCase().includes(qL)||(t.email_admin||'').toLowerCase().includes(qL)||(t.slug||'').includes(qL));
+    const resC=(contabil||[]).filter(t=>(t.nome||'').toLowerCase().includes(qL)||(t.email||'').toLowerCase().includes(qL)||(t.cnpj||'').includes(q));
+    if(!resP.length&&!resC.length){results.innerHTML='<p style="padding:.75rem;color:var(--text-2);font-size:.82rem">Nenhum resultado.</p>';return;}
+    results.innerHTML=[
+      ...resP.map(t=>`<div onclick="showView('tenants');setTimeout(()=>loadTenantDetail('${t.id}','${t.nome}'),500)" style="padding:.6rem 1rem;cursor:pointer;border-bottom:1px solid var(--border);font-size:.82rem;display:flex;align-items:center;gap:.75rem">
+        <span>🖥️</span><div><strong>${t.nome}</strong><br><small style="color:var(--text-3)">${t.email_admin} · Platform</small></div>
+      </div>`),
+      ...resC.map(t=>`<div onclick="showView('contabil');setTimeout(()=>loadContabilDetail('${t.id}','${t.nome}'),500)" style="padding:.6rem 1rem;cursor:pointer;border-bottom:1px solid var(--border);font-size:.82rem;display:flex;align-items:center;gap:.75rem">
+        <span>📊</span><div><strong>${t.nome}</strong><br><small style="color:var(--text-3)">${t.email} · Contábil · ${t.cnpj||'—'}</small></div>
+      </div>`)
+    ].join('');
+  }catch(e){results.innerHTML='<p style="padding:.75rem;color:var(--red);font-size:.82rem">Erro na busca.</p>';}
+}
+
+// Atalhos de teclado
+document.addEventListener('keydown',e=>{
+  if((e.ctrlKey||e.metaKey)&&e.key==='k'){e.preventDefault();toggleBuscaGlobal();}
+  if(e.key==='Escape'){
+    document.getElementById('busca-global-box').style.display='none';
+    document.querySelectorAll('.modal-backdrop').forEach(m=>m.style.display='none');
+  }
+});
+
+// Exportar qualquer tabela
+function exportarTabela(tbodyId, nomeArquivo){
+  const tbody=document.getElementById(tbodyId);
+  if(!tbody){toast('Tabela não encontrada.','error');return;}
+  const rows=Array.from(tbody.querySelectorAll('tr')).map(tr=>
+    Array.from(tr.querySelectorAll('td')).map(td=>'"'+td.innerText.replace(/"/g,'""')+'"').join(',')
+  ).filter(r=>r);
+  if(!rows.length){toast('Nenhum dado para exportar.','error');return;}
+  const a=document.createElement('a');
+  a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(rows.join('
+'));
+  a.download=`${nomeArquivo}_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  toast('CSV exportado!');
 }
 
 function loadAll(){loadStats();renderAtividade('activity-dash');loadDashboardCombinado()}
