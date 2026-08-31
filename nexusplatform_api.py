@@ -515,3 +515,104 @@ def login_usuario(data: UserLoginIn, db: Session = Depends(get_db)):
         "plano": row.plano,
         "redirect": "https://ti.nexusefbusiness.com.br"
     }
+
+
+# ── NEXUS CONTÁBIL — ADMIN ENDPOINTS ──
+from sqlalchemy import create_engine as _ce2, text as _text2
+from sqlalchemy.orm import sessionmaker as _sm2
+
+_CONTABIL_URL = "postgresql+psycopg2://nexuscontabil:NexusContabil2026@localhost/nexuscontabil"
+_engine2 = _ce2(_CONTABIL_URL)
+_ContabilSession = _sm2(autocommit=False, autoflush=False, bind=_engine2)
+
+def get_contabil_db():
+    db = _ContabilSession()
+    try:
+        yield db
+    finally:
+        db.close()
+
+@app.get("/contabil/tenants")
+def contabil_tenants(db=Depends(get_contabil_db), user=Depends(get_current_user)):
+    rows = db.execute(_text2("""
+        SELECT t.id, t.nome, t.cnpj, t.email, t.telefone,
+               t.plano, t.status, t."trialEndsAt", t."xmlsUsadosMes",
+               t."createdAt",
+               COUNT(DISTINCT e.id) as total_empresas,
+               COUNT(DISTINCT u.id) as total_usuarios,
+               COUNT(DISTINCT d.id) as total_documentos
+        FROM tenants t
+        LEFT JOIN empresas e ON e."tenantId" = t.id
+        LEFT JOIN usuarios u ON u."tenantId" = t.id
+        LEFT JOIN documentos d ON d."tenantId" = t.id
+        GROUP BY t.id
+        ORDER BY t."createdAt" DESC
+    """)).fetchall()
+    return [dict(r._mapping) for r in rows]
+
+@app.get("/contabil/stats")
+def contabil_stats(db=Depends(get_contabil_db), user=Depends(get_current_user)):
+    stats = db.execute(_text2("""
+        SELECT
+            COUNT(*) as total_tenants,
+            COUNT(*) FILTER (WHERE status = 'ATIVO') as tenants_ativos,
+            COUNT(*) FILTER (WHERE status = 'TRIAL') as tenants_trial,
+            COUNT(*) FILTER (WHERE status = 'CANCELADO') as tenants_cancelados,
+            COUNT(*) FILTER (WHERE plano = 'STARTER') as plano_starter,
+            COUNT(*) FILTER (WHERE plano = 'PROFISSIONAL') as plano_profissional,
+            COUNT(*) FILTER (WHERE plano = 'ENTERPRISE') as plano_enterprise
+        FROM tenants
+    """)).fetchone()
+    empresas = db.execute(_text2("SELECT COUNT(*) as total FROM empresas")).fetchone()
+    documentos = db.execute(_text2("SELECT COUNT(*) as total FROM documentos")).fetchone()
+    return {
+        **dict(stats._mapping),
+        "total_empresas": empresas.total,
+        "total_documentos": documentos.total
+    }
+
+@app.get("/contabil/tenants/{tenant_id}")
+def contabil_tenant_detail(tenant_id: str, db=Depends(get_contabil_db), user=Depends(get_current_user)):
+    tenant = db.execute(_text2("""
+        SELECT * FROM tenants WHERE id = :id
+    """), {"id": tenant_id}).fetchone()
+    if not tenant:
+        raise HTTPException(404, "Tenant não encontrado")
+    empresas = db.execute(_text2("""
+        SELECT id, nome, cnpj, regime, "createdAt" FROM empresas WHERE "tenantId" = :id ORDER BY nome
+    """), {"id": tenant_id}).fetchall()
+    usuarios = db.execute(_text2("""
+        SELECT id, nome, email, perfil, ativo, "createdAt" FROM usuarios WHERE "tenantId" = :id ORDER BY nome
+    """), {"id": tenant_id}).fetchall()
+    docs = db.execute(_text2("""
+        SELECT COUNT(*) as total FROM documentos WHERE "tenantId" = :id
+    """), {"id": tenant_id}).fetchone()
+    return {
+        "tenant": dict(tenant._mapping),
+        "empresas": [dict(r._mapping) for r in empresas],
+        "usuarios": [dict(r._mapping) for r in usuarios],
+        "total_documentos": docs.total
+    }
+
+class ContabilPlanoUpdate(BaseModel):
+    plano: str
+    status: Optional[str] = None
+
+@app.patch("/contabil/tenants/{tenant_id}/plano")
+def contabil_update_plano(tenant_id: str, data: ContabilPlanoUpdate, db=Depends(get_contabil_db), user=Depends(get_current_user)):
+    campos = {"plano": data.plano, "id": tenant_id}
+    sql = 'UPDATE tenants SET plano = :plano, "updatedAt" = now()'
+    if data.status:
+        sql += ', status = :status'
+        campos["status"] = data.status
+    sql += " WHERE id = :id"
+    db.execute(_text2(sql), campos)
+    db.commit()
+    return {"ok": True}
+
+@app.patch("/contabil/tenants/{tenant_id}/status")
+def contabil_update_status(tenant_id: str, data: dict, db=Depends(get_contabil_db), user=Depends(get_current_user)):
+    db.execute(_text2('UPDATE tenants SET status = :status, "updatedAt" = now() WHERE id = :id'),
+               {"status": data.get("status"), "id": tenant_id})
+    db.commit()
+    return {"ok": True}
