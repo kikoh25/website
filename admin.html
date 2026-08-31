@@ -248,6 +248,8 @@
     <button class="nav-item" onclick="showView('acessos',this)"><span class="nav-icon">🔑</span>Acessos</button>
     <button class="nav-item" onclick="showView('financeiro',this)"><span class="nav-icon">💰</span>Financeiro</button>
     <button class="nav-item" onclick="showView('atividade',this)"><span class="nav-icon">📋</span>Atividade</button>
+    <button class="nav-item" onclick="showView('suporte',this)"><span class="nav-icon">🎫</span>Suporte</button>
+    <button class="nav-item" onclick="showView('configuracoes',this)"><span class="nav-icon">⚙️</span>Configurações</button>
 
     <div class="sidebar-footer">
       <div class="sidebar-user">
@@ -273,6 +275,36 @@
 
       <!-- DASHBOARD -->
       <div class="view active" id="view-dashboard">
+        <!-- DASHBOARD COMBINADO -->
+        <div id="dash-combinado-stats" style="margin-bottom:1.5rem">
+          <div class="stats-grid" style="grid-template-columns:repeat(4,1fr)">
+            <div class="stat-card" style="border-left:3px solid var(--green)"><span class="stat-icon">💰</span><div class="stat-label">MRR Total</div><div class="stat-value" id="dash-mrr-total" style="color:var(--green)">—</div><div class="stat-delta" id="dash-mrr-delta">Platform + Contábil</div></div>
+            <div class="stat-card"><span class="stat-icon">🏢</span><div class="stat-label">Clientes pagos</div><div class="stat-value" id="dash-clientes-pagos">—</div><div class="stat-delta">Ambos produtos</div></div>
+            <div class="stat-card"><span class="stat-icon">🔬</span><div class="stat-label">Em trial</div><div class="stat-value" id="dash-trial-total">—</div><div class="stat-delta" id="dash-conversao">Taxa de conversão</div></div>
+            <div class="stat-card"><span class="stat-icon">🎫</span><div class="stat-label">Tickets suporte</div><div class="stat-value" id="dash-tickets-hoje">—</div><div class="stat-delta">Últimas 24h</div></div>
+          </div>
+          <div class="stats-grid" style="grid-template-columns:repeat(4,1fr);margin-top:.75rem">
+            <div class="stat-card"><span class="stat-icon">🖥️</span><div class="stat-label">MRR Platform</div><div class="stat-value" id="dash-mrr-platform">—</div><div class="stat-delta" id="dash-platform-pagos">—</div></div>
+            <div class="stat-card"><span class="stat-icon">📊</span><div class="stat-label">MRR Contábil</div><div class="stat-value" id="dash-mrr-contabil">—</div><div class="stat-delta" id="dash-contabil-ativos">—</div></div>
+            <div class="stat-card"><span class="stat-icon">📈</span><div class="stat-label">Novos (7 dias)</div><div class="stat-value" id="dash-novos-7d">—</div><div class="stat-delta">Platform + Contábil</div></div>
+            <div class="stat-card"><span class="stat-icon">📅</span><div class="stat-label">Novos (30 dias)</div><div class="stat-value" id="dash-novos-30d">—</div><div class="stat-delta">Platform + Contábil</div></div>
+          </div>
+        </div>
+
+        <!-- GRÁFICO CRESCIMENTO -->
+        <div style="display:grid;grid-template-columns:2fr 1fr;gap:1rem;margin-bottom:1.5rem">
+          <div style="background:#fff;border:1px solid var(--border);border-radius:10px;padding:1.25rem">
+            <div style="font-size:.82rem;font-weight:700;color:var(--indigo);margin-bottom:1rem">📈 Crescimento combinado — últimos 6 meses</div>
+            <canvas id="dash-chart-crescimento" height="80"></canvas>
+          </div>
+          <div style="background:#fff;border:1px solid var(--border);border-radius:10px;padding:1.25rem">
+            <div style="font-size:.82rem;font-weight:700;color:var(--indigo);margin-bottom:1rem">💰 MRR por produto</div>
+            <div id="dash-mrr-breakdown"></div>
+            <div style="margin-top:1rem;font-size:.82rem;font-weight:700;color:var(--indigo)">🔄 Taxa de conversão</div>
+            <div id="dash-conversao-breakdown" style="margin-top:.5rem"></div>
+          </div>
+        </div>
+
         <div class="stats-grid">
           <div class="stat-card"><span class="stat-icon">🏢</span><div class="stat-label">Clientes ativos</div><div class="stat-value" id="stat-clientes">—</div><div class="stat-delta" id="stat-clientes-delta">Nexus Platform</div></div>
           <div class="stat-card"><span class="stat-icon">📄</span><div class="stat-label">Contratos vigentes</div><div class="stat-value" id="stat-contratos">—</div><div class="stat-delta">Em andamento</div></div>
@@ -501,7 +533,97 @@
         </div>
       </div>
 
-      <!-- ACESSOS -->      <!-- ACESSOS -->
+      <!-- SUPORTE UNIFICADO -->
+      <div class="view" id="view-suporte">
+        <div class="section-header">
+          <div><div class="section-title-sm">Suporte</div><div class="section-desc">Tickets unificados — Nexus Platform e Nexus Contábil</div></div>
+          <button class="btn btn-ghost btn-sm" onclick="loadSection('suporte')">🔄 Atualizar</button>
+        </div>
+        <div style="display:flex;gap:.5rem;margin-bottom:1rem;flex-wrap:wrap">
+          <button class="btn btn-sm" id="sup-tab-todos" onclick="supFiltro('todos')" style="background:var(--purple);color:#fff">Todos</button>
+          <button class="btn btn-ghost btn-sm" id="sup-tab-aberto" onclick="supFiltro('aberto')">🔴 Abertos</button>
+          <button class="btn btn-ghost btn-sm" id="sup-tab-fechado" onclick="supFiltro('fechado')">✅ Fechados</button>
+          <button class="btn btn-ghost btn-sm" id="sup-tab-contabil" onclick="supFiltro('contabil')">📊 Contábil</button>
+          <input type="text" id="sup-search" placeholder="Buscar por título ou escritório..." style="margin-left:auto;padding:.4rem .8rem;border:1px solid var(--border);border-radius:6px;font-size:.8rem;width:220px" oninput="supBuscar()"/>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Produto</th><th>Escritório</th><th>Tipo</th><th>Título</th><th>Status</th><th>Criado em</th><th>Ações</th></tr></thead>
+            <tbody id="tbody-suporte"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- CONFIGURAÇÕES -->
+      <div class="view" id="view-configuracoes">
+        <div class="section-header">
+          <div><div class="section-title-sm">Configurações</div><div class="section-desc">Planos, limites e configurações dos produtos</div></div>
+        </div>
+
+        <div style="display:flex;gap:.5rem;margin-bottom:1.25rem">
+          <button class="btn btn-sm" id="cfg-tab-platform" onclick="cfgTab('platform')" style="background:var(--purple);color:#fff">🖥️ Nexus Platform</button>
+          <button class="btn btn-ghost btn-sm" id="cfg-tab-contabil" onclick="cfgTab('contabil')">📊 Nexus Contábil</button>
+        </div>
+
+        <div id="cfg-panel-platform">
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem" id="cfg-cards-platform"></div>
+        </div>
+        <div id="cfg-panel-contabil" style="display:none">
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem" id="cfg-cards-contabil"></div>
+        </div>
+
+        <div style="margin-top:1.5rem;background:#fff;border:1px solid var(--border);border-radius:10px;padding:1.25rem">
+          <div style="font-size:.85rem;font-weight:700;color:var(--indigo);margin-bottom:.5rem">⚠️ Nota sobre configurações</div>
+          <p style="font-size:.8rem;color:var(--text-2);line-height:1.7">As alterações de limite são aplicadas em memória e ficam ativas até o próximo restart do servidor. Para torná-las permanentes, edite o arquivo <code>nexusplatform_api.py</code> diretamente.</p>
+        </div>
+      </div>
+
+      <!-- ACESSOS -->      <!-- SUPORTE UNIFICADO -->
+      <div class="view" id="view-suporte">
+        <div class="section-header">
+          <div><div class="section-title-sm">Suporte</div><div class="section-desc">Tickets unificados — Nexus Platform e Nexus Contábil</div></div>
+          <button class="btn btn-ghost btn-sm" onclick="loadSection('suporte')">🔄 Atualizar</button>
+        </div>
+        <div style="display:flex;gap:.5rem;margin-bottom:1rem;flex-wrap:wrap">
+          <button class="btn btn-sm" id="sup-tab-todos" onclick="supFiltro('todos')" style="background:var(--purple);color:#fff">Todos</button>
+          <button class="btn btn-ghost btn-sm" id="sup-tab-aberto" onclick="supFiltro('aberto')">🔴 Abertos</button>
+          <button class="btn btn-ghost btn-sm" id="sup-tab-fechado" onclick="supFiltro('fechado')">✅ Fechados</button>
+          <button class="btn btn-ghost btn-sm" id="sup-tab-contabil" onclick="supFiltro('contabil')">📊 Contábil</button>
+          <input type="text" id="sup-search" placeholder="Buscar por título ou escritório..." style="margin-left:auto;padding:.4rem .8rem;border:1px solid var(--border);border-radius:6px;font-size:.8rem;width:220px" oninput="supBuscar()"/>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Produto</th><th>Escritório</th><th>Tipo</th><th>Título</th><th>Status</th><th>Criado em</th><th>Ações</th></tr></thead>
+            <tbody id="tbody-suporte"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- CONFIGURAÇÕES -->
+      <div class="view" id="view-configuracoes">
+        <div class="section-header">
+          <div><div class="section-title-sm">Configurações</div><div class="section-desc">Planos, limites e configurações dos produtos</div></div>
+        </div>
+
+        <div style="display:flex;gap:.5rem;margin-bottom:1.25rem">
+          <button class="btn btn-sm" id="cfg-tab-platform" onclick="cfgTab('platform')" style="background:var(--purple);color:#fff">🖥️ Nexus Platform</button>
+          <button class="btn btn-ghost btn-sm" id="cfg-tab-contabil" onclick="cfgTab('contabil')">📊 Nexus Contábil</button>
+        </div>
+
+        <div id="cfg-panel-platform">
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem" id="cfg-cards-platform"></div>
+        </div>
+        <div id="cfg-panel-contabil" style="display:none">
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem" id="cfg-cards-contabil"></div>
+        </div>
+
+        <div style="margin-top:1.5rem;background:#fff;border:1px solid var(--border);border-radius:10px;padding:1.25rem">
+          <div style="font-size:.85rem;font-weight:700;color:var(--indigo);margin-bottom:.5rem">⚠️ Nota sobre configurações</div>
+          <p style="font-size:.8rem;color:var(--text-2);line-height:1.7">As alterações de limite são aplicadas em memória e ficam ativas até o próximo restart do servidor. Para torná-las permanentes, edite o arquivo <code>nexusplatform_api.py</code> diretamente.</p>
+        </div>
+      </div>
+
+      <!-- ACESSOS -->
       <div class="view" id="view-acessos">
         <div class="section-header">
           <div><div class="section-title-sm">Controle de Acessos</div><div class="section-desc">Usuários responsáveis por tenant na Nexus Platform</div></div>
@@ -700,7 +822,7 @@ function doLogout(){
 }
 
 // ── NAV ──
-const viewTitles={dashboard:['Dashboard','Visão geral da Nexus EF Business'],clientes:['Clientes','Gestão de clientes'],contratos:['Contratos','Contratos e acordos'],tenants:['Nexus Platform','Gestão de tenants em tempo real'],leadnow:['LeadNow','Instâncias de IA para eventos'],acessos:['Controle de Acessos','Usuários responsáveis por tenant'],financeiro:['Financeiro','Receitas e contratos'],atividade:['Log de Atividades','Histórico de ações']};
+const viewTitles={dashboard:['Dashboard','Visão geral da Nexus EF Business'],clientes:['Clientes','Gestão de clientes'],contratos:['Contratos','Contratos e acordos'],tenants:['Nexus Platform','Gestão de tenants em tempo real'],leadnow:['LeadNow','Instâncias de IA para eventos'],contabil:['Nexus Contábil','Gestão de escritórios contábeis'],acessos:['Controle de Acessos','Usuários responsáveis por tenant'],financeiro:['Financeiro','Receitas e contratos'],atividade:['Log de Atividades','Histórico de ações'],suporte:['Suporte','Tickets unificados Platform + Contábil'],configuracoes:['Configurações','Planos e limites dos produtos']};
 function showView(id,btn){
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
@@ -1122,6 +1244,8 @@ function loadSection(id){
   else if(id==='tenants') renderTenants();
   else if(id==='leadnow') renderLeadNow();
   else if(id==='contabil') renderContabil();
+  else if(id==='suporte') renderSuporte();
+  else if(id==='configuracoes') renderConfiguracoes();
   else if(id==='acessos') renderAcessos();
   else if(id==='financeiro'){loadStats();renderFinanceiro()}
   else if(id==='atividade') renderAtividade('activity-full');
@@ -1429,8 +1553,450 @@ async function extenderTrial(){
   await extenderTrialById(_ctTenantId);
 }
 
-function loadAll(){loadStats();renderAtividade('activity-dash')}
-function loadAll(){loadStats();renderAtividade('activity-dash')}
+// ── DASHBOARD COMBINADO ──
+let _dashChart = null;
+
+async function loadDashboardCombinado(){
+  try{
+    const [dash, conv] = await Promise.all([
+      platformApi('GET','/admin/dashboard'),
+      platformApi('GET','/admin/conversao')
+    ]);
+
+    if(dash){
+      document.getElementById('dash-mrr-total').textContent = 'R$'+dash.mrr_total.toLocaleString('pt-BR');
+      document.getElementById('dash-mrr-delta').textContent = `Platform R$${dash.mrr_platform.toLocaleString('pt-BR')} + Contábil R$${dash.mrr_contabil.toLocaleString('pt-BR')}`;
+      document.getElementById('dash-mrr-platform').textContent = 'R$'+dash.mrr_platform.toLocaleString('pt-BR');
+      document.getElementById('dash-mrr-contabil').textContent = 'R$'+dash.mrr_contabil.toLocaleString('pt-BR');
+      const p = dash.platform, c = dash.contabil;
+      document.getElementById('dash-platform-pagos').textContent = `${p.tenants_pagos||0} pagos · ${p.tenants_trial||0} trial`;
+      document.getElementById('dash-contabil-ativos').textContent = `${c.tenants_ativos||0} ativos · ${c.tenants_trial||0} trial`;
+      document.getElementById('dash-tickets-hoje').textContent = dash.tickets_suporte_hoje||0;
+      const novos7 = (p.novos_7d||0) + (c.novos_7d||0);
+      const novos30 = (p.novos_30d||0) + (c.novos_30d||0);
+      document.getElementById('dash-novos-7d').textContent = novos7;
+      document.getElementById('dash-novos-30d').textContent = novos30;
+
+      // MRR breakdown
+      const mrrDiv = document.getElementById('dash-mrr-breakdown');
+      const mrrTotal = dash.mrr_total||1;
+      mrrDiv.innerHTML = ['Platform','Contábil'].map((nome,i)=>{
+        const val = i===0?dash.mrr_platform:dash.mrr_contabil;
+        const pct = Math.round(val/mrrTotal*100);
+        return `<div style="margin-bottom:.5rem">
+          <div style="display:flex;justify-content:space-between;font-size:.75rem;margin-bottom:.2rem">
+            <span>${nome}</span><span style="font-weight:700">R$${val.toLocaleString('pt-BR')}</span>
+          </div>
+          <div style="background:var(--bg);border-radius:4px;height:12px">
+            <div style="height:100%;background:${i===0?'#7C3AED':'#4F46E5'};width:${pct}%;border-radius:4px"></div>
+          </div>
+        </div>`;
+      }).join('');
+
+      // Gráfico crescimento
+      const meses = [...new Set([
+        ...dash.crescimento_platform.map(r=>r.mes),
+        ...dash.crescimento_contabil.map(r=>r.mes)
+      ])].sort();
+      const pMap = Object.fromEntries(dash.crescimento_platform.map(r=>[r.mes,r.novos]));
+      const cMap = Object.fromEntries(dash.crescimento_contabil.map(r=>[r.mes,r.novos]));
+      const ctx = document.getElementById('dash-chart-crescimento').getContext('2d');
+      if(_dashChart) _dashChart.destroy();
+      _dashChart = new Chart(ctx,{
+        type:'bar',
+        data:{
+          labels: meses.map(m=>{ const d=new Date(m+'-01'); return d.toLocaleDateString('pt-BR',{month:'short',year:'2-digit'}); }),
+          datasets:[
+            {label:'Platform',data:meses.map(m=>pMap[m]||0),backgroundColor:'rgba(124,58,237,.7)',borderRadius:4},
+            {label:'Contábil',data:meses.map(m=>cMap[m]||0),backgroundColor:'rgba(79,70,229,.5)',borderRadius:4}
+          ]
+        },
+        options:{plugins:{legend:{position:'bottom'}},scales:{x:{stacked:true},y:{stacked:true,beginAtZero:true,ticks:{stepSize:1}}}}
+      });
+    }
+
+    if(conv){
+      const convDiv = document.getElementById('dash-conversao-breakdown');
+      document.getElementById('dash-clientes-pagos').textContent = conv.total_clientes_pagos||0;
+      document.getElementById('dash-trial-total').textContent = conv.total_trial||0;
+      document.getElementById('dash-conversao').textContent = `Conversão: P ${conv.platform.taxa_conversao}% · C ${conv.contabil.taxa_conversao}%`;
+      convDiv.innerHTML = ['platform','contabil'].map(p=>{
+        const d = conv[p];
+        const pct = d.taxa_conversao||0;
+        return `<div style="margin-bottom:.4rem">
+          <div style="display:flex;justify-content:space-between;font-size:.73rem;margin-bottom:.15rem">
+            <span>${p==='platform'?'Platform':'Contábil'}</span><span style="font-weight:700;color:${pct>50?'var(--green)':pct>25?'var(--yellow)':'var(--red)'}">${pct}%</span>
+          </div>
+          <div style="background:var(--bg);border-radius:4px;height:10px">
+            <div style="height:100%;background:${pct>50?'var(--green)':pct>25?'var(--yellow)':'var(--red)'};width:${pct}%;border-radius:4px"></div>
+          </div>
+        </div>`;
+      }).join('');
+    }
+  }catch(e){console.error('Dashboard combinado erro:',e)}
+}
+
+// ── SUPORTE UNIFICADO ──
+let _supTickets = [];
+let _supFiltroAtual = 'todos';
+
+async function renderSuporte(){
+  document.getElementById('tbody-suporte').innerHTML = '<tr><td colspan="7"><div class="loading"><div class="spinner"></div>Carregando...</div></td></tr>';
+  try{
+    _supTickets = await platformApi('GET','/suporte/tickets');
+    supRenderTabela(_supTickets);
+  }catch(e){
+    document.getElementById('tbody-suporte').innerHTML='<tr><td colspan="7"><div class="empty"><div class="empty-icon">⚠️</div><div class="empty-text">Erro ao carregar tickets.</div></div></td></tr>';
+  }
+}
+
+function supFiltro(tipo){
+  _supFiltroAtual = tipo;
+  ['todos','aberto','fechado','contabil'].forEach(t=>{
+    const btn = document.getElementById(`sup-tab-${t}`);
+    if(!btn) return;
+    btn.style.background = t===tipo?'var(--purple)':'';
+    btn.style.color = t===tipo?'#fff':'';
+    btn.className = t===tipo?'btn btn-sm':'btn btn-ghost btn-sm';
+  });
+  supBuscar();
+}
+
+function supBuscar(){
+  const q = (document.getElementById('sup-search')?.value||'').toLowerCase();
+  let filtered = _supTickets;
+  if(_supFiltroAtual === 'contabil') filtered = filtered.filter(t=>t.produto==='contabil');
+  else if(_supFiltroAtual === 'aberto') filtered = filtered.filter(t=>t.status==='aberto'||t.status==='OPEN');
+  else if(_supFiltroAtual === 'fechado') filtered = filtered.filter(t=>t.status==='fechado'||t.status==='CLOSED'||t.status==='resolvido');
+  if(q) filtered = filtered.filter(t=>(t.titulo||'').toLowerCase().includes(q)||(t.tenant_nome||'').toLowerCase().includes(q));
+  supRenderTabela(filtered);
+}
+
+function supRenderTabela(rows){
+  const tb = document.getElementById('tbody-suporte');
+  if(!rows?.length){
+    tb.innerHTML='<tr><td colspan="7"><div class="empty"><div class="empty-icon">🎫</div><div class="empty-text">Nenhum ticket encontrado.</div></div></td></tr>';
+    return;
+  }
+  tb.innerHTML = rows.map(t=>`<tr>
+    <td>${t.produto==='contabil'?'<span class="badge" style="background:rgba(79,70,229,.1);color:#4F46E5">📊 Contábil</span>':'<span class="badge" style="background:rgba(124,58,237,.1);color:#7C3AED">🖥️ Platform</span>'}</td>
+    <td><strong>${t.tenant_nome||'—'}</strong><br><small style="color:var(--text-3)">${t.tenant_email||'—'}</small></td>
+    <td>${badge(t.tipo||'—')}</td>
+    <td><div style="max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${t.titulo||''}">${t.titulo||'—'}</div><small style="color:var(--text-3)">${t.descricao?t.descricao.substring(0,60)+'...':''}</small></td>
+    <td>${t.status==='aberto'||t.status==='OPEN'?'<span class="badge badge-yellow">Aberto</span>':t.status==='fechado'||t.status==='CLOSED'?'<span class="badge badge-green">Fechado</span>':'<span class="badge badge-blue">'+t.status+'</span>'}</td>
+    <td><small>${t.createdAt?new Date(t.createdAt).toLocaleDateString('pt-BR'):t.created_at?new Date(t.created_at).toLocaleDateString('pt-BR'):'—'}</small></td>
+    <td>
+      ${t.status==='aberto'||t.status==='OPEN'
+        ?`<button class="btn btn-success btn-xs" onclick="supFecharTicket('${t.id}','${t.produto}')">✅ Fechar</button>`
+        :t.status==='fechado'||t.status==='CLOSED'
+        ?`<button class="btn btn-ghost btn-xs" onclick="supReabrirTicket('${t.id}','${t.produto}')">🔄 Reabrir</button>`
+        :''}
+    </td>
+  </tr>`).join('');
+}
+
+async function supFecharTicket(id, produto){
+  try{
+    await platformApi('PATCH',`/suporte/tickets/${id}/status`,{status:'fechado'});
+    toast('Ticket fechado!');
+    renderSuporte();
+  }catch(e){toast('Erro.','error')}
+}
+
+async function supReabrirTicket(id, produto){
+  try{
+    await platformApi('PATCH',`/suporte/tickets/${id}/status`,{status:'aberto'});
+    toast('Ticket reaberto!');
+    renderSuporte();
+  }catch(e){toast('Erro.','error')}
+}
+
+// ── CONFIGURAÇÕES ──
+let _cfgData = null;
+
+async function renderConfiguracoes(){
+  try{
+    _cfgData = await platformApi('GET','/config/planos');
+    cfgTab('platform');
+  }catch(e){console.error(e)}
+}
+
+function cfgTab(tab){
+  ['platform','contabil'].forEach(t=>{
+    document.getElementById(`cfg-panel-${t}`).style.display = t===tab?'':'none';
+    const btn = document.getElementById(`cfg-tab-${t}`);
+    btn.style.background = t===tab?'var(--purple)':'';
+    btn.style.color = t===tab?'#fff':'';
+    btn.className = t===tab?'btn btn-sm':'btn btn-ghost btn-sm';
+  });
+  cfgRenderCards(tab);
+}
+
+function cfgRenderCards(produto){
+  const planos = _cfgData?.[produto]||{};
+  const container = document.getElementById(`cfg-cards-${produto}`);
+  container.innerHTML = Object.entries(planos).map(([key,cfg])=>`
+    <div style="background:#fff;border:1px solid var(--border);border-radius:12px;padding:1.25rem">
+      <div style="font-size:.9rem;font-weight:700;color:var(--indigo);margin-bottom:1rem">${cfg.nome||key}</div>
+      ${Object.entries(cfg).filter(([k])=>k!=='nome').map(([k,v])=>`
+        <div style="margin-bottom:.65rem">
+          <label style="font-size:.72rem;color:var(--text-2);font-weight:600;display:block;margin-bottom:.2rem">${cfgLabel(k)}</label>
+          <div style="display:flex;gap:.4rem">
+            <input type="${typeof v==='number'?'number':'text'}" value="${v}" id="cfg-${produto}-${key}-${k}"
+              style="flex:1;padding:.35rem .6rem;border:1px solid var(--border);border-radius:5px;font-size:.8rem"
+              ${v===-1?'placeholder="Ilimitado (-1)"':''}/>
+          </div>
+        </div>
+      `).join('')}
+      <button class="btn btn-primary btn-sm" style="width:100%;margin-top:.5rem" onclick="cfgSalvar('${produto}','${key}')">💾 Salvar</button>
+    </div>
+  `).join('');
+}
+
+function cfgLabel(k){
+  const map = {preco:'Preço (R$)',max_tecnicos:'Máx. técnicos',max_usuarios:'Máx. usuários',
+    max_ativos:'Máx. ativos',max_empresas:'Máx. empresas',max_xmls:'Máx. XMLs/mês'};
+  return map[k]||k;
+}
+
+async function cfgSalvar(produto, plano){
+  const cfg = _cfgData[produto][plano];
+  const data = {produto, plano};
+  Object.keys(cfg).filter(k=>k!=='nome').forEach(k=>{
+    const el = document.getElementById(`cfg-${produto}-${plano}-${k}`);
+    if(el) data[k] = isNaN(el.value)?el.value:parseFloat(el.value);
+  });
+  try{
+    await platformApi('PATCH','/config/planos',data);
+    toast(`Plano ${cfg.nome} atualizado!`);
+    _cfgData = await platformApi('GET','/config/planos');
+    cfgRenderCards(produto);
+  }catch(e){toast('Erro ao salvar.','error')}
+}
+
+function loadAll(){loadStats();renderAtividade('activity-dash');loadDashboardCombinado()}
+// ── DASHBOARD COMBINADO ──
+let _dashChart = null;
+
+async function loadDashboardCombinado(){
+  try{
+    const [dash, conv] = await Promise.all([
+      platformApi('GET','/admin/dashboard'),
+      platformApi('GET','/admin/conversao')
+    ]);
+
+    if(dash){
+      document.getElementById('dash-mrr-total').textContent = 'R$'+dash.mrr_total.toLocaleString('pt-BR');
+      document.getElementById('dash-mrr-delta').textContent = `Platform R$${dash.mrr_platform.toLocaleString('pt-BR')} + Contábil R$${dash.mrr_contabil.toLocaleString('pt-BR')}`;
+      document.getElementById('dash-mrr-platform').textContent = 'R$'+dash.mrr_platform.toLocaleString('pt-BR');
+      document.getElementById('dash-mrr-contabil').textContent = 'R$'+dash.mrr_contabil.toLocaleString('pt-BR');
+      const p = dash.platform, c = dash.contabil;
+      document.getElementById('dash-platform-pagos').textContent = `${p.tenants_pagos||0} pagos · ${p.tenants_trial||0} trial`;
+      document.getElementById('dash-contabil-ativos').textContent = `${c.tenants_ativos||0} ativos · ${c.tenants_trial||0} trial`;
+      document.getElementById('dash-tickets-hoje').textContent = dash.tickets_suporte_hoje||0;
+      const novos7 = (p.novos_7d||0) + (c.novos_7d||0);
+      const novos30 = (p.novos_30d||0) + (c.novos_30d||0);
+      document.getElementById('dash-novos-7d').textContent = novos7;
+      document.getElementById('dash-novos-30d').textContent = novos30;
+
+      // MRR breakdown
+      const mrrDiv = document.getElementById('dash-mrr-breakdown');
+      const mrrTotal = dash.mrr_total||1;
+      mrrDiv.innerHTML = ['Platform','Contábil'].map((nome,i)=>{
+        const val = i===0?dash.mrr_platform:dash.mrr_contabil;
+        const pct = Math.round(val/mrrTotal*100);
+        return `<div style="margin-bottom:.5rem">
+          <div style="display:flex;justify-content:space-between;font-size:.75rem;margin-bottom:.2rem">
+            <span>${nome}</span><span style="font-weight:700">R$${val.toLocaleString('pt-BR')}</span>
+          </div>
+          <div style="background:var(--bg);border-radius:4px;height:12px">
+            <div style="height:100%;background:${i===0?'#7C3AED':'#4F46E5'};width:${pct}%;border-radius:4px"></div>
+          </div>
+        </div>`;
+      }).join('');
+
+      // Gráfico crescimento
+      const meses = [...new Set([
+        ...dash.crescimento_platform.map(r=>r.mes),
+        ...dash.crescimento_contabil.map(r=>r.mes)
+      ])].sort();
+      const pMap = Object.fromEntries(dash.crescimento_platform.map(r=>[r.mes,r.novos]));
+      const cMap = Object.fromEntries(dash.crescimento_contabil.map(r=>[r.mes,r.novos]));
+      const ctx = document.getElementById('dash-chart-crescimento').getContext('2d');
+      if(_dashChart) _dashChart.destroy();
+      _dashChart = new Chart(ctx,{
+        type:'bar',
+        data:{
+          labels: meses.map(m=>{ const d=new Date(m+'-01'); return d.toLocaleDateString('pt-BR',{month:'short',year:'2-digit'}); }),
+          datasets:[
+            {label:'Platform',data:meses.map(m=>pMap[m]||0),backgroundColor:'rgba(124,58,237,.7)',borderRadius:4},
+            {label:'Contábil',data:meses.map(m=>cMap[m]||0),backgroundColor:'rgba(79,70,229,.5)',borderRadius:4}
+          ]
+        },
+        options:{plugins:{legend:{position:'bottom'}},scales:{x:{stacked:true},y:{stacked:true,beginAtZero:true,ticks:{stepSize:1}}}}
+      });
+    }
+
+    if(conv){
+      const convDiv = document.getElementById('dash-conversao-breakdown');
+      document.getElementById('dash-clientes-pagos').textContent = conv.total_clientes_pagos||0;
+      document.getElementById('dash-trial-total').textContent = conv.total_trial||0;
+      document.getElementById('dash-conversao').textContent = `Conversão: P ${conv.platform.taxa_conversao}% · C ${conv.contabil.taxa_conversao}%`;
+      convDiv.innerHTML = ['platform','contabil'].map(p=>{
+        const d = conv[p];
+        const pct = d.taxa_conversao||0;
+        return `<div style="margin-bottom:.4rem">
+          <div style="display:flex;justify-content:space-between;font-size:.73rem;margin-bottom:.15rem">
+            <span>${p==='platform'?'Platform':'Contábil'}</span><span style="font-weight:700;color:${pct>50?'var(--green)':pct>25?'var(--yellow)':'var(--red)'}">${pct}%</span>
+          </div>
+          <div style="background:var(--bg);border-radius:4px;height:10px">
+            <div style="height:100%;background:${pct>50?'var(--green)':pct>25?'var(--yellow)':'var(--red)'};width:${pct}%;border-radius:4px"></div>
+          </div>
+        </div>`;
+      }).join('');
+    }
+  }catch(e){console.error('Dashboard combinado erro:',e)}
+}
+
+// ── SUPORTE UNIFICADO ──
+let _supTickets = [];
+let _supFiltroAtual = 'todos';
+
+async function renderSuporte(){
+  document.getElementById('tbody-suporte').innerHTML = '<tr><td colspan="7"><div class="loading"><div class="spinner"></div>Carregando...</div></td></tr>';
+  try{
+    _supTickets = await platformApi('GET','/suporte/tickets');
+    supRenderTabela(_supTickets);
+  }catch(e){
+    document.getElementById('tbody-suporte').innerHTML='<tr><td colspan="7"><div class="empty"><div class="empty-icon">⚠️</div><div class="empty-text">Erro ao carregar tickets.</div></div></td></tr>';
+  }
+}
+
+function supFiltro(tipo){
+  _supFiltroAtual = tipo;
+  ['todos','aberto','fechado','contabil'].forEach(t=>{
+    const btn = document.getElementById(`sup-tab-${t}`);
+    if(!btn) return;
+    btn.style.background = t===tipo?'var(--purple)':'';
+    btn.style.color = t===tipo?'#fff':'';
+    btn.className = t===tipo?'btn btn-sm':'btn btn-ghost btn-sm';
+  });
+  supBuscar();
+}
+
+function supBuscar(){
+  const q = (document.getElementById('sup-search')?.value||'').toLowerCase();
+  let filtered = _supTickets;
+  if(_supFiltroAtual === 'contabil') filtered = filtered.filter(t=>t.produto==='contabil');
+  else if(_supFiltroAtual === 'aberto') filtered = filtered.filter(t=>t.status==='aberto'||t.status==='OPEN');
+  else if(_supFiltroAtual === 'fechado') filtered = filtered.filter(t=>t.status==='fechado'||t.status==='CLOSED'||t.status==='resolvido');
+  if(q) filtered = filtered.filter(t=>(t.titulo||'').toLowerCase().includes(q)||(t.tenant_nome||'').toLowerCase().includes(q));
+  supRenderTabela(filtered);
+}
+
+function supRenderTabela(rows){
+  const tb = document.getElementById('tbody-suporte');
+  if(!rows?.length){
+    tb.innerHTML='<tr><td colspan="7"><div class="empty"><div class="empty-icon">🎫</div><div class="empty-text">Nenhum ticket encontrado.</div></div></td></tr>';
+    return;
+  }
+  tb.innerHTML = rows.map(t=>`<tr>
+    <td>${t.produto==='contabil'?'<span class="badge" style="background:rgba(79,70,229,.1);color:#4F46E5">📊 Contábil</span>':'<span class="badge" style="background:rgba(124,58,237,.1);color:#7C3AED">🖥️ Platform</span>'}</td>
+    <td><strong>${t.tenant_nome||'—'}</strong><br><small style="color:var(--text-3)">${t.tenant_email||'—'}</small></td>
+    <td>${badge(t.tipo||'—')}</td>
+    <td><div style="max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${t.titulo||''}">${t.titulo||'—'}</div><small style="color:var(--text-3)">${t.descricao?t.descricao.substring(0,60)+'...':''}</small></td>
+    <td>${t.status==='aberto'||t.status==='OPEN'?'<span class="badge badge-yellow">Aberto</span>':t.status==='fechado'||t.status==='CLOSED'?'<span class="badge badge-green">Fechado</span>':'<span class="badge badge-blue">'+t.status+'</span>'}</td>
+    <td><small>${t.createdAt?new Date(t.createdAt).toLocaleDateString('pt-BR'):t.created_at?new Date(t.created_at).toLocaleDateString('pt-BR'):'—'}</small></td>
+    <td>
+      ${t.status==='aberto'||t.status==='OPEN'
+        ?`<button class="btn btn-success btn-xs" onclick="supFecharTicket('${t.id}','${t.produto}')">✅ Fechar</button>`
+        :t.status==='fechado'||t.status==='CLOSED'
+        ?`<button class="btn btn-ghost btn-xs" onclick="supReabrirTicket('${t.id}','${t.produto}')">🔄 Reabrir</button>`
+        :''}
+    </td>
+  </tr>`).join('');
+}
+
+async function supFecharTicket(id, produto){
+  try{
+    await platformApi('PATCH',`/suporte/tickets/${id}/status`,{status:'fechado'});
+    toast('Ticket fechado!');
+    renderSuporte();
+  }catch(e){toast('Erro.','error')}
+}
+
+async function supReabrirTicket(id, produto){
+  try{
+    await platformApi('PATCH',`/suporte/tickets/${id}/status`,{status:'aberto'});
+    toast('Ticket reaberto!');
+    renderSuporte();
+  }catch(e){toast('Erro.','error')}
+}
+
+// ── CONFIGURAÇÕES ──
+let _cfgData = null;
+
+async function renderConfiguracoes(){
+  try{
+    _cfgData = await platformApi('GET','/config/planos');
+    cfgTab('platform');
+  }catch(e){console.error(e)}
+}
+
+function cfgTab(tab){
+  ['platform','contabil'].forEach(t=>{
+    document.getElementById(`cfg-panel-${t}`).style.display = t===tab?'':'none';
+    const btn = document.getElementById(`cfg-tab-${t}`);
+    btn.style.background = t===tab?'var(--purple)':'';
+    btn.style.color = t===tab?'#fff':'';
+    btn.className = t===tab?'btn btn-sm':'btn btn-ghost btn-sm';
+  });
+  cfgRenderCards(tab);
+}
+
+function cfgRenderCards(produto){
+  const planos = _cfgData?.[produto]||{};
+  const container = document.getElementById(`cfg-cards-${produto}`);
+  container.innerHTML = Object.entries(planos).map(([key,cfg])=>`
+    <div style="background:#fff;border:1px solid var(--border);border-radius:12px;padding:1.25rem">
+      <div style="font-size:.9rem;font-weight:700;color:var(--indigo);margin-bottom:1rem">${cfg.nome||key}</div>
+      ${Object.entries(cfg).filter(([k])=>k!=='nome').map(([k,v])=>`
+        <div style="margin-bottom:.65rem">
+          <label style="font-size:.72rem;color:var(--text-2);font-weight:600;display:block;margin-bottom:.2rem">${cfgLabel(k)}</label>
+          <div style="display:flex;gap:.4rem">
+            <input type="${typeof v==='number'?'number':'text'}" value="${v}" id="cfg-${produto}-${key}-${k}"
+              style="flex:1;padding:.35rem .6rem;border:1px solid var(--border);border-radius:5px;font-size:.8rem"
+              ${v===-1?'placeholder="Ilimitado (-1)"':''}/>
+          </div>
+        </div>
+      `).join('')}
+      <button class="btn btn-primary btn-sm" style="width:100%;margin-top:.5rem" onclick="cfgSalvar('${produto}','${key}')">💾 Salvar</button>
+    </div>
+  `).join('');
+}
+
+function cfgLabel(k){
+  const map = {preco:'Preço (R$)',max_tecnicos:'Máx. técnicos',max_usuarios:'Máx. usuários',
+    max_ativos:'Máx. ativos',max_empresas:'Máx. empresas',max_xmls:'Máx. XMLs/mês'};
+  return map[k]||k;
+}
+
+async function cfgSalvar(produto, plano){
+  const cfg = _cfgData[produto][plano];
+  const data = {produto, plano};
+  Object.keys(cfg).filter(k=>k!=='nome').forEach(k=>{
+    const el = document.getElementById(`cfg-${produto}-${plano}-${k}`);
+    if(el) data[k] = isNaN(el.value)?el.value:parseFloat(el.value);
+  });
+  try{
+    await platformApi('PATCH','/config/planos',data);
+    toast(`Plano ${cfg.nome} atualizado!`);
+    _cfgData = await platformApi('GET','/config/planos');
+    cfgRenderCards(produto);
+  }catch(e){toast('Erro ao salvar.','error')}
+}
+
+function loadAll(){loadStats();renderAtividade('activity-dash');loadDashboardCombinado()}
 
 // ── AUTO LOGIN ──
 window.addEventListener('load',async()=>{
