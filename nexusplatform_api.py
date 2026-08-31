@@ -723,3 +723,199 @@ def contabil_mrr(db=Depends(get_contabil_db), user=Depends(get_current_user)):
         mrr += subtotal
         detalhes.append({"plano": r.plano, "quantidade": r.quantidade, "preco": preco, "subtotal": subtotal})
     return {"mrr_total": mrr, "detalhes": detalhes}
+
+
+# ── ADMIN DASHBOARD COMBINADO ──
+
+@app.get("/admin/dashboard")
+def admin_dashboard(
+    db=Depends(get_db),
+    dbc=Depends(get_contabil_db),
+    user=Depends(get_current_user)
+):
+    # Platform stats
+    p = db.execute(text("""
+        SELECT
+            COUNT(*) as total_tenants,
+            COUNT(*) FILTER (WHERE plano != 'trial' AND status = 'ativo') as tenants_pagos,
+            COUNT(*) FILTER (WHERE plano = 'trial') as tenants_trial,
+            COUNT(*) FILTER (WHERE status = 'suspenso') as tenants_suspensos,
+            COUNT(*) FILTER (WHERE plano = 'chamados') as plano_starter,
+            COUNT(*) FILTER (WHERE plano = 'completo') as plano_pro,
+            COUNT(*) FILTER (WHERE "criado_em" >= NOW() - INTERVAL '30 days') as novos_30d,
+            COUNT(*) FILTER (WHERE "criado_em" >= NOW() - INTERVAL '7 days') as novos_7d
+        FROM tenants
+    """)).fetchone()
+
+    # Platform MRR
+    p_mrr_map = {"chamados": 149, "completo": 349}
+    p_mrr_rows = db.execute(text("""
+        SELECT plano, COUNT(*) as qtd FROM tenants
+        WHERE status = 'ativo' AND plano != 'trial' GROUP BY plano
+    """)).fetchall()
+    p_mrr = sum(p_mrr_map.get(r.plano, 0) * r.qtd for r in p_mrr_rows)
+
+    # Contábil stats
+    c = dbc.execute(_text2("""
+        SELECT
+            COUNT(*) as total_tenants,
+            COUNT(*) FILTER (WHERE status = 'ACTIVE') as tenants_ativos,
+            COUNT(*) FILTER (WHERE status = 'TRIAL') as tenants_trial,
+            COUNT(*) FILTER (WHERE "createdAt" >= NOW() - INTERVAL '30 days') as novos_30d,
+            COUNT(*) FILTER (WHERE "createdAt" >= NOW() - INTERVAL '7 days') as novos_7d
+        FROM tenants
+    """)).fetchone()
+
+    # Contábil MRR
+    c_mrr_map = {"STARTER": 297, "PROFISSIONAL": 497, "ENTERPRISE": 697}
+    c_mrr_rows = dbc.execute(_text2("""
+        SELECT plano, COUNT(*) as qtd FROM tenants
+        WHERE status = 'ACTIVE' GROUP BY plano
+    """)).fetchall()
+    c_mrr = sum(c_mrr_map.get(r.plano, 0) * r.qtd for r in c_mrr_rows)
+
+    # Tickets suporte contábil hoje
+    tickets_hoje = dbc.execute(_text2("""
+        SELECT COUNT(*) as total FROM tickets
+        WHERE "createdAt" >= NOW() - INTERVAL '24 hours'
+    """)).fetchone()
+
+    # Crescimento combinado 6 meses
+    p_crescimento = db.execute(text("""
+        SELECT DATE_TRUNC('month', "criado_em") as mes, COUNT(*) as novos
+        FROM tenants WHERE "criado_em" >= NOW() - INTERVAL '6 months'
+        GROUP BY 1 ORDER BY 1
+    """)).fetchall()
+    c_crescimento = dbc.execute(_text2("""
+        SELECT DATE_TRUNC('month', "createdAt") as mes, COUNT(*) as novos
+        FROM tenants WHERE "createdAt" >= NOW() - INTERVAL '6 months'
+        GROUP BY 1 ORDER BY 1
+    """)).fetchall()
+
+    return {
+        "mrr_total": p_mrr + c_mrr,
+        "mrr_platform": p_mrr,
+        "mrr_contabil": c_mrr,
+        "platform": dict(p._mapping),
+        "contabil": dict(c._mapping),
+        "novos_hoje_platform": dict(p._mapping).get("novos_7d", 0),
+        "novos_hoje_contabil": dict(c._mapping).get("novos_7d", 0),
+        "tickets_suporte_hoje": tickets_hoje.total,
+        "crescimento_platform": [{"mes": str(r.mes)[:7], "novos": r.novos} for r in p_crescimento],
+        "crescimento_contabil": [{"mes": str(r.mes)[:7], "novos": r.novos} for r in c_crescimento],
+    }
+
+# ── SUPORTE UNIFICADO ──
+
+@app.get("/suporte/tickets")
+def suporte_tickets(
+    status: Optional[str] = None,
+    produto: Optional[str] = None,
+    db=Depends(get_db),
+    dbc=Depends(get_contabil_db),
+    user=Depends(get_current_user)
+):
+    tickets = []
+
+    # Tickets do Contábil
+    if produto in (None, "contabil"):
+        sql = """
+            SELECT t.id, t."tenantId", t.tipo, t.titulo, t.descricao,
+                   t.status, t."createdAt", t."updatedAt",
+                   tn.nome as tenant_nome, tn.email as tenant_email
+            FROM tickets t
+            LEFT JOIN tenants tn ON tn.id = t."tenantId"
+            WHERE 1=1
+        """
+        if status:
+            sql += f" AND t.status = '{status}'"
+        sql += ' ORDER BY t."createdAt" DESC LIMIT 100'
+        rows = dbc.execute(_text2(sql)).fetchall()
+        for r in rows:
+            d = dict(r._mapping)
+            d["produto"] = "contabil"
+            d["createdAt"] = str(d.get("createdAt",""))
+            d["updatedAt"] = str(d.get("updatedAt",""))
+            tickets.append(d)
+
+    tickets.sort(key=lambda x: x.get("createdAt",""), reverse=True)
+    return tickets
+
+@app.patch("/suporte/tickets/{ticket_id}/status")
+def suporte_ticket_status(
+    ticket_id: str,
+    data: dict,
+    dbc=Depends(get_contabil_db),
+    user=Depends(get_current_user)
+):
+    dbc.execute(_text2("""
+        UPDATE tickets SET status = :status, "updatedAt" = NOW() WHERE id = :id
+    """), {"status": data.get("status"), "id": ticket_id})
+    dbc.commit()
+    return {"ok": True}
+
+# ── CONFIGURAÇÕES DE PLANOS ──
+
+from pydantic import BaseModel as _BM
+
+class PlanoConfig(_BM):
+    produto: str
+    plano: str
+    max_tecnicos: Optional[int] = None
+    max_usuarios: Optional[int] = None
+    max_ativos: Optional[int] = None
+    preco: Optional[float] = None
+
+_PLANOS_CONFIG = {
+    "platform": {
+        "trial":    {"nome":"Free","preco":0,"max_tecnicos":1,"max_usuarios":5,"max_ativos":15},
+        "chamados": {"nome":"Starter","preco":149,"max_tecnicos":2,"max_usuarios":20,"max_ativos":50},
+        "completo": {"nome":"Pro","preco":349,"max_tecnicos":5,"max_usuarios":100,"max_ativos":300},
+    },
+    "contabil": {
+        "STARTER":     {"nome":"Starter","preco":297,"max_empresas":5,"max_xmls":2000,"max_usuarios":2},
+        "PROFISSIONAL":{"nome":"Profissional","preco":497,"max_empresas":25,"max_xmls":15000,"max_usuarios":5},
+        "ENTERPRISE":  {"nome":"Enterprise","preco":697,"max_empresas":-1,"max_xmls":-1,"max_usuarios":-1},
+    }
+}
+
+@app.get("/config/planos")
+def get_planos_config(user=Depends(get_current_user)):
+    return _PLANOS_CONFIG
+
+@app.patch("/config/planos")
+def update_planos_config(data: dict, user=Depends(get_current_user)):
+    produto = data.get("produto")
+    plano = data.get("plano")
+    if produto not in _PLANOS_CONFIG or plano not in _PLANOS_CONFIG[produto]:
+        raise HTTPException(400, "Produto ou plano inválido")
+    _PLANOS_CONFIG[produto][plano].update({k:v for k,v in data.items() if k not in ("produto","plano")})
+    return {"ok": True, "config": _PLANOS_CONFIG[produto][plano]}
+
+# ── ANALYTICS COMBINADO ──
+
+@app.get("/admin/conversao")
+def admin_conversao(
+    db=Depends(get_db),
+    dbc=Depends(get_contabil_db),
+    user=Depends(get_current_user)
+):
+    # Platform: trial -> pago
+    p_total_trial = db.execute(text("SELECT COUNT(*) as n FROM tenants WHERE plano = 'trial'")).fetchone().n
+    p_total_pago = db.execute(text("SELECT COUNT(*) as n FROM tenants WHERE plano != 'trial' AND status = 'ativo'")).fetchone().n
+
+    # Contábil: trial -> ativo
+    c_total_trial = dbc.execute(_text2("SELECT COUNT(*) as n FROM tenants WHERE status = 'TRIAL'")).fetchone().n
+    c_total_ativo = dbc.execute(_text2("SELECT COUNT(*) as n FROM tenants WHERE status = 'ACTIVE'")).fetchone().n
+
+    total_clientes = p_total_pago + c_total_ativo
+    total_trial = p_total_trial + c_total_trial
+
+    return {
+        "platform": {"trial": p_total_trial, "pago": p_total_pago,
+                     "taxa_conversao": round(p_total_pago/(p_total_pago+p_total_trial)*100,1) if (p_total_pago+p_total_trial) > 0 else 0},
+        "contabil": {"trial": c_total_trial, "ativo": c_total_ativo,
+                     "taxa_conversao": round(c_total_ativo/(c_total_ativo+c_total_trial)*100,1) if (c_total_ativo+c_total_trial) > 0 else 0},
+        "total_clientes_pagos": total_clientes,
+        "total_trial": total_trial,
+    }
