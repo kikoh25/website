@@ -322,6 +322,7 @@ body.dark .nav-item:hover,body.dark .nav-item.active{background:rgba(124,58,237,
 
 <!-- APP -->
 <div id="app">
+  <div id="sidebar-overlay" onclick="toggleSidebarMobile()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:199"></div>
   <aside class="sidebar">
     <div class="sidebar-logo">
       <svg viewBox="0 0 40 46" fill="none"><path d="M20 2L38 12V34L20 44L2 34V12L20 2Z" fill="url(#sg)" stroke="rgba(196,181,253,0.15)" stroke-width="1"/><text x="20" y="29" text-anchor="middle" font-family="Lora,serif" font-size="14" font-weight="700" fill="white">N</text><defs><linearGradient id="sg" x1="2" y1="2" x2="38" y2="44"><stop offset="0%" stop-color="#7C3AED"/><stop offset="100%" stop-color="#4C1D95"/></linearGradient></defs></svg>
@@ -358,9 +359,12 @@ body.dark .nav-item:hover,body.dark .nav-item.active{background:rgba(124,58,237,
 
   <main class="main">
     <div class="topbar">
-      <div class="topbar-left">
-        <div class="topbar-title" id="topbar-title">Dashboard</div>
-        <div class="topbar-subtitle" id="topbar-subtitle">Visão geral da Nexus EF Business</div>
+      <div class="topbar-left" style="display:flex;align-items:center;gap:.75rem">
+        <button id="btn-menu-mobile" onclick="toggleSidebarMobile()" style="display:none;background:none;border:none;cursor:pointer;font-size:1.4rem;padding:.1rem .3rem;color:var(--indigo);line-height:1" aria-label="Menu">☰</button>
+        <div>
+          <div class="topbar-title" id="topbar-title">Dashboard</div>
+          <div class="topbar-subtitle" id="topbar-subtitle">Visão geral da Nexus EF Business</div>
+        </div>
       </div>
       <div class="topbar-right">
         <div class="topbar-time" id="topbar-time">—</div>
