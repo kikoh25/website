@@ -579,7 +579,7 @@ def contabil_tenant_detail(tenant_id: str, db=Depends(get_contabil_db), user=Dep
     if not tenant:
         raise HTTPException(404, "Tenant não encontrado")
     empresas = db.execute(_text2("""
-        SELECT id, nome, cnpj, regime, "createdAt" FROM empresas WHERE "tenantId" = :id ORDER BY nome
+        SELECT id, "razaoSocial" as nome, cnpj, regime, "createdAt" FROM empresas WHERE "tenantId" = :id ORDER BY "razaoSocial"
     """), {"id": tenant_id}).fetchall()
     usuarios = db.execute(_text2("""
         SELECT id, nome, email, role, status, "createdAt" FROM usuarios WHERE "tenantId" = :id ORDER BY nome
