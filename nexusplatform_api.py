@@ -544,7 +544,7 @@ def contabil_tenants(db=Depends(get_contabil_db), user=Depends(get_current_user)
         FROM tenants t
         LEFT JOIN empresas e ON e."tenantId" = t.id
         LEFT JOIN usuarios u ON u."tenantId" = t.id
-        LEFT JOIN documentos d ON d."tenantId" = t.id
+        LEFT JOIN documentos d ON d."empresaId" = e.id
         GROUP BY t.id
         ORDER BY t."createdAt" DESC
     """)).fetchall()
