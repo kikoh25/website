@@ -734,165 +734,105 @@ def admin_dashboard(
     user=Depends(get_current_user)
 ):
     # Platform stats
-    p = db.execute(text("""
-        SELECT
-            COUNT(*) as total_tenants,
-            COUNT(*) FILTER (WHERE plano != 'trial' AND ativo = true) as tenants_pagos,
-            COUNT(*) FILTER (WHERE plano = 'trial') as tenants_trial,
-            COUNT(*) FILTER (WHERE ativo = false) as tenants_suspensos,
-            COUNT(*) FILTER (WHERE plano = 'chamados') as plano_starter,
-            COUNT(*) FILTER (WHERE plano = 'completo') as plano_pro,
-            COUNT(*) FILTER (WHERE criado_em >= NOW() - INTERVAL '30 days') as novos_30d,
-            COUNT(*) FILTER (WHERE criado_em >= NOW() - INTERVAL '7 days') as novos_7d
-        FROM tenants
-    """)).fetchone()
+    try:
+        p = db.execute(text("""
+            SELECT
+                COUNT(*) as total_tenants,
+                COUNT(*) FILTER (WHERE plano != 'trial' AND ativo = true) as tenants_pagos,
+                COUNT(*) FILTER (WHERE plano = 'trial') as tenants_trial,
+                COUNT(*) FILTER (WHERE ativo = false) as tenants_suspensos,
+                COUNT(*) FILTER (WHERE plano = 'chamados') as plano_starter,
+                COUNT(*) FILTER (WHERE plano = 'completo') as plano_pro,
+                COUNT(*) FILTER (WHERE criado_em >= NOW() - INTERVAL '30 days') as novos_30d,
+                COUNT(*) FILTER (WHERE criado_em >= NOW() - INTERVAL '7 days') as novos_7d
+            FROM tenants
+        """)).fetchone()
+        p_dict = dict(p._mapping)
+    except Exception as e:
+        p_dict = {"total_tenants":0,"tenants_pagos":0,"tenants_trial":0,"tenants_suspensos":0,
+                  "plano_starter":0,"plano_pro":0,"novos_30d":0,"novos_7d":0}
 
     # Platform MRR
-    p_mrr_map = {"chamados": 149, "completo": 349}
-    p_mrr_rows = db.execute(text("""
-        SELECT plano, COUNT(*) as qtd FROM tenants
-        WHERE ativo = true AND plano != 'trial' GROUP BY plano
-    """)).fetchall()
-    p_mrr = sum(p_mrr_map.get(r.plano, 0) * r.qtd for r in p_mrr_rows)
+    try:
+        p_mrr_map = {"chamados": 149, "completo": 349}
+        p_mrr_rows = db.execute(text("""
+            SELECT plano, COUNT(*) as qtd FROM tenants
+            WHERE ativo = true AND plano != 'trial' GROUP BY plano
+        """)).fetchall()
+        p_mrr = sum(p_mrr_map.get(r.plano, 0) * r.qtd for r in p_mrr_rows)
+    except:
+        p_mrr = 0
 
     # Contábil stats
-    c = dbc.execute(_text2("""
-        SELECT
-            COUNT(*) as total_tenants,
-            COUNT(*) FILTER (WHERE status = 'ACTIVE') as tenants_ativos,
-            COUNT(*) FILTER (WHERE status = 'TRIAL') as tenants_trial,
-            COUNT(*) FILTER (WHERE "createdAt" >= NOW() - INTERVAL '30 days') as novos_30d,
-            COUNT(*) FILTER (WHERE "createdAt" >= NOW() - INTERVAL '7 days') as novos_7d
-        FROM tenants
-    """)).fetchone()
+    try:
+        c = dbc.execute(_text2("""
+            SELECT
+                COUNT(*) as total_tenants,
+                COUNT(*) FILTER (WHERE status = 'ACTIVE') as tenants_ativos,
+                COUNT(*) FILTER (WHERE status = 'TRIAL') as tenants_trial,
+                COUNT(*) FILTER (WHERE "createdAt" >= NOW() - INTERVAL '30 days') as novos_30d,
+                COUNT(*) FILTER (WHERE "createdAt" >= NOW() - INTERVAL '7 days') as novos_7d
+            FROM tenants
+        """)).fetchone()
+        c_dict = dict(c._mapping)
+    except Exception as e:
+        c_dict = {"total_tenants":0,"tenants_ativos":0,"tenants_trial":0,"novos_30d":0,"novos_7d":0}
 
     # Contábil MRR
-    c_mrr_map = {"STARTER": 297, "PROFISSIONAL": 497, "ENTERPRISE": 697}
-    c_mrr_rows = dbc.execute(_text2("""
-        SELECT plano, COUNT(*) as qtd FROM tenants
-        WHERE status = 'ACTIVE' GROUP BY plano
-    """)).fetchall()
-    c_mrr = sum(c_mrr_map.get(r.plano, 0) * r.qtd for r in c_mrr_rows)
+    try:
+        c_mrr_map = {"STARTER": 297, "PROFISSIONAL": 497, "ENTERPRISE": 697}
+        c_mrr_rows = dbc.execute(_text2("""
+            SELECT plano, COUNT(*) as qtd FROM tenants
+            WHERE status = 'ACTIVE' GROUP BY plano
+        """)).fetchall()
+        c_mrr = sum(c_mrr_map.get(r.plano, 0) * r.qtd for r in c_mrr_rows)
+    except:
+        c_mrr = 0
 
     # Tickets suporte contábil hoje
-    tickets_hoje = dbc.execute(_text2("""
-        SELECT COUNT(*) as total FROM tickets
-        WHERE "createdAt" >= NOW() - INTERVAL '24 hours'
-    """)).fetchone()
+    try:
+        tickets_hoje = dbc.execute(_text2("""
+            SELECT COUNT(*) as total FROM tickets
+            WHERE "createdAt" >= NOW() - INTERVAL '24 hours'
+        """)).fetchone()
+        tickets_n = tickets_hoje.total
+    except:
+        tickets_n = 0
 
-    # Crescimento combinado 6 meses
-    p_crescimento = db.execute(text("""
-        SELECT DATE_TRUNC('month', criado_em) as mes, COUNT(*) as novos
-        FROM tenants WHERE criado_em >= NOW() - INTERVAL '6 months'
-        GROUP BY 1 ORDER BY 1
-    """)).fetchall()
-    c_crescimento = dbc.execute(_text2("""
-        SELECT DATE_TRUNC('month', "createdAt") as mes, COUNT(*) as novos
-        FROM tenants WHERE "createdAt" >= NOW() - INTERVAL '6 months'
-        GROUP BY 1 ORDER BY 1
-    """)).fetchall()
+    # Crescimento Platform
+    try:
+        p_crescimento = db.execute(text("""
+            SELECT DATE_TRUNC('month', criado_em) as mes, COUNT(*) as novos
+            FROM tenants WHERE criado_em >= NOW() - INTERVAL '6 months'
+            GROUP BY 1 ORDER BY 1
+        """)).fetchall()
+        p_cresc = [{"mes": str(r.mes)[:7], "novos": r.novos} for r in p_crescimento]
+    except:
+        p_cresc = []
+
+    # Crescimento Contábil
+    try:
+        c_crescimento = dbc.execute(_text2("""
+            SELECT DATE_TRUNC('month', "createdAt") as mes, COUNT(*) as novos
+            FROM tenants WHERE "createdAt" >= NOW() - INTERVAL '6 months'
+            GROUP BY 1 ORDER BY 1
+        """)).fetchall()
+        c_cresc = [{"mes": str(r.mes)[:7], "novos": r.novos} for r in c_crescimento]
+    except:
+        c_cresc = []
 
     return {
         "mrr_total": p_mrr + c_mrr,
         "mrr_platform": p_mrr,
         "mrr_contabil": c_mrr,
-        "platform": dict(p._mapping),
-        "contabil": dict(c._mapping),
-        "novos_hoje_platform": dict(p._mapping).get("novos_7d", 0),
-        "novos_hoje_contabil": dict(c._mapping).get("novos_7d", 0),
-        "tickets_suporte_hoje": tickets_hoje.total,
-        "crescimento_platform": [{"mes": str(r.mes)[:7], "novos": r.novos} for r in p_crescimento],
-        "crescimento_contabil": [{"mes": str(r.mes)[:7], "novos": r.novos} for r in c_crescimento],
+        "platform": p_dict,
+        "contabil": c_dict,
+        "novos_hoje_platform": p_dict.get("novos_7d", 0),
+        "novos_hoje_contabil": c_dict.get("novos_7d", 0),
+        "tickets_suporte_hoje": tickets_n,
+        "crescimento_platform": p_cresc,
+        "crescimento_contabil": c_cresc,
     }
-
-# ── SUPORTE UNIFICADO ──
-
-@app.get("/suporte/tickets")
-def suporte_tickets(
-    status: Optional[str] = None,
-    produto: Optional[str] = None,
-    db=Depends(get_db),
-    dbc=Depends(get_contabil_db),
-    user=Depends(get_current_user)
-):
-    tickets = []
-
-    # Tickets do Contábil
-    if produto in (None, "contabil"):
-        sql = """
-            SELECT t.id, t."tenantId", t.tipo, t.titulo, t.descricao,
-                   t.status, t."createdAt", t."updatedAt",
-                   tn.nome as tenant_nome, tn.email as tenant_email
-            FROM tickets t
-            LEFT JOIN tenants tn ON tn.id = t."tenantId"
-            WHERE 1=1
-        """
-        if status:
-            sql += f" AND t.status = '{status}'"
-        sql += ' ORDER BY t."createdAt" DESC LIMIT 100'
-        rows = dbc.execute(_text2(sql)).fetchall()
-        for r in rows:
-            d = dict(r._mapping)
-            d["produto"] = "contabil"
-            d["createdAt"] = str(d.get("createdAt",""))
-            d["updatedAt"] = str(d.get("updatedAt",""))
-            tickets.append(d)
-
-    tickets.sort(key=lambda x: x.get("createdAt",""), reverse=True)
-    return tickets
-
-@app.patch("/suporte/tickets/{ticket_id}/status")
-def suporte_ticket_status(
-    ticket_id: str,
-    data: dict,
-    dbc=Depends(get_contabil_db),
-    user=Depends(get_current_user)
-):
-    dbc.execute(_text2("""
-        UPDATE tickets SET status = :status, "updatedAt" = NOW() WHERE id = :id
-    """), {"status": data.get("status"), "id": ticket_id})
-    dbc.commit()
-    return {"ok": True}
-
-# ── CONFIGURAÇÕES DE PLANOS ──
-
-from pydantic import BaseModel as _BM
-
-class PlanoConfig(_BM):
-    produto: str
-    plano: str
-    max_tecnicos: Optional[int] = None
-    max_usuarios: Optional[int] = None
-    max_ativos: Optional[int] = None
-    preco: Optional[float] = None
-
-_PLANOS_CONFIG = {
-    "platform": {
-        "trial":    {"nome":"Free","preco":0,"max_tecnicos":1,"max_usuarios":5,"max_ativos":15},
-        "chamados": {"nome":"Starter","preco":149,"max_tecnicos":2,"max_usuarios":20,"max_ativos":50},
-        "completo": {"nome":"Pro","preco":349,"max_tecnicos":5,"max_usuarios":100,"max_ativos":300},
-    },
-    "contabil": {
-        "STARTER":     {"nome":"Starter","preco":297,"max_empresas":5,"max_xmls":2000,"max_usuarios":2},
-        "PROFISSIONAL":{"nome":"Profissional","preco":497,"max_empresas":25,"max_xmls":15000,"max_usuarios":5},
-        "ENTERPRISE":  {"nome":"Enterprise","preco":697,"max_empresas":-1,"max_xmls":-1,"max_usuarios":-1},
-    }
-}
-
-@app.get("/config/planos")
-def get_planos_config(user=Depends(get_current_user)):
-    return _PLANOS_CONFIG
-
-@app.patch("/config/planos")
-def update_planos_config(data: dict, user=Depends(get_current_user)):
-    produto = data.get("produto")
-    plano = data.get("plano")
-    if produto not in _PLANOS_CONFIG or plano not in _PLANOS_CONFIG[produto]:
-        raise HTTPException(400, "Produto ou plano inválido")
-    _PLANOS_CONFIG[produto][plano].update({k:v for k,v in data.items() if k not in ("produto","plano")})
-    return {"ok": True, "config": _PLANOS_CONFIG[produto][plano]}
-
-# ── ANALYTICS COMBINADO ──
 
 @app.get("/admin/conversao")
 def admin_conversao(
