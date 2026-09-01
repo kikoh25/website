@@ -840,9 +840,9 @@ def admin_conversao(
     dbc=Depends(get_contabil_db),
     user=Depends(get_current_user)
 ):
-    # Platform: trial -> pago
+    # Platform: trial -> pago (usa coluna 'ativo' não 'status')
     p_total_trial = db.execute(text("SELECT COUNT(*) as n FROM tenants WHERE plano = 'trial'")).fetchone().n
-    p_total_pago = db.execute(text("SELECT COUNT(*) as n FROM tenants WHERE plano != 'trial' AND status = 'ativo'")).fetchone().n
+    p_total_pago = db.execute(text("SELECT COUNT(*) as n FROM tenants WHERE plano != 'trial' AND ativo = true")).fetchone().n
 
     # Contábil: trial -> ativo
     c_total_trial = dbc.execute(_text2("SELECT COUNT(*) as n FROM tenants WHERE status = 'TRIAL'")).fetchone().n
