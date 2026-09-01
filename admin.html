@@ -3384,6 +3384,24 @@ function loadAll(){
   loadStats();
   renderAtividade('activity-dash');
   loadDashboardCombinado();
+  // Carregar tenants por plano no dashboard
+  platformApi('GET','/stats').then(stats=>{
+    const planoEl=document.getElementById('dash-planos');
+    if(!planoEl) return;
+    if(stats?.por_plano?.length){
+      planoEl.innerHTML='<div style="padding:.5rem 0">'+stats.por_plano.map(p=>
+        '<div style="display:flex;align-items:center;justify-content:space-between;padding:.7rem 1.25rem;border-bottom:1px solid var(--border)">'
+        +'<div>'+badge(p.plano)+'</div>'
+        +'<strong style="font-family:Lora,serif">'+p.total+'</strong>'
+        +'</div>'
+      ).join('')+'</div>';
+    } else {
+      planoEl.innerHTML='<div class="empty"><div class="empty-text">Sem dados.</div></div>';
+    }
+  }).catch(()=>{
+    const planoEl=document.getElementById('dash-planos');
+    if(planoEl) planoEl.innerHTML='<div class="empty"><div class="empty-text">Sem dados.</div></div>';
+  });
   // Polling de notificações a cada 60s
   setInterval(async ()=>{
     try{
