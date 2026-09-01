@@ -2576,6 +2576,11 @@ let _dashChart = null;
 
 async function loadDashboardCombinado(){
   try{
+    // Garantir que PLATFORM_TOKEN existe antes de chamar
+    if(!PLATFORM_TOKEN){
+      const saved = sessionStorage.getItem('nexus_platform_token');
+      if(saved) PLATFORM_TOKEN = saved;
+    }
     const [dash, conv] = await Promise.all([
       platformApi('GET','/admin/dashboard'),
       platformApi('GET','/admin/conversao')
@@ -2692,7 +2697,16 @@ async function loadDashboardCombinado(){
       }
     }catch(e){}
 
-  }catch(e){console.error('Dashboard combinado erro:',e)}
+  }catch(e){
+    console.error('Dashboard combinado erro:',e);
+    // Mostrar erro nos cards
+    ['dash-mrr-total','dash-clientes-pagos','dash-trial-total','dash-tickets-hoje',
+     'dash-mrr-platform','dash-mrr-contabil','dash-novos-7d','dash-novos-30d'].forEach(id=>{
+      const el=document.getElementById(id);
+      if(el) el.textContent='Erro';
+    });
+    toast('Erro ao carregar dashboard: '+e.message,'error');
+  }
 }
 
 // ── SUPORTE UNIFICADO ──
@@ -3336,6 +3350,18 @@ function checkMobile(){
 }
 window.addEventListener('resize',checkMobile);
 checkMobile();
+
+// Restaurar tokens da sessão ao carregar
+(function(){
+  const t = sessionStorage.getItem('nexus_token');
+  const pt = sessionStorage.getItem('nexus_platform_token');
+  if(t && pt){
+    TOKEN = t; PLATFORM_TOKEN = pt;
+    document.getElementById('login-screen').style.display='none';
+    document.getElementById('app').style.display='flex';
+    loadAll();
+  }
+})();
 
 function docsScrollTo(id){
   const el=document.getElementById(id);
