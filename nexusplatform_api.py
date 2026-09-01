@@ -582,7 +582,7 @@ def contabil_tenant_detail(tenant_id: str, db=Depends(get_contabil_db), user=Dep
         SELECT id, nome, cnpj, regime, "createdAt" FROM empresas WHERE "tenantId" = :id ORDER BY nome
     """), {"id": tenant_id}).fetchall()
     usuarios = db.execute(_text2("""
-        SELECT id, nome, email, perfil, ativo, "createdAt" FROM usuarios WHERE "tenantId" = :id ORDER BY nome
+        SELECT id, nome, email, role, status, "createdAt" FROM usuarios WHERE "tenantId" = :id ORDER BY nome
     """), {"id": tenant_id}).fetchall()
     docs = db.execute(_text2("""
         SELECT COUNT(*) as total FROM documentos d
