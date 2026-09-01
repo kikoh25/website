@@ -737,13 +737,13 @@ def admin_dashboard(
     p = db.execute(text("""
         SELECT
             COUNT(*) as total_tenants,
-            COUNT(*) FILTER (WHERE plano != 'trial' AND status = 'ativo') as tenants_pagos,
+            COUNT(*) FILTER (WHERE plano != 'trial' AND ativo = true) as tenants_pagos,
             COUNT(*) FILTER (WHERE plano = 'trial') as tenants_trial,
-            COUNT(*) FILTER (WHERE status = 'suspenso') as tenants_suspensos,
+            COUNT(*) FILTER (WHERE ativo = false) as tenants_suspensos,
             COUNT(*) FILTER (WHERE plano = 'chamados') as plano_starter,
             COUNT(*) FILTER (WHERE plano = 'completo') as plano_pro,
-            COUNT(*) FILTER (WHERE "criado_em" >= NOW() - INTERVAL '30 days') as novos_30d,
-            COUNT(*) FILTER (WHERE "criado_em" >= NOW() - INTERVAL '7 days') as novos_7d
+            COUNT(*) FILTER (WHERE criado_em >= NOW() - INTERVAL '30 days') as novos_30d,
+            COUNT(*) FILTER (WHERE criado_em >= NOW() - INTERVAL '7 days') as novos_7d
         FROM tenants
     """)).fetchone()
 
@@ -751,7 +751,7 @@ def admin_dashboard(
     p_mrr_map = {"chamados": 149, "completo": 349}
     p_mrr_rows = db.execute(text("""
         SELECT plano, COUNT(*) as qtd FROM tenants
-        WHERE status = 'ativo' AND plano != 'trial' GROUP BY plano
+        WHERE ativo = true AND plano != 'trial' GROUP BY plano
     """)).fetchall()
     p_mrr = sum(p_mrr_map.get(r.plano, 0) * r.qtd for r in p_mrr_rows)
 
@@ -782,8 +782,8 @@ def admin_dashboard(
 
     # Crescimento combinado 6 meses
     p_crescimento = db.execute(text("""
-        SELECT DATE_TRUNC('month', "criado_em") as mes, COUNT(*) as novos
-        FROM tenants WHERE "criado_em" >= NOW() - INTERVAL '6 months'
+        SELECT DATE_TRUNC('month', criado_em) as mes, COUNT(*) as novos
+        FROM tenants WHERE criado_em >= NOW() - INTERVAL '6 months'
         GROUP BY 1 ORDER BY 1
     """)).fetchall()
     c_crescimento = dbc.execute(_text2("""
@@ -1034,17 +1034,23 @@ def tenant_stats(tenant_id: str, db=Depends(get_db), user=Depends(get_current_us
     
     tickets_total = db.execute(text("SELECT COUNT(*) as n FROM tickets WHERE tenant_id = :id"), {"id": tenant_id}).fetchone().n
     tickets_abertos = db.execute(text("SELECT COUNT(*) as n FROM tickets WHERE tenant_id = :id AND status = 'aberto'"), {"id": tenant_id}).fetchone().n
-    tickets_sla_vencido = db.execute(text("""
-        SELECT COUNT(*) as n FROM tickets 
-        WHERE tenant_id = :id AND status != 'resolvido' AND status != 'fechado'
-        AND prazo_sla < NOW()
-    """), {"id": tenant_id}).fetchone().n
+    try:
+        tickets_sla_vencido = db.execute(text("""
+            SELECT COUNT(*) as n FROM tickets 
+            WHERE tenant_id = :id AND status NOT IN ('resolvido','fechado')
+            AND prazo_sla IS NOT NULL AND prazo_sla < NOW()
+        """), {"id": tenant_id}).fetchone().n
+    except:
+        tickets_sla_vencido = 0
     
     usuarios_total = db.execute(text("SELECT COUNT(*) as n FROM users WHERE tenant_id = :id"), {"id": tenant_id}).fetchone().n
     ativos_total = db.execute(text("SELECT COUNT(*) as n FROM assets WHERE tenant_id = :id"), {"id": tenant_id}).fetchone().n
-    ultimo_login = db.execute(text("""
-        SELECT MAX(created_at) as ultimo FROM user_sessions WHERE tenant_id = :id
-    """), {"id": tenant_id}).fetchone().ultimo
+    try:
+        ultimo_login = db.execute(text("""
+            SELECT MAX(created_at) as ultimo FROM user_sessions WHERE tenant_id = :id
+        """), {"id": tenant_id}).fetchone().ultimo
+    except:
+        ultimo_login = None
     ultimo_ticket = db.execute(text("""
         SELECT MAX(criado_em) as ultimo FROM tickets WHERE tenant_id = :id
     """), {"id": tenant_id}).fetchone().ultimo
@@ -1180,8 +1186,8 @@ def admin_churn(db=Depends(get_db), dbc=Depends(get_contabil_db), user=Depends(g
     # Platform cancelados no mês
     p_churn = db.execute(text("""
         SELECT COUNT(*) as n FROM tenants 
-        WHERE status = 'suspenso' 
-        AND updated_at >= DATE_TRUNC('month', NOW())
+        WHERE ativo = false
+        AND criado_em >= DATE_TRUNC('month', NOW())
     """)).fetchone().n
     # Contábil cancelados no mês  
     c_churn = dbc.execute(_text2("""
