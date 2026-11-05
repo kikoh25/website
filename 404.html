@@ -33,7 +33,7 @@
       --off-white:     #F5F4FF;
       --gray-100:      #EEF0F8;
       --gray-400:      #A8ACCA;
-      --gray-600:      #7478A0;
+      --gray-600:      #5B5F85;
       --text:          #1A1A2E;
     }
 
@@ -543,11 +543,11 @@
       color: var(--white);
     }
     .footer-logo-text span { color: #C4B5FD; }
-    .footer-tagline { font-size: 0.8rem; color: rgba(255,255,255,0.32); margin-bottom: 1.75rem; letter-spacing: 0.05em; text-transform: uppercase; font-family: 'JetBrains Mono', monospace; }
+    .footer-tagline { font-size: 0.8rem; color: rgba(255,255,255,0.62); margin-bottom: 1.75rem; letter-spacing: 0.05em; text-transform: uppercase; font-family: 'JetBrains Mono', monospace; }
     .footer-links { display: flex; gap: 1.75rem; justify-content: center; flex-wrap: wrap; list-style: none; margin-bottom: 2rem; }
-    .footer-links a { font-size: 0.82rem; color: rgba(255,255,255,0.38); text-decoration: none; transition: color 0.2s; }
+    .footer-links a { font-size: 0.82rem; color: rgba(255,255,255,0.65); text-decoration: none; transition: color 0.2s; }
     .footer-links a:hover { color: rgba(255,255,255,0.8); }
-    .footer-copy { font-size: 0.72rem; color: rgba(255,255,255,0.45); }
+    .footer-copy { font-size: 0.72rem; color: rgba(255,255,255,0.6); }
 
     /* ── RESPONSIVE ── */
     @media (max-width: 768px) {
@@ -568,10 +568,32 @@
     .faq-item summary::after{content:"+";color:var(--purple);font-size:1.3rem;line-height:1}
     .faq-item[open] summary::after{content:"\2212"}
     .faq-item p{padding:0 1.25rem 1.2rem;font-size:.9rem;color:var(--gray-600);line-height:1.75}
+      .skip-link{position:absolute;left:-999px;top:0;background:#fff;color:#1E1B4B;padding:.6rem 1rem;z-index:2000;border-radius:0 0 8px 0;font-weight:600}
+    .skip-link:focus{left:0}
+    :focus-visible{outline:3px solid #A78BFA;outline-offset:2px}
+    .hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+    .step-list{list-style:none;counter-reset:s;display:grid;gap:1.1rem;margin-top:2.5rem;padding:0}
+    .step-list li{counter-increment:s;display:flex;gap:1.1rem;align-items:flex-start;background:#fff;border:1px solid var(--gray-100);border-radius:14px;padding:1.3rem 1.4rem}
+    .step-list li::before{content:counter(s);flex:0 0 2.2rem;height:2.2rem;border-radius:50%;background:var(--purple);color:#fff;font-weight:700;display:flex;align-items:center;justify-content:center}
+    .step-list strong{display:block;color:var(--indigo);font-family:'Lora',serif;font-size:1.05rem;margin-bottom:.25rem}
+    .step-list span{font-size:.88rem;color:var(--gray-600);line-height:1.7}
+    .article{color:var(--gray-600);line-height:1.85;font-size:1rem}
+    .article h2{font-family:'Lora',serif;color:var(--indigo);font-size:1.3rem;margin:2rem 0 .5rem}
+    .article ul,.article ol{margin:.6rem 0 .6rem 1.3rem}
+    .article li{margin:.3rem 0}
+    .article a{color:var(--purple);font-weight:600}
+    .post-grid{display:grid;gap:1.25rem;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));margin-top:2rem}
+    .post-card{display:block;background:#fff;border:1px solid var(--gray-100);border-radius:14px;padding:1.6rem;text-decoration:none;transition:transform .2s,box-shadow .2s}
+    .post-card:hover{transform:translateY(-2px);box-shadow:0 6px 24px rgba(124,58,237,.1)}
+    .post-card h2,.post-card h3{font-family:'Lora',serif;color:var(--indigo);font-size:1.15rem;margin-bottom:.5rem}
+    .post-card p{font-size:.88rem;color:var(--gray-600);line-height:1.7}
+      .wa-float{position:fixed;right:18px;bottom:18px;width:56px;height:56px;border-radius:50%;background:#25D366;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 20px rgba(0,0,0,.28);z-index:999;transition:transform .2s}.wa-float:hover{transform:scale(1.08)}
+      .nav-logo-sub{color:#B9B8D0!important}
   </style>
 <meta name="robots" content="noindex" />
 </head>
 <body>
+<a href="#conteudo" class="skip-link">Pular para o conteúdo</a>
 <nav>
   <a href="#" class="nav-logo">
     <div class="logo-hex">
@@ -596,9 +618,11 @@
     <li><a href="/servicos.html">Serviços</a></li>
     <li><a href="/#diferenciais">Por que a Nexus</a></li>
     <li><a href="/#produtos">Produtos</a></li>
+    <li><a href="/blog/">Blog</a></li>
     <li><a href="/#contato" class="nav-cta">Fale conosco</a></li>
   </ul>
 </nav>
+<main id="conteudo">
 <section style="min-height:70vh;display:flex;align-items:center;padding:9rem 5% 5rem;background:linear-gradient(135deg,#1E1B4B,#2D2A6E);color:#fff;text-align:center">
   <div style="margin:0 auto;max-width:560px">
     <p style="font-family:'Lora',serif;font-size:5rem;font-weight:700;color:#A78BFA;line-height:1">404</p>
@@ -607,6 +631,7 @@
     <a href="/" class="btn-primary" style="margin-top:1.8rem">Voltar para o início</a>
   </div>
 </section>
+</main>
 <footer>
   <div class="footer-logo-wrap">
     <svg width="28" height="32" viewBox="0 0 40 46" fill="none">
@@ -628,6 +653,8 @@
     <li><a href="/#produtos">Produtos</a></li>
     <li><a href="/#faq">Perguntas</a></li>
     <li><a href="/#contato">Contato</a></li>
+    <li><a href="/blog/">Blog</a></li>
+    <li><a href="/diagnostico.html">Diagnóstico</a></li>
     <li><a href="/privacidade.html">Privacidade</a></li>
     <li><a href="https://www.instagram.com/nexusefbusiness" target="_blank" rel="noopener">Instagram</a></li>
   </ul>
