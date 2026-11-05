@@ -589,6 +589,21 @@
     .post-card p{font-size:.88rem;color:var(--gray-600);line-height:1.7}
       .wa-float{position:fixed;right:18px;bottom:18px;width:56px;height:56px;border-radius:50%;background:#25D366;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 20px rgba(0,0,0,.28);z-index:999;transition:transform .2s}.wa-float:hover{transform:scale(1.08)}
       .nav-logo-sub{color:#B9B8D0!important}
+      .nav-toggle{display:none;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.28);border-radius:10px;width:44px;height:44px;cursor:pointer;align-items:center;justify-content:center;flex-direction:column;gap:5px;padding:0}
+    .nav-toggle span{display:block;width:20px;height:2px;background:#fff;border-radius:2px;transition:transform .2s,opacity .2s}
+    nav.open .nav-toggle span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+    nav.open .nav-toggle span:nth-child(2){opacity:0}
+    nav.open .nav-toggle span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+    @media (max-width:768px){
+      .nav-toggle{display:flex}
+      nav .nav-links{display:none!important}
+      nav.open{background:#12102F!important}
+      nav.open .nav-links{display:flex!important;flex-direction:column;align-items:stretch;gap:0;position:absolute;top:100%;left:0;right:0;background:#12102F;padding:.4rem 5% 1.4rem;border-bottom:1px solid rgba(255,255,255,.12);margin:0;list-style:none;max-height:calc(100vh - 70px);overflow:auto}
+      nav.open .nav-links li{border-bottom:1px solid rgba(255,255,255,.08)}
+      nav.open .nav-links li:last-child{border-bottom:0}
+      nav.open .nav-links a{display:block;padding:.95rem 0;font-size:1rem;color:#fff}
+      nav.open .nav-links a.nav-cta{display:block;margin-top:1rem;text-align:center;padding:.9rem 1rem;border-bottom:0}
+    }
   </style>
 </head>
 <body>
@@ -612,7 +627,7 @@
       <div class="nav-logo-sub">Business</div>
     </div>
   </a>
-  <ul class="nav-links">
+  <ul class="nav-links" id="menu-principal">
     <li><a href="/#sobre">Sobre</a></li>
     <li><a href="/servicos.html" style="color:#fff">Serviços</a></li>
     <li><a href="/#diferenciais">Por que a Nexus</a></li>
@@ -620,6 +635,7 @@
     <li><a href="/blog/">Blog</a></li>
     <li><a href="/#contato" class="nav-cta">Fale conosco</a></li>
   </ul>
+  <button type="button" class="nav-toggle" aria-label="Abrir menu" aria-expanded="false" aria-controls="menu-principal"><span></span><span></span><span></span></button>
 </nav>
 <main id="conteudo">
 
@@ -740,5 +756,17 @@
   document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
 </script>
 <p style="text-align:center;font:12px sans-serif;padding:14px;background:#0a0a14"><a href="/privacidade.html" style="color:#9a97c8">Política de privacidade</a></p>
+<script>
+(function(){
+  var nav=document.querySelector('nav'),btn=document.querySelector('.nav-toggle');
+  if(!nav||!btn)return;
+  function set(o){nav.classList.toggle('open',o);btn.setAttribute('aria-expanded',o?'true':'false');btn.setAttribute('aria-label',o?'Fechar menu':'Abrir menu')}
+  btn.addEventListener('click',function(){set(!nav.classList.contains('open'))});
+  nav.querySelectorAll('.nav-links a').forEach(function(a){a.addEventListener('click',function(){set(false)})});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape'&&nav.classList.contains('open')){set(false);btn.focus()}});
+  document.addEventListener('click',function(e){if(!nav.contains(e.target))set(false)});
+  window.addEventListener('resize',function(){if(window.innerWidth>768)set(false)});
+})();
+</script>
 </body>
 </html>
