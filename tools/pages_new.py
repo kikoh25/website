@@ -118,7 +118,7 @@ main = HERO('Ferramenta grátis', 'Planilha, sistema pronto ou sob medida?', 'Re
   f.addEventListener('change',upd);
 }})();
 </script>'''
-wr('ferramentas/comparador-solucao.html', page('ferramentas/comparador-solucao.html', 'Comparador: planilha, sistema pronto ou sob medida? | Nexus EF Business',
+wr('ferramentas/comparador-solucao.html', page('ferramentas/comparador-solucao.html', 'Comparador: planilha, ERP ou sob medida? | Nexus EF Business',
    'Responda 6 perguntas e descubra se o seu caso pede planilha, sistema pronto ou solução sob medida.', main,
    crumbs=[('Início', '/'), ('Ferramentas', '/ferramentas/'), ('Comparador de solução', None)], exit_popup=True))
 

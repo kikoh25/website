@@ -90,6 +90,7 @@ def CTA(msg, title='Quer aplicar isso na sua empresa?', text='Conte o seu cenár
   <strong>{title}</strong>
   <p>{text}</p>
   <a href="{wa(msg)}" target="_blank" rel="noopener" class="btn-primary">Falar no WhatsApp</a>
+  <a href="/projeto.html" style="display:inline-block;margin:.6rem 0 0 .8rem;color:#fff;font-weight:600;text-decoration:underline">Apresentar meu projeto</a>
 </div>'''
 
 

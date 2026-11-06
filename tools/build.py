@@ -52,7 +52,7 @@ for slug, t, d, body, msg in posts:
 <div class="card-grid" style="margin-top:1rem">{related}</div>
 <p style="margin-top:2rem"><a href="/blog/">Voltar para o blog</a></p>
 </div></article>'''
-    wr(f'blog/{slug}.html', page(f'blog/{slug}.html', f'{t} | Nexus EF Business', d, main,
+    wr(f'blog/{slug}.html', page(f'blog/{slug}.html', (t if len(t) + 20 > 65 else f'{t} | Nexus EF Business'), d, main,
                                   f'<script type="application/ld+json">{ld}</script>\n',
                                   crumbs=[('Início', '/'), ('Blog', '/blog/'), (t, None)], exit_popup=True, og_type='article'))
 
@@ -84,6 +84,8 @@ exec(open(ROOT / 'tools' / 'pages_extra.py', encoding='utf-8').read())
 exec(open(ROOT / 'tools' / 'pages_new.py', encoding='utf-8').read())
 
 exec(open(ROOT / 'tools' / 'pages_solucoes.py', encoding='utf-8').read())
+exec(open(ROOT / 'tools' / 'pages_projeto.py', encoding='utf-8').read())
+exec(open(ROOT / 'tools' / 'pages_servicos.py', encoding='utf-8').read())
 exec(open(ROOT / 'tools' / 'pages_en.py', encoding='utf-8').read())
 
 # ---------- feed RSS ----------

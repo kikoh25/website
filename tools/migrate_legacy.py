@@ -57,7 +57,7 @@ NUMEROS = '''<!-- NUMEROS -->
 <section id="numeros" class="stats-strip" aria-label="A Nexus em números">
   <div class="stats-grid">
     <div><div class="stat-n"><span data-count="34">34</span></div><p class="stat-l">módulos integrados no Nexus Contábil</p></div>
-    <div><div class="stat-n"><span data-count="27">27</span></div><p class="stat-l">estados consultados na SEFAZ com certificado digital</p></div>
+    <div><div class="stat-n"><span data-count="5">5</span></div><p class="stat-l">ferramentas gratuitas para medir o custo dos processos manuais</p></div>
     <div><div class="stat-n"><span data-count="6">6</span></div><p class="stat-l">empresas com TI estruturada em um mesmo grupo</p></div>
     <div><div class="stat-n"><span data-count="8">8</span></div><p class="stat-l">integrações no Nexus Platform, de Slack a n8n</p></div>
   </div>

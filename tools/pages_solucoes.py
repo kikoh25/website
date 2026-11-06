@@ -77,7 +77,7 @@ for slug, s in SEG.items():
 <p style="margin-top:.8rem;font-size:.85rem;color:var(--gray-600)">A viabilidade de cada integração depende de API ou exportação de dados do sistema envolvido.</p></div></section>
 <section class="sec-lav" style="padding:3.5rem 5% 5rem"><div class="section-inner" style="max-width:860px"><h2 class="section-title">Perguntas frequentes</h2><div style="margin-top:1rem">{faq}</div>
 <div style="margin-top:2.5rem">{CTA(s['msg'], 'Vamos conversar sobre o seu caso?', 'Conte o seu cenário e a gente analisa com você, sem compromisso.')}</div></div></section>'''
-    wr(f'solucoes/{slug}.html', page(f'solucoes/{slug}.html', f'{s["nome"]}: {s["h1"].split(",")[0][:55]} | Nexus EF Business', s['sub'], main, ld, crumbs=crumbs, exit_popup=True))
+    wr(f'solucoes/{slug}.html', page(f'solucoes/{slug}.html', f'Soluções para {s["nome"].lower()} | Nexus EF Business', s['sub'], main, ld, crumbs=crumbs, exit_popup=True))
 cards = ''.join(f'<a class="aud-card" href="/solucoes/{k}.html"><h3>{v["nome"]}</h3><p>{v["sub"]}</p><span class="go">Ver soluções →</span></a>' for k, v in SEG.items())
 cards += '<a class="aud-card" href="/para/times-de-ti.html"><h3>Times de TI</h3><p>Helpdesk com SLA, inventário e integrações com Slack, Teams e n8n.</p><span class="go">Ver soluções →</span></a>'
 cards += '<a class="aud-card" href="/para/empresas-de-eventos.html"><h3>Empresas de eventos</h3><p>Captura de leads e automação antes, durante e depois do evento.</p><span class="go">Ver soluções →</span></a>'
