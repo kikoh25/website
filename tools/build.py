@@ -83,6 +83,7 @@ exec(open(ROOT / 'tools' / 'pages_extra.py', encoding='utf-8').read())
 # ---------- páginas novas ----------
 exec(open(ROOT / 'tools' / 'pages_new.py', encoding='utf-8').read())
 
+exec(open(ROOT / 'tools' / 'pages_solucoes.py', encoding='utf-8').read())
 exec(open(ROOT / 'tools' / 'pages_en.py', encoding='utf-8').read())
 
 # ---------- feed RSS ----------

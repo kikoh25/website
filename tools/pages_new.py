@@ -186,19 +186,6 @@ def audience(slug, name, eb, h1, sub, pains, sols, status_note, msg, extra=''):
 <div style="margin-top:2rem">{CTA(msg)}</div></div></section>'''
     wr(f'para/{slug}.html', page(f'para/{slug}.html', f'{h1} | Nexus EF Business', sub, main, crumbs=[('Início', '/'), (name, None)], exit_popup=True))
 
-audience('escritorios-contabeis', 'Escritórios contábeis', 'Para escritórios contábeis', 'Menos digitação, mais carteira atendida',
-  'O Nexus Contábil reúne rotinas fiscais, notas, contratos e atendimento em um só ambiente.',
-  [('Dados em vários lugares', 'Cadastro de cliente em um sistema, contrato em outro, notas em um terceiro.'),
-   ('Rotina fiscal manual', 'Consulta de notas, conferência e envio de documentos consomem o mês.'),
-   ('Atendimento disperso', 'Pedidos chegam por WhatsApp, e-mail e telefone, sem fila nem histórico.'),
-   ('Gestão sem indicadores', 'Difícil saber a rentabilidade por cliente e o prazo de cada entrega.')],
-  [('Nexus Contábil', '34 módulos integrados, com consulta de notas na SEFAZ usando certificado digital e emissão de NFS-e.'),
-   ('Automações sob medida', 'Integrações com os sistemas que o escritório já usa, para cadastrar uma vez só.'),
-   ('Portal do cliente', 'O cliente acompanha documentos e solicitações sem ligar para o escritório.'),
-   ('Implantação acompanhada', 'Você valida cada etapa antes de seguir. Sem surpresas.')],
-  'O Nexus Contábil está em nova versão, com acesso antecipado. Pergunte pela disponibilidade e pelos módulos de cada etapa.',
-  'Olá! Sou de um escritório contábil e quero conhecer o Nexus Contábil.',
-  '<p style="margin-top:1rem"><a href="/nexus-contabil.html">Ver detalhes do Nexus Contábil</a></p>')
 audience('empresas-de-eventos', 'Empresas de eventos', 'Para empresas de eventos', 'Cada contato do evento vira oportunidade',
   'Captura de leads e automação antes, durante e depois do evento, sem planilha solta nem cartão de visita perdido.',
   [('Leads perdidos', 'Cartões, fichas e conversas rápidas que nunca chegam ao comercial.'),

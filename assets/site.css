@@ -170,5 +170,7 @@ html[data-theme=dark] footer{background:#05040F}
 .sec-white{background:#fff}.sec-lav{background:#F5F4FF}
 html[data-theme=dark] .sec-white{background:#0B0A1E}html[data-theme=dark] .sec-lav{background:#0F0D2A}
 /* Contraste no tema escuro: textos roxos viram lilás claro */
-html[data-theme=dark] .section-eyebrow,html[data-theme=dark] output,html[data-theme=dark] [style*="color:var(--purple)"],html[data-theme=dark] [style*="color:#7C3AED"],html[data-theme=dark] .service-card p[style],html[data-theme=dark] main a:not([class]),html[data-theme=dark] .inline-link{color:#C4B5FD!important}
+html[data-theme=dark] .section-eyebrow,html[data-theme=dark] output,html[data-theme=dark] [style*="color:var(--purple)"],html[data-theme=dark] [style*="color:#7C3AED"],html[data-theme=dark] .service-card p[style],html[data-theme=dark] main a:not([class]):not([style*="background"]),html[data-theme=dark] .inline-link{color:#C4B5FD!important}
 html[data-theme=dark] .article a.btn-primary,html[data-theme=dark] a.btn-primary{color:#fff!important}
+html[data-theme=dark] #publico,html[data-theme=dark] #tecnologias{background:#0B0A1E!important}
+html[data-theme=dark] main a[style*="background"]:not([class]){color:#fff!important}

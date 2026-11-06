@@ -72,7 +72,7 @@ PUBLICO = '''<!-- PUBLICO -->
     <h2 class="section-title reveal">Soluções pensadas para o seu tipo de operação</h2>
     <p class="section-sub reveal">Cada setor tem as suas dores. Veja como a Nexus ajuda no seu caso.</p>
     <div class="card-grid">
-      <a class="aud-card reveal" href="/para/escritorios-contabeis.html"><div class="ico" aria-hidden="true">📊</div><h3>Escritórios contábeis</h3><p>Sistema completo com SEFAZ, NFS-e e apuração, mais automações para o dia a dia da carteira.</p><span class="go">Ver como ajudamos →</span></a>
+      <a class="aud-card reveal" href="/solucoes/contabilidade.html"><div class="ico" aria-hidden="true">📊</div><h3>Escritórios contábeis</h3><p>Sistema completo com SEFAZ, NFS-e e apuração, mais automações para o dia a dia da carteira.</p><span class="go">Ver como ajudamos →</span></a>
       <a class="aud-card reveal" href="/para/empresas-de-eventos.html"><div class="ico" aria-hidden="true">🎤</div><h3>Empresas de eventos</h3><p>Captura de leads e automação antes, durante e depois do evento, com voz e IA em desenvolvimento.</p><span class="go">Ver como ajudamos →</span></a>
       <a class="aud-card reveal" href="/para/times-de-ti.html"><div class="ico" aria-hidden="true">🖥️</div><h3>Times de TI</h3><p>Helpdesk com SLA, inventário de ativos e integração com Slack, Teams e n8n.</p><span class="go">Ver como ajudamos →</span></a>
     </div>
