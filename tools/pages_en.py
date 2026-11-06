@@ -4,6 +4,7 @@ for a, b in [('Sobre', 'About'), ('Serviços', 'Services'), ('Por que a Nexus', 
              ('Fale conosco', 'Contact us'), ('Abrir menu', 'Open menu'), ('Mudar para tema escuro', 'Switch to dark theme'), ('English version', 'Portuguese version')]:
     EN_NAV = EN_NAV.replace(f'>{a}<', f'>{b}<').replace(f'"{a}"', f'"{b}"')
 EN_NAV = EN_NAV.replace('href="/#sobre"', 'href="#about"').replace('href="/servicos.html"', 'href="#services"').replace('href="/#diferenciais"', 'href="#why"')
+EN_NAV = EN_NAV.replace('>Blog<', '>Blog (PT)<').replace('>Tools<', '>Tools (PT)<')
 EN_NAV = EN_NAV.replace('href="/#produtos"', 'href="#products"').replace('href="/#contato"', 'href="#contact"').replace('href="/blog/"', 'href="/blog/" hreflang="pt-BR"')
 EN_NAV = EN_NAV.replace('href="/ferramentas/"', 'href="/ferramentas/" hreflang="pt-BR"').replace('<a href="/" class="nav-logo">', '<a href="/en/" class="nav-logo">')
 EN_NAV = EN_NAV.replace('href="/en/" hreflang="en" lang="en"', 'href="/" hreflang="pt-BR" lang="pt-BR"').replace('>EN<', '>PT<')
@@ -28,10 +29,10 @@ main = f'''<section class="page-hero"><div class="section-inner" style="max-widt
 <div class="callout"><b>Direct conversation</b><p>You talk to the person who builds your system.</p></div>
 <div class="callout"><b>Built to last</b><p>Proven technology that is easy to maintain and evolve.</p></div></div></div></section>
 <section id="products" class="sec-lav" style="padding:3.5rem 5%"><div class="section-inner"><h2 class="section-title">Our products</h2><div class="two-col" style="margin-top:1.5rem">
-<div class="callout"><b>Nexus Contábil</b><p>Management platform for accounting firms: 34 integrated modules, SEFAZ queries and electronic service invoices. New version with early access.</p><p style="margin-top:.6rem"><a href="/nexus-contabil.html" hreflang="pt-BR">See details (Portuguese)</a></p></div>
+<div class="callout"><b>Nexus Contábil</b><p>Management platform for accounting firms: over 40 management screens and SEFAZ queries. New version with early access.</p><p style="margin-top:.6rem"><a href="/nexus-contabil.html" hreflang="pt-BR">See details (Portuguese)</a></p></div>
 <div class="callout"><b>Nexus Platform</b><p>Helpdesk and IT asset inventory with SLA, CSAT and integrations. New version with early access.</p><p style="margin-top:.6rem"><a href="/nexus-platform.html" hreflang="pt-BR">See details (Portuguese)</a></p></div></div>
 <p style="margin-top:1rem;font-size:.88rem;color:var(--gray-600)">Product pages are currently in Portuguese.</p></div></section>
-<section id="contact" class="sec-white" style="padding:3.5rem 5% 5rem"><div class="section-inner" style="max-width:760px">{CTA(msg, 'Let us talk about your project', 'Tell us about your scenario and we will review it with you, no strings attached.')}
+<section id="contact" class="sec-white" style="padding:3.5rem 5% 5rem"><div class="section-inner" style="max-width:760px">{CTA(msg, 'Let us talk about your project', 'Tell us about your scenario and we will review it with you, no strings attached.', 'Talk to us on WhatsApp', 'Present your project (in Portuguese)')}
 <p style="margin-top:1rem;text-align:center;font-size:.9rem;color:var(--gray-600)">Email: <a href="mailto:contato@nexusefbusiness.com.br">contato@nexusefbusiness.com.br</a></p></div></section>'''
 wr('en/index.html', page('en/', 'Nexus EF Business | Custom software, integrations and automation',
    'Custom software, system integrations and process automation for companies in Brazil. Direct contact with the developer.', main,

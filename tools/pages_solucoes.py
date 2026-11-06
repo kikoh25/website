@@ -48,7 +48,7 @@ SEG = {
        ('Quanto tempo leva uma integração?', 'Depende dos sistemas envolvidos. Damos um prazo só depois do levantamento, sem chute.'),
        ('Vocês fazem loja virtual?', 'Fazemos sites profissionais e integrações. Para lojas virtuais completas, avaliamos se uma plataforma pronta atende melhor.')],
   msg='Olá! Tenho um comércio e quero conversar sobre integração e automação.', extra=''),
- 'empresas': dict(nome='Pequenas e médias empresas', h1='Sistema sob medida para a rotina da sua empresa, sem pagar por o que não usa',
+ 'empresas': dict(nome='Pequenas e médias empresas', h1='Sistema sob medida para a rotina da sua empresa, sem pagar pelo que não usa',
   sub='Automação, integração e ferramentas internas para empresas que cresceram mais rápido que os seus processos.',
   dores=[('Planilhas como sistema', 'Informação crítica em arquivos que só uma pessoa domina.'), ('Sistemas que não se falam', 'ERP, CRM e financeiro exigem digitar os mesmos dados várias vezes.'),
          ('Aprovações por chat', 'Pedidos e aprovações sem registro de quem fez o quê.'), ('Indicadores atrasados', 'Para saber um número é preciso pedir para alguém montar.')],
@@ -78,8 +78,8 @@ for slug, s in SEG.items():
 <section class="sec-lav" style="padding:3.5rem 5% 5rem"><div class="section-inner" style="max-width:860px"><h2 class="section-title">Perguntas frequentes</h2><div style="margin-top:1rem">{faq}</div>
 <div style="margin-top:2.5rem">{CTA(s['msg'], 'Vamos conversar sobre o seu caso?', 'Conte o seu cenário e a gente analisa com você, sem compromisso.')}</div></div></section>'''
     wr(f'solucoes/{slug}.html', page(f'solucoes/{slug}.html', f'Soluções para {s["nome"].lower()} | Nexus EF Business', s['sub'], main, ld, crumbs=crumbs, exit_popup=True))
-cards = ''.join(f'<a class="aud-card" href="/solucoes/{k}.html"><h3>{v["nome"]}</h3><p>{v["sub"]}</p><span class="go">Ver soluções →</span></a>' for k, v in SEG.items())
-cards += '<a class="aud-card" href="/para/times-de-ti.html"><h3>Times de TI</h3><p>Helpdesk com SLA, inventário e integrações com Slack, Teams e n8n.</p><span class="go">Ver soluções →</span></a>'
-cards += '<a class="aud-card" href="/para/empresas-de-eventos.html"><h3>Empresas de eventos</h3><p>Captura de leads e automação antes, durante e depois do evento.</p><span class="go">Ver soluções →</span></a>'
+cards = ''.join(f'<a class="aud-card" href="/solucoes/{k}.html"><h2>{v["nome"]}</h2><p>{v["sub"]}</p><span class="go">Ver soluções →</span></a>' for k, v in SEG.items())
+cards += '<a class="aud-card" href="/para/times-de-ti.html"><h2>Times de TI</h2><p>Helpdesk com SLA, inventário e integrações com Slack, Teams e n8n.</p><span class="go">Ver soluções →</span></a>'
+cards += '<a class="aud-card" href="/para/empresas-de-eventos.html"><h2>Empresas de eventos</h2><p>Captura de leads e automação antes, durante e depois do evento.</p><span class="go">Ver soluções →</span></a>'
 main = HERO('Soluções por segmento', 'Tecnologia pensada para o seu tipo de operação', 'Cada setor tem as suas dores. Veja como a Nexus pode ajudar no seu.', crumbs=[('Início', '/'), ('Soluções', None)]) + f'<section class="sec-lav" style="padding:3.5rem 5% 5rem"><div class="section-inner"><div class="card-grid">{cards}</div></div></section>'
 wr('solucoes/index.html', page('solucoes/', 'Soluções por segmento | Nexus EF Business', 'Soluções de tecnologia para contabilidade, clínicas, advocacia, comércio, empresas, times de TI e eventos.', main, crumbs=[('Início', '/'), ('Soluções', None)], exit_popup=True))

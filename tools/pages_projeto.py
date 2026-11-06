@@ -43,18 +43,34 @@ html[data-theme=dark] .pf input[type=text],html[data-theme=dark] .pf select,html
 <script>
 (function(){{
   var $=function(i){{return document.getElementById(i)}};
+  function contato(v){{
+    v=v.trim();if(!v)return{{err:'Informe um WhatsApp ou e-mail para retorno.'}};
+    if(v.indexOf('@')>-1){{return /^[^\\s@]+@[^\\s@]+\\.[^\\s@]{{2,}}$/.test(v)?{{ok:v.toLowerCase()}}:{{err:'E-mail inválido. Use o formato nome@empresa.com.br.'}}}}
+    var d=v.replace(/[\\s().\\-]/g,'');
+    if(!/^\\+?\\d+$/.test(d))return{{err:'Contato inválido. Informe um e-mail ou um telefone com DDD, por exemplo (11) 98888-7777.'}};
+    d=d.replace(/^\\+/,'');if(d.charAt(0)==='0'&&(d.length===11||d.length===12))d=d.slice(1);if(d.length>=12&&d.indexOf('55')===0)d=d.slice(2);
+    if(d.length!==10&&d.length!==11)return{{err:'Telefone inválido. Informe DDD e número, por exemplo (11) 98888-7777. Com código do país: +55 11 98888-7777.'}};
+    if(!/^[1-9][1-9]/.test(d))return{{err:'DDD inválido. Confira os dois primeiros dígitos.'}};
+    if(d.length===11&&d.charAt(2)!=='9')return{{err:'Celular inválido: com 11 dígitos, o número deve começar com 9 depois do DDD.'}};
+    if(d.length===10&&!/[2-5]/.test(d.charAt(2)))return{{err:'Telefone fixo inválido. Confira o número.'}};
+    var n=d.slice(2);return{{ok:'('+d.slice(0,2)+') '+n.slice(0,n.length-4)+'-'+n.slice(-4)}};
+  }}
+  function bad(id,msg){{var e=$('perr');e.hidden=false;e.textContent=msg;$(id).setAttribute('aria-invalid','true');$(id).focus();return false}}
   $('pf').addEventListener('submit',function(){{
-    var req=['pseg','pneed','pprob','pnome','pcont'],miss=req.filter(function(i){{return !$(i).value.trim()}});
-    var err=$('perr');
-    if(miss.length||!$('pok').checked){{err.hidden=false;err.textContent=miss.length?'Preencha os campos obrigatórios: segmento, necessidade, problema, nome e contato.':'Marque o consentimento para continuar.';(miss.length?$(miss[0]):$('pok')).focus();return}}
-    err.hidden=true;
-    var L=[['Segmento',$('pseg').value],['Procura',$('pneed').value],['Problema',$('pprob').value.trim()],['Solução imaginada',$('psol').value.trim()],['Sistemas atuais',$('psis').value.trim()],['Usuários',$('pusr').value],['Prioridade',$('ppri').value],['Nome',$('pnome').value.trim()],['Empresa',$('pemp').value.trim()],['Contato',$('pcont').value.trim()]];
+    var err=$('perr');err.hidden=true;['pseg','pneed','pprob','pnome','pcont','pok'].forEach(function(i){{$(i).removeAttribute('aria-invalid')}});
+    var labels={{pseg:'Selecione o segmento da empresa.',pneed:'Selecione o que você procura.',pprob:'Descreva o problema que quer resolver.',pnome:'Informe o seu nome.'}};
+    var ids=['pseg','pneed','pprob','pnome'];
+    for(var i=0;i<ids.length;i++){{if(!$(ids[i]).value.trim())return bad(ids[i],labels[ids[i]])}}
+    var c=contato($('pcont').value);if(c.err)return bad('pcont',c.err);
+    if(!$('pok').checked)return bad('pok','Marque o consentimento para continuar.');
+    var L=[['Segmento',$('pseg').value],['Procura',$('pneed').value],['Problema',$('pprob').value.trim()],['Solução imaginada',$('psol').value.trim()],['Sistemas atuais',$('psis').value.trim()],['Usuários',$('pusr').value],['Prioridade',$('ppri').value],['Nome',$('pnome').value.trim()],['Empresa',$('pemp').value.trim()],['Contato',c.ok]];
     var t='Olá! Quero apresentar um projeto:\\n'+L.filter(function(x){{return x[1]}}).map(function(x){{return '- '+x[0]+': '+x[1]}}).join('\\n');
     $('ptxt').textContent=t;$('pres').hidden=false;
     $('pwa').href='https://wa.me/{PHONE}?text='+encodeURIComponent(t);
     $('pml').href='mailto:contato@nexusefbusiness.com.br?subject='+encodeURIComponent('Projeto: '+$('pseg').value)+'&body='+encodeURIComponent(t);
     $('pres').scrollIntoView({{behavior:'smooth',block:'nearest'}});
   }});
+  $('pf').addEventListener('input',function(){{$('pres').hidden=true}});
   $('pcp').addEventListener('click',function(){{var b=this;if(navigator.clipboard)navigator.clipboard.writeText($('ptxt').textContent).then(function(){{b.textContent='Copiado';setTimeout(function(){{b.textContent='Copiar texto'}},1800)}})}});
 }})();
 </script>'''

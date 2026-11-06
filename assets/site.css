@@ -174,3 +174,10 @@ html[data-theme=dark] .section-eyebrow,html[data-theme=dark] output,html[data-th
 html[data-theme=dark] .article a.btn-primary,html[data-theme=dark] a.btn-primary{color:#fff!important}
 html[data-theme=dark] #publico,html[data-theme=dark] #tecnologias{background:#0B0A1E!important}
 html[data-theme=dark] main a[style*="background"]:not([class]){color:#fff!important}
+/* Ajustes para telas de 320 px */
+.products-grid{grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr))!important}
+.product-card{min-width:0}
+.marquee .chip{white-space:nowrap}
+.chip{max-width:100%}
+a.chip,.chip-wrap .chip,.section-inner > div > .chip{white-space:normal}
+.status-row{flex-wrap:wrap}

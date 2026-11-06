@@ -34,12 +34,13 @@ diag=HERO('Diagnóstico','Quanto o seu time perde com tarefas repetitivas?','Res
     var $=function(i){return document.getElementById(i)};
     var brl=function(n){return n.toLocaleString('pt-BR',{style:'currency',currency:'BRL',maximumFractionDigits:0})};
     var num=function(n){return Math.round(n).toLocaleString('pt-BR')};
+    var hr=function(n){return n<10?n.toLocaleString('pt-BR',{maximumFractionDigits:1}):num(n)};
     function calc(){
       var p=+$('pessoas').value,h=+$('horas').value,c=+$('custo').value;
       var horasMes=p*h*4.33,custoMes=horasMes*c,ano=custoMes*12*0.5;
       $('pessoasV').textContent=p;$('horasV').textContent=h+' h';$('custoV').textContent='R$ '+c;
-      $('rHoras').textContent=num(horasMes)+' h';$('rCusto').textContent=brl(custoMes);$('rAno').textContent=brl(ano);
-      var t='Olá! Fiz o diagnóstico no site: '+p+' pessoas, '+h+' h por semana cada, R$ '+c+' por hora. A estimativa deu cerca de '+num(horasMes)+' h e '+brl(custoMes)+' por mês. Quero analisar o meu processo.';
+      $('rHoras').textContent=hr(horasMes)+' h';$('rCusto').textContent=brl(custoMes);$('rAno').textContent=brl(ano);
+      var t='Olá! Fiz o diagnóstico no site: '+p+' pessoas, '+h+' h por semana cada, R$ '+c+' por hora. A estimativa deu cerca de '+hr(horasMes)+' h e '+brl(custoMes)+' por mês. Quero analisar o meu processo.';
       $('rCta').href='https://wa.me/5511926461357?text='+encodeURIComponent(t);
     }
     ['pessoas','horas','custo'].forEach(function(i){$(i).addEventListener('input',calc)});

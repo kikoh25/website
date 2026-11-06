@@ -145,7 +145,7 @@
     ov.innerHTML = '<div class="exit-card"><button type="button" class="exit-x" aria-label="' + (EN ? 'Close' : 'Fechar') + '">×</button>' +
       '<h2 id="exitT">' + (EN ? 'Before you go: how much time does your team lose?' : 'Antes de ir: quanto o seu time perde com tarefas repetitivas?') + '</h2>' +
       '<p>' + (EN ? 'Take the 1-minute diagnostic and get an estimate of hours and cost.' : 'Faça o diagnóstico em 1 minuto e veja uma estimativa de horas e custo por mês.') + '</p>' +
-      '<a class="btn-primary" href="/diagnostico.html">' + (EN ? 'Take the diagnostic' : 'Fazer o diagnóstico') + '</a></div>';
+      '<a class="btn-primary" href="/diagnostico">' + (EN ? 'Take the diagnostic' : 'Fazer o diagnóstico') + '</a></div>';
     d.body.appendChild(ov);
     var close = function () { ov.classList.remove('show'); if (last && last.focus) last.focus(); };
     ov.querySelector('.exit-x').addEventListener('click', close);

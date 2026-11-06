@@ -15,8 +15,8 @@ exec(open(ROOT / 'tools' / 'build_legacy_part.py', encoding='utf-8').read())
 
 # ---------- blog ----------
 FEAT = [
-    ('/casos/sistema-contabil-34-modulos.html', 'Casos e guias', 'Estudo de caso: sistema contábil com 34 módulos',
-     'Como o Nexus Contábil reúne fiscal, notas, contratos e atendimento em um só ambiente.'),
+    ('/casos/sistema-contabil-34-modulos.html', 'Casos e guias', 'Conheça o projeto Nexus Contábil',
+     'Como o Nexus Contábil reúne rotinas fiscais, notas e contratos em um só ambiente. Projeto em acesso antecipado.'),
     ('/perguntas-sobre-automacao.html', 'Casos e guias', 'Perguntas sobre automação de processos',
      'Respostas curtas sobre custo, prazo, segurança e como começar.'),
 ]
@@ -36,8 +36,8 @@ for slug, t, d, body, msg in posts:
                      "author": {"@type": "Organization", "name": "Nexus EF Business"},
                      "publisher": {"@type": "Organization", "name": "Nexus EF Business",
                                    "logo": {"@type": "ImageObject", "url": SITE + "/img/logo.png"}},
-                     "mainEntityOfPage": f"{SITE}/blog/{slug}.html"}, ensure_ascii=False)
-    url = f'{SITE}/blog/{slug}.html'
+                     "mainEntityOfPage": f"{SITE}/blog/{slug}"}, ensure_ascii=False)
+    url = f'{SITE}/blog/{slug}'
     share = (f'<div class="share-row"><button type="button" data-copy>Copiar link</button>'
              f'<a href="https://wa.me/?text={quote(t + " " + url, safe="")}" target="_blank" rel="noopener">Compartilhar no WhatsApp</a>'
              f'<a href="https://www.linkedin.com/sharing/share-offsite/?url={quote(url, safe="")}" target="_blank" rel="noopener">LinkedIn</a></div>')
@@ -91,8 +91,8 @@ exec(open(ROOT / 'tools' / 'pages_en.py', encoding='utf-8').read())
 # ---------- feed RSS ----------
 items = ''.join(f'''  <item>
     <title>{esc(t)}</title>
-    <link>{SITE}/blog/{slug}.html</link>
-    <guid isPermaLink="true">{SITE}/blog/{slug}.html</guid>
+    <link>{SITE}/blog/{slug}</link>
+    <guid isPermaLink="true">{SITE}/blog/{slug}</guid>
     <pubDate>{ORDER_DATE_RFC}</pubDate>
     <category>{esc(TAGS[slug])}</category>
     <description>{esc(d)}</description>
@@ -120,8 +120,10 @@ for p in sorted(ROOT.rglob('*.html')):
         continue
     u = rel[:-len('index.html')] if rel.endswith('index.html') else rel
     urls.append(u)
+urls = [re.sub(r'\.html$', '', u) for u in urls]
 urls.sort(key=lambda u: (u != '', u))
 today = time.strftime('%Y-%m-%d')
 wr('sitemap.xml', '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
    + ''.join(f'  <url><loc>{SITE}/{u}</loc><lastmod>{today}</lastmod></url>\n' for u in urls) + '</urlset>\n')
 print('build ok:', len(urls), 'urls')
+exec(open(ROOT / 'tools' / 'finalize.py', encoding='utf-8').read())

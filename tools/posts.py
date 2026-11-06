@@ -10,7 +10,7 @@ posts=[
 <li><strong>Gargalo:</strong> o processo para quando uma pessoa específica está ausente.</li>
 </ul>
 <h2>A conta simples</h2>
-<p>Multiplique o número de pessoas envolvidas pelas horas gastas por semana e pelo custo da hora. Esse é o custo mensal do processo manual. Se uma parte relevante dele pode virar rotina automática, você já tem uma ideia do retorno. Você pode fazer essa conta no nosso <a href="/diagnostico.html">diagnóstico de automação</a>.</p>
+<p>Use esta fórmula: <strong>custo mensal = pessoas x horas semanais por pessoa x custo por hora x 4,33</strong> (o número médio de semanas em um mês). Por exemplo, 3 pessoas gastando 4 horas por semana, a R$ 40 a hora, dão 3 x 4 x 40 x 4,33 = R$ 2.078,40 por mês. Esse é o custo mensal do processo manual. Se uma parte relevante dele pode virar rotina automática, você já tem uma ideia do retorno. Você pode fazer essa conta no nosso <a href="/diagnostico.html">diagnóstico de automação</a>.</p>
 <h2>Quando não automatizar</h2>
 <ul>
 <li>O processo muda toda semana e ainda não está claro como deveria funcionar.</li>

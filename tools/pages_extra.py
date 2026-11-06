@@ -1,35 +1,35 @@
 # estudo de caso
-cs=HERO('Estudo de caso','Como construímos um sistema contábil com 34 módulos','Um sistema de gestão para escritórios de contabilidade que reúne fiscal, notas, contratos e atendimento em um só ambiente.',crumbs=[('Início','/'),('Blog','/blog/'),('Estudo de caso',None)])+f'''
+cs=HERO('Projeto próprio','Conheça o projeto Nexus Contábil','Um sistema de gestão para escritórios de contabilidade que reúne fiscal, notas, contratos e atendimento em um só ambiente.',crumbs=[('Início','/'),('Blog','/blog/'),('Projeto Nexus Contábil',None)])+f'''
 <article class="sec-white" style="padding:3rem 5% 5rem"><div class="section-inner article" style="max-width:760px">
+<p>Este é um projeto próprio da Nexus EF Business, não um caso de cliente. Mostramos como o produto foi pensado e em que etapa ele está.</p>
 <h2>O desafio</h2>
 <p>Um escritório contábil trabalha com muitos sistemas ao mesmo tempo: o portal do governo para consultar notas, o das prefeituras para emitir NFS-e, planilhas de apuração, contratos em papel e conversas por WhatsApp. Cada um tem seu login, seu formato e seu prazo. O resultado é retrabalho, risco de erro e pouca visão do conjunto da carteira de clientes.</p>
-<h2>O que construímos</h2>
-<p>O Nexus Contábil reúne essa rotina em um ambiente único, com 34 módulos organizados em frentes:</p>
+<h2>O que desenvolvemos</h2>
+<p>O Nexus Contábil reúne essa rotina em um ambiente único, com mais de 40 telas organizadas em frentes:</p>
 <ul>
-<li><strong>Documentos fiscais:</strong> consulta de notas na SEFAZ com certificado digital, importação de XML em lote e emissão de NFS-e no Portal Nacional.</li>
-<li><strong>Apuração:</strong> ICMS, IPI, PIS e COFINS, além de IBS e CBS da Reforma Tributária.</li>
-<li><strong>Gestão do escritório:</strong> honorários, contratos com assinatura digital, tarefas, calendário e equipe.</li>
-<li><strong>Relacionamento com o cliente:</strong> portal do cliente com acesso por CNPJ e tickets de suporte.</li>
+<li><strong>Documentos fiscais:</strong> consulta de notas na SEFAZ com certificado digital, importação de XML em lote e emissão de NFS-e pelo Portal Nacional (em validação).</li>
+<li><strong>Apuração:</strong> apoio ao cálculo de ICMS, IPI, PIS e COFINS, com estimativas de IBS e CBS em evolução. A validação fiscal segue com o contador.</li>
+<li><strong>Gestão do escritório:</strong> honorários, contratos com assinatura eletrônica simples, tarefas, calendário e equipe.</li>
+<li><strong>Relacionamento com o cliente:</strong> portal do cliente com acesso por CNPJ e código.</li>
 <li><strong>Inteligência fiscal:</strong> score de saúde fiscal por empresa, monitor de inconsistências, simulador de regime tributário e alerta de notas suspeitas.</li>
-<li><strong>Relatórios:</strong> personalizáveis, com exportação em Excel, PDF e CSV.</li>
+<li><strong>Relatórios:</strong> DRE, fluxo de caixa e comparativo anual, com exportação em CSV e Excel em módulos selecionados.</li>
 </ul>
 <h2>Decisões técnicas que importaram</h2>
 <ul>
-<li><strong>Ambiente isolado por escritório:</strong> cada escritório enxerga apenas os seus dados.</li>
-<li><strong>Certificado digital tratado com cuidado:</strong> armazenado de forma protegida e usado só para as consultas autorizadas.</li>
+<li><strong>Separação por escritório:</strong> o sistema foi desenhado para cada escritório acessar apenas os seus dados. Esse isolamento ainda passa por validação técnica.</li>
+<li><strong>Certificado digital:</strong> enviado pelo escritório e usado nas consultas à SEFAZ.</li>
 <li><strong>Planos com módulos liberados por nível:</strong> o escritório contrata o que precisa e evolui depois.</li>
-<li><strong>Cobrança integrada:</strong> assinatura mensal recorrente e pagamento por PIX ou boleto.</li>
-<li><strong>Suporte dentro do sistema:</strong> central de ajuda com passo a passo e abertura de chamados.</li>
+<li><strong>Cobrança prevista:</strong> integração com serviço de pagamento para assinaturas, ainda não liberada ao público.</li>
 </ul>
 <h2>O que o escritório ganha</h2>
-<p>Menos telas e logins para acompanhar, rotinas fiscais em um só lugar e uma visão da carteira que mostra onde está o risco antes do prazo vencer. O ganho central é tirar o profissional do trabalho de conferência manual e levá-lo para a análise.</p>
+<p>O objetivo é reduzir telas e logins, reunir as rotinas fiscais em um só lugar e dar uma visão da carteira que ajude a perceber riscos antes do prazo vencer. Nenhum resultado de clientes é divulgado, porque o produto está em acesso antecipado.</p>
 <h2>Situação atual</h2>
 <p>O Nexus Contábil está em uma nova versão. Escritórios interessados podem pedir acesso antecipado pelo WhatsApp.</p>
-<p><a href="/nexus-contabil.html">Ver todos os módulos e planos</a></p>
-{CTA('Olá! Li o estudo de caso do Nexus Contábil e quero pedir acesso antecipado.')}
+<p><a href="/nexus-contabil.html">Ver os módulos e os planos previstos</a></p>
+{CTA('Olá! Li a página do projeto Nexus Contábil e quero pedir acesso antecipado.')}
 </div></article>'''
-ldcs=json.dumps({"@context":"https://schema.org","@type":"Article","headline":"Como construímos um sistema contábil com 34 módulos","description":"Estudo de caso do Nexus Contábil, sistema de gestão para escritórios de contabilidade.","datePublished":"2026-11-05","inLanguage":"pt-BR","author":{"@type":"Organization","name":"Nexus EF Business"},"mainEntityOfPage":"https://nexusefbusiness.com.br/casos/sistema-contabil-34-modulos.html"},ensure_ascii=False)
-wr('casos/sistema-contabil-34-modulos.html',page('casos/sistema-contabil-34-modulos.html','Estudo de caso: sistema contábil com 34 módulos | Nexus EF Business','Como a Nexus EF Business construiu o Nexus Contábil, um sistema de gestão para escritórios de contabilidade com SEFAZ, NFS-e, apuração e portal do cliente.',cs,f'<script type="application/ld+json">{ldcs}</script>\n',exit_popup=True))
+ldcs=json.dumps({"@context":"https://schema.org","@type":"Article","headline":"Conheça o projeto Nexus Contábil","description":"Estudo de caso do Nexus Contábil, sistema de gestão para escritórios de contabilidade.","datePublished":"2026-11-05","inLanguage":"pt-BR","author":{"@type":"Organization","name":"Nexus EF Business"},"mainEntityOfPage":"https://nexusefbusiness.com.br/casos/sistema-contabil-34-modulos.html"},ensure_ascii=False)
+wr('casos/sistema-contabil-34-modulos.html',page('casos/sistema-contabil-34-modulos.html','Conheça o projeto Nexus Contábil | Nexus EF Business','Como a Nexus EF Business desenvolve o Nexus Contábil, sistema de gestão para escritórios de contabilidade, hoje em acesso antecipado.',cs,f'<script type="application/ld+json">{ldcs}</script>\n',exit_popup=True))
 # perguntas sobre automação
 qa=[('O que é automação de processos?','É usar software para executar sozinho tarefas repetitivas que hoje alguém faz à mão, como copiar dados entre sistemas, gerar relatórios ou enviar avisos. O time passa a revisar exceções em vez de executar cada passo.'),
 ('Quais processos podem ser automatizados?','Os que acontecem com frequência, seguem regras claras e envolvem dados digitais. Exemplos comuns: cadastro e atualização de informações entre sistemas, emissão e envio de documentos, relatórios periódicos, avisos de prazo e triagem de chamados.'),

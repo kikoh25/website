@@ -10,6 +10,10 @@ CALC_JS = '''<script>
   var $=function(i){return document.getElementById(i)};
   var brl=function(n){return n.toLocaleString('pt-BR',{style:'currency',currency:'BRL',maximumFractionDigits:0})};
   var num=function(n){return Math.round(n).toLocaleString('pt-BR')};
+  var brl2=function(n){return n.toLocaleString('pt-BR',{style:'currency',currency:'BRL'})};
+  var dec=function(n){return n.toLocaleString('pt-BR',{maximumFractionDigits:1})};
+  var money=function(n){return n<1000?brl2(n):brl(n)};
+  var hrs=function(n){return (n<10?dec(n):num(n))+' h'};
   var ids=%IDS%;
   function val(i){return +$(i).value}
   function show(){ids.forEach(function(i){var o=$(i+'V'),u=o.getAttribute('data-unit'),v=val(i);o.textContent=u==='R$'?'R$ '+v:v+u})}
@@ -45,9 +49,9 @@ calc_page('ferramentas/custo-chamado-ti.html', 'Calculadora: custo de um chamado
     stat('Custo por chamado', 'o1'), stat('Custo mensal do suporte', 'o2'), stat('Horas por mês', 'o3'), stat('Economia possível por ano', 'o4', True))
   + '<p class="note">Cálculo: horas = chamados x minutos / 60. Economia = chamados repetitivos x percentual evitável x custo por chamado x 12. São estimativas, não promessas de resultado.</p>'
   '<a id="cta" class="btn-primary" target="_blank" rel="noopener" href="#" style="margin-top:1.2rem">Quero reduzir esse custo</a>',
-  '''var c=val('ch'),m=val('mi'),h=val('hc'),r=val('rp')/100,e=val('ev')/100;var hrs=c*m/60,cm=hrs*h,cc=cm/c,eco=c*r*e*cc*12;
-$('o1').textContent=brl(cc);$('o2').textContent=brl(cm);$('o3').textContent=num(hrs)+' h';$('o4').textContent=brl(eco);
-$('cta').href='https://wa.me/%s?text='+encodeURIComponent('Olá! Usei a calculadora de custo de chamado: '+num(c)+' chamados por mês, custo de '+brl(cc)+' cada, economia estimada de '+brl(eco)+' por ano. Quero conversar sobre helpdesk e automação.');''' % PHONE,
+  '''var c=val('ch'),m=val('mi'),h=val('hc'),r=val('rp')/100,e=val('ev')/100;var hh=c*m/60,cm=hh*h,cc=cm/c,eco=c*r*e*cc*12;
+$('o1').textContent=brl2(cc);$('o2').textContent=money(cm);$('o3').textContent=hrs(hh);$('o4').textContent=money(eco);
+$('cta').href='https://wa.me/%s?text='+encodeURIComponent('Olá! Usei a calculadora de custo de chamado: '+num(c)+' chamados por mês, custo de '+brl2(cc)+' cada, economia estimada de '+money(eco)+' por ano. Quero conversar sobre helpdesk e automação.');''' % PHONE,
   ['ch', 'mi', 'hc', 'rp', 'ev'], 'Custo de um chamado de TI')
 
 # ---------- retrabalho ----------
@@ -61,9 +65,9 @@ calc_page('ferramentas/custo-retrabalho.html', 'Calculadora: custo do retrabalho
     stat('Erros por mês', 'o1'), stat('Horas perdidas por mês', 'o2'), stat('Custo por mês', 'o3'), stat('Economia possível por ano', 'o4', True))
   + '<p class="note">Cálculo: erros = operações x percentual. Horas = erros x minutos / 60. Economia = custo mensal x redução x 12. Não inclui prejuízos indiretos, como multas e perda de clientes. São estimativas.</p>'
   '<a id="cta" class="btn-primary" target="_blank" rel="noopener" href="#" style="margin-top:1.2rem">Quero eliminar esse retrabalho</a>',
-  '''var o=val('op'),p=val('er')/100,m=val('mc'),h=val('hr'),r=val('rd')/100;var er=o*p,hrs=er*m/60,cm=hrs*h,eco=cm*r*12;
-$('o1').textContent=num(er);$('o2').textContent=num(hrs)+' h';$('o3').textContent=brl(cm);$('o4').textContent=brl(eco);
-$('cta').href='https://wa.me/%s?text='+encodeURIComponent('Olá! Usei a calculadora de retrabalho: cerca de '+num(er)+' erros por mês, '+brl(cm)+' de custo mensal. Quero conversar sobre como reduzir isso.');''' % PHONE,
+  '''var o=val('op'),p=val('er')/100,m=val('mc'),h=val('hr'),r=val('rd')/100;var er=o*p,hh=er*m/60,cm=hh*h,eco=cm*r*12;
+$('o1').textContent=(er<10?dec(er):num(er))+(Math.abs(er-1)<0.05?' erro':' erros');$('o2').textContent=hrs(hh);$('o3').textContent=money(cm);$('o4').textContent=money(eco);
+$('cta').href='https://wa.me/%s?text='+encodeURIComponent('Olá! Usei a calculadora de retrabalho: cerca de '+(er<10?dec(er):num(er))+' erros por mês, '+money(cm)+' de custo mensal. Quero conversar sobre como reduzir isso.');''' % PHONE,
   ['op', 'er', 'mc', 'hr', 'rd'], 'Custo do retrabalho')
 
 # ---------- comparador ----------
@@ -108,11 +112,14 @@ main = HERO('Ferramenta grátis', 'Planilha, sistema pronto ou sob medida?', 'Re
     for(var i=0;i<{len(QS)};i++){{var c=f.querySelector('input[name=q'+i+']:checked');if(c){{a.push(c.value);s[c.value]++}}}}
     bar.style.width=(a.length/{len(QS)}*100)+'%';
     if(a.length<{len(QS)}){{res.hidden=true;return}}
-    var k='e';if(s.s>=3&&s.s>=s.e&&s.s>=s.p)k='s';else if(s.p>=3&&s.p>s.e&&s.p>s.s)k='p';else if(s.s>s.p&&s.s>=s.e)k='s';else if(s.p>s.s&&s.p>s.e)k='p';
-    document.getElementById('qt').textContent=R[k][0];document.getElementById('qd').textContent=R[k][1];
-    var mixed=Math.max(s.p,s.e,s.s)<4;
-    document.getElementById('qh').textContent=mixed?'Suas respostas ficaram divididas. Pode valer um modelo híbrido: sistema pronto para o básico e integrações sob medida onde dói.':'';
-    document.getElementById('qcta').href='https://wa.me/{PHONE}?text='+encodeURIComponent('Olá! Fiz o comparador de solução no site e o resultado foi: '+R[k][0]+'. Quero conversar sobre o meu caso.');
+    var N={{p:'planilha ou ferramenta pronta',e:'sistema de prateleira',s:'solução sob medida'}},rank={{p:0,e:1,s:2}};
+    var ord=['s','e','p'].sort(function(x,y){{return s[y]-s[x]}});var top=ord[0],sec=ord[1];
+    if(s[top]-s[sec]>=2){{document.getElementById('qt').textContent=R[top][0];document.getElementById('qd').textContent=R[top][1];document.getElementById('qh').textContent='';var res0=R[top][0]}}
+    else{{var simple=rank[top]<rank[sec]?top:sec,compl=simple===top?sec:top;var res0='Caminho híbrido';
+      document.getElementById('qt').textContent=res0;
+      document.getElementById('qd').textContent='Suas respostas ficaram divididas entre '+N[top]+' e '+N[sec]+'. Isso é comum e faz sentido.';
+      document.getElementById('qh').textContent='Uma boa rota: use '+N[simple]+' para o que é padrão e reserve '+N[compl]+' para as partes específicas do seu negócio, integrando as duas.'}}
+    document.getElementById('qcta').href='https://wa.me/{PHONE}?text='+encodeURIComponent('Olá! Fiz o comparador de solução no site e o resultado foi: '+res0+'. Quero conversar sobre o meu caso.');
     res.hidden=false;res.scrollIntoView({{behavior:'smooth',block:'nearest'}});
   }}
   f.addEventListener('change',upd);
@@ -129,7 +136,7 @@ T = [('/diagnostico.html', '⏱️', 'Diagnóstico de automação', 'Estime as h
      ('/ferramentas/comparador-solucao.html', '⚖️', 'Planilha, ERP ou sob medida?', '6 perguntas para escolher o caminho certo.'),
      ('/checklist-automacao.html', '✅', 'Checklist de automação', '10 sinais de que é hora de automatizar. Baixe em PDF.'),
      ('/materiais/apresentacao-nexus-ef-business.pdf', '📄', 'Apresentação da Nexus (PDF)', 'Resumo de uma página para compartilhar com sua equipe.')]
-tc = ''.join(f'<a class="tool-card" href="{u}"><div class="ico" aria-hidden="true">{i}</div><h3>{t}</h3><p>{d}</p><span class="go">Abrir →</span></a>' for u, i, t, d in T)
+tc = ''.join(f'<a class="tool-card" href="{u}"><div class="ico" aria-hidden="true">{i}</div><h2>{t}</h2><p>{d}</p><span class="go">Abrir →</span></a>' for u, i, t, d in T)
 main = HERO('Ferramentas grátis', 'Faça as contas antes de decidir', 'Calculadoras e guias rápidos. Sem cadastro, sem e-mail, tudo roda no seu navegador.', crumbs=[('Início', '/'), ('Ferramentas', None)]) + \
     f'<section class="sec-lav" style="padding:3.5rem 5% 5rem"><div class="section-inner"><div class="card-grid">{tc}</div></div></section>'
 wr('ferramentas/index.html', page('ferramentas/', 'Ferramentas grátis | Nexus EF Business', 'Calculadoras e guias grátis para medir o custo de processos manuais, chamados de TI e retrabalho.', main,
@@ -154,6 +161,7 @@ main = HERO('Guia grátis', 'Checklist: sua empresa precisa automatizar?', 'Marq
  <p class="kicker">Seu resultado</p>
  <p id="ckn" style="font-family:'Lora',serif;font-size:2rem;font-weight:700;margin-top:.4rem">0 de {len(CK)}</p>
  <p id="ckm" style="margin-top:.6rem;line-height:1.8;color:rgba(255,255,255,.88)"></p>
+ <p class="note">Orientação geral, sem valor de diagnóstico. Cada empresa é diferente.</p>
  <div style="display:flex;gap:.8rem;flex-wrap:wrap;margin-top:1.2rem">
   <a id="ckc" class="btn-primary" target="_blank" rel="noopener" href="#">Conversar com a Nexus</a>
   <a class="btn-ghost" href="/materiais/checklist-automacao-nexus.pdf" download style="color:#fff;border-color:rgba(255,255,255,.4)">Baixar em PDF</a>
@@ -164,8 +172,8 @@ main = HERO('Guia grátis', 'Checklist: sua empresa precisa automatizar?', 'Marq
 (function(){{
   var b=document.querySelectorAll('.check-list input'),n=document.getElementById('ckn'),m=document.getElementById('ckm'),c=document.getElementById('ckc');
   function u(){{var k=0;b.forEach(function(x){{if(x.checked)k++}});n.textContent=k+' de {len(CK)}';
-    m.textContent=k<=2?'Sua operação parece organizada. Vale revisar com calma só os pontos marcados.':k<=6?'Há oportunidades claras. Escolher um ou dois processos para começar já traz ganho rápido.':'Sua rotina pede automação. Com tantos sinais, um diagnóstico pode revelar ganhos grandes.';
-    c.href='https://wa.me/{PHONE}?text='+encodeURIComponent('Olá! Fiz o checklist de automação e marquei '+k+' de {len(CK)} itens. Quero conversar sobre o meu caso.')}}
+    m.textContent=k===0?'Nenhum item marcado ainda. Marque o que acontece na sua rotina para ver uma orientação.':k<=2?'Poucos sinais marcados. Pode haver pontos isolados de melhoria, vale olhar os itens marcados com calma.':k<=6?'Há sinais relevantes. Escolher um ou dois processos para começar pode trazer ganho rápido.':'Muitos sinais marcados. Um diagnóstico pode ajudar a priorizar por onde começar.';
+    c.href='https://wa.me/{PHONE}?text='+encodeURIComponent(k?'Olá! Fiz o checklist de automação e marquei '+k+' de {len(CK)} itens. Quero conversar sobre o meu caso.':'Olá! Vi o checklist de automação no site e quero conversar sobre o meu caso.')}}
   b.forEach(function(x){{x.addEventListener('change',u)}});u();
 }})();
 </script>'''
@@ -217,7 +225,7 @@ TL = [('Infraestrutura de TI', 'Estruturação da TI de um grupo com 6 empresas:
       ('ERP financeiro', 'Sistema financeiro com ecossistema de bots no Slack para aprovações e avisos.'),
       ('Nexus Platform', 'Plataforma de helpdesk e inventário, com SLA, CSAT, base de conhecimento e integrações.'),
       ('LeadNow, em desenvolvimento', 'Captura de leads em eventos com voz e IA. Ainda não lançado.'),
-      ('Nexus Contábil', 'Sistema de gestão contábil com 34 módulos, SEFAZ e NFS-e.'),
+      ('Nexus Contábil', 'Sistema de gestão contábil com mais de 40 telas e integrações fiscais, em nova versão.'),
       ('Agora', 'Colocando os produtos em nova versão e atendendo projetos sob medida.')]
 tl = ''.join(f'<li><span class="when">{"Etapa " + str(i+1) if t != "Agora" else "Agora"}</span><h3>{t}</h3><p>{d}</p></li>' for i, (t, d) in enumerate(TL))
 VAL = [('Entrega real', 'Prometemos só o que o produto faz hoje e dizemos quando algo ainda está em desenvolvimento.'),

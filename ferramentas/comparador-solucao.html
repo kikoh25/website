@@ -6,14 +6,14 @@
   <title>Comparador: planilha, ERP ou sob medida? | Nexus EF Business</title>
   <meta name="description" content="Responda 6 perguntas e descubra se o seu caso pede planilha, sistema pronto ou solução sob medida." />
   <meta name="theme-color" content="#1E1B4B" />
-  <link rel="canonical" href="https://nexusefbusiness.com.br/ferramentas/comparador-solucao.html" />
+  <link rel="canonical" href="https://nexusefbusiness.com.br/ferramentas/comparador-solucao" />
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%231E1B4B'/%3E%3Ctext x='32' y='44' font-family='Georgia,serif' font-size='36' font-weight='700' text-anchor='middle' fill='%23A78BFA'%3EN%3C/text%3E%3C/svg%3E" />
   <meta property="og:type" content="website" />
   <meta property="og:locale" content="pt_BR" />
   <meta property="og:site_name" content="Nexus EF Business" />
   <meta property="og:title" content="Comparador: planilha, ERP ou sob medida? | Nexus EF Business" />
   <meta property="og:description" content="Responda 6 perguntas e descubra se o seu caso pede planilha, sistema pronto ou solução sob medida." />
-  <meta property="og:url" content="https://nexusefbusiness.com.br/ferramentas/comparador-solucao.html" />
+  <meta property="og:url" content="https://nexusefbusiness.com.br/ferramentas/comparador-solucao" />
   <meta property="og:image" content="https://nexusefbusiness.com.br/img/og.jpg" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
@@ -636,7 +636,7 @@
   </a>
   <ul class="nav-links" id="menu-principal">
     <li><a href="/#sobre">Sobre</a></li>
-    <li><a href="/servicos.html">Serviços</a></li>
+    <li><a href="/servicos">Serviços</a></li>
     <li><a href="/#diferenciais">Por que a Nexus</a></li>
     <li><a href="/#produtos">Produtos</a></li>
     <li><a href="/blog/">Blog</a></li>
@@ -678,11 +678,14 @@
     for(var i=0;i<6;i++){var c=f.querySelector('input[name=q'+i+']:checked');if(c){a.push(c.value);s[c.value]++}}
     bar.style.width=(a.length/6*100)+'%';
     if(a.length<6){res.hidden=true;return}
-    var k='e';if(s.s>=3&&s.s>=s.e&&s.s>=s.p)k='s';else if(s.p>=3&&s.p>s.e&&s.p>s.s)k='p';else if(s.s>s.p&&s.s>=s.e)k='s';else if(s.p>s.s&&s.p>s.e)k='p';
-    document.getElementById('qt').textContent=R[k][0];document.getElementById('qd').textContent=R[k][1];
-    var mixed=Math.max(s.p,s.e,s.s)<4;
-    document.getElementById('qh').textContent=mixed?'Suas respostas ficaram divididas. Pode valer um modelo híbrido: sistema pronto para o básico e integrações sob medida onde dói.':'';
-    document.getElementById('qcta').href='https://wa.me/5511926461357?text='+encodeURIComponent('Olá! Fiz o comparador de solução no site e o resultado foi: '+R[k][0]+'. Quero conversar sobre o meu caso.');
+    var N={p:'planilha ou ferramenta pronta',e:'sistema de prateleira',s:'solução sob medida'},rank={p:0,e:1,s:2};
+    var ord=['s','e','p'].sort(function(x,y){return s[y]-s[x]});var top=ord[0],sec=ord[1];
+    if(s[top]-s[sec]>=2){document.getElementById('qt').textContent=R[top][0];document.getElementById('qd').textContent=R[top][1];document.getElementById('qh').textContent='';var res0=R[top][0]}
+    else{var simple=rank[top]<rank[sec]?top:sec,compl=simple===top?sec:top;var res0='Caminho híbrido';
+      document.getElementById('qt').textContent=res0;
+      document.getElementById('qd').textContent='Suas respostas ficaram divididas entre '+N[top]+' e '+N[sec]+'. Isso é comum e faz sentido.';
+      document.getElementById('qh').textContent='Uma boa rota: use '+N[simple]+' para o que é padrão e reserve '+N[compl]+' para as partes específicas do seu negócio, integrando as duas.'}
+    document.getElementById('qcta').href='https://wa.me/5511926461357?text='+encodeURIComponent('Olá! Fiz o comparador de solução no site e o resultado foi: '+res0+'. Quero conversar sobre o meu caso.');
     res.hidden=false;res.scrollIntoView({behavior:'smooth',block:'nearest'});
   }
   f.addEventListener('change',upd);
@@ -705,19 +708,19 @@
   </div>
   <p class="footer-tagline">Soluções · Integrações · Automação</p>
   <ul class="footer-links">
-    <li><a href="/servicos.html">Serviços</a></li>
+    <li><a href="/servicos">Serviços</a></li>
     <li><a href="/#diferenciais">Por que a Nexus</a></li>
     <li><a href="/#produtos">Produtos</a></li>
     <li><a href="/#faq">Perguntas</a></li>
     <li><a href="/#contato">Contato</a></li>
     <li><a href="/blog/">Blog</a></li>
-    <li><a href="/diagnostico.html">Diagnóstico</a></li>
-    <li><a href="/projeto.html">Apresente seu projeto</a></li>
-    <li><a href="/sobre.html">Sobre</a></li>
+    <li><a href="/diagnostico">Diagnóstico</a></li>
+    <li><a href="/projeto">Apresente seu projeto</a></li>
+    <li><a href="/sobre">Sobre</a></li>
     <li><a href="/ferramentas/">Ferramentas</a></li>
-    <li><a href="/status.html">Status</a></li>
+    <li><a href="/status">Status</a></li>
     <li><a href="/en/" hreflang="en" lang="en">English</a></li>
-    <li><a href="/privacidade.html">Privacidade</a></li>
+    <li><a href="/privacidade">Privacidade</a></li>
     <li><a href="https://www.instagram.com/nexusefbusiness" target="_blank" rel="noopener">Instagram</a></li>
   </ul>
   <p class="footer-copy">© 2026 Nexus EF Business · CNPJ 61.488.671/0001-38 · Todos os direitos reservados.</p>

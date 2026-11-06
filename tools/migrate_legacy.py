@@ -56,10 +56,10 @@ s = rd('index.html')
 NUMEROS = '''<!-- NUMEROS -->
 <section id="numeros" class="stats-strip" aria-label="A Nexus em números">
   <div class="stats-grid">
-    <div><div class="stat-n"><span data-count="34">34</span></div><p class="stat-l">módulos integrados no Nexus Contábil</p></div>
+    <div><div class="stat-n"><span data-count="40" data-suffix="+">40+</span></div><p class="stat-l">telas de gestão no Nexus Contábil</p></div>
     <div><div class="stat-n"><span data-count="5">5</span></div><p class="stat-l">ferramentas gratuitas para medir o custo dos processos manuais</p></div>
     <div><div class="stat-n"><span data-count="6">6</span></div><p class="stat-l">empresas com TI estruturada em um mesmo grupo</p></div>
-    <div><div class="stat-n"><span data-count="8">8</span></div><p class="stat-l">integrações no Nexus Platform, de Slack a n8n</p></div>
+    <div><div class="stat-n"><span data-count="2">2</span></div><p class="stat-l">produtos próprios em nova versão, com acesso antecipado</p></div>
   </div>
 </section>
 
@@ -132,3 +132,26 @@ if 'hreflang="en"' not in s.split('</head>')[0]:
                   '<link rel="alternate" hreflang="x-default" href="https://nexusefbusiness.com.br/" />\n</head>', 1)
 wr('index.html', s)
 print('migrate ok')
+
+# ---------- dados estruturados extras (sem preço, avaliação ou disponibilidade) ----------
+import json
+def ld(o): return '<script type="application/ld+json">' + json.dumps(o, ensure_ascii=False) + '</script>\n'
+SITE_ = 'https://nexusefbusiness.com.br'
+EXTRA = {
+ 'index.html': ('"WebSite"', ld({"@context": "https://schema.org", "@type": "WebSite", "name": "Nexus EF Business", "url": SITE_ + "/", "inLanguage": "pt-BR"})),
+ 'nexus-contabil.html': ('"SoftwareApplication"', ld({"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Nexus Contábil",
+    "applicationCategory": "BusinessApplication", "operatingSystem": "Web", "url": SITE_ + "/nexus-contabil",
+    "description": "Sistema de gestão para escritórios de contabilidade, em nova versão com acesso antecipado.",
+    "publisher": {"@type": "Organization", "name": "Nexus EF Business", "url": SITE_}}) +
+    ld({"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Início", "item": SITE_ + "/"}, {"@type": "ListItem", "position": 2, "name": "Nexus Contábil"}]})),
+ 'nexus-platform.html': ('"SoftwareApplication"', ld({"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Nexus Platform",
+    "applicationCategory": "BusinessApplication", "operatingSystem": "Web", "url": SITE_ + "/nexus-platform",
+    "description": "Plataforma de helpdesk e inventário de ativos de TI, em nova versão com acesso antecipado.",
+    "publisher": {"@type": "Organization", "name": "Nexus EF Business", "url": SITE_}}) +
+    ld({"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Início", "item": SITE_ + "/"}, {"@type": "ListItem", "position": 2, "name": "Nexus Platform"}]})),
+}
+for f, (key, block) in EXTRA.items():
+    s = rd(f)
+    if key not in s:
+        s = s.replace('</head>', block + '</head>', 1); wr(f, s)
+print('ld extra ok')

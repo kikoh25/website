@@ -85,12 +85,12 @@ def HERO(eb, h1, sub, crumbs=None, meta=''):
 </section>'''
 
 
-def CTA(msg, title='Quer aplicar isso na sua empresa?', text='Conte o seu cenário e a gente analisa com você, sem compromisso.'):
+def CTA(msg, title='Quer aplicar isso na sua empresa?', text='Conte o seu cenário e a gente analisa com você, sem compromisso.', btn='Falar no WhatsApp', alt_label='Apresentar meu projeto'):
     return f'''<div class="cta-box">
   <strong>{title}</strong>
   <p>{text}</p>
-  <a href="{wa(msg)}" target="_blank" rel="noopener" class="btn-primary">Falar no WhatsApp</a>
-  <a href="/projeto.html" style="display:inline-block;margin:.6rem 0 0 .8rem;color:#fff;font-weight:600;text-decoration:underline">Apresentar meu projeto</a>
+  <a href="{wa(msg)}" target="_blank" rel="noopener" class="btn-primary">{btn}</a>
+  <a href="/projeto.html" style="display:inline-block;margin:.6rem 0 0 .8rem;color:#fff;font-weight:600;text-decoration:underline">{alt_label}</a>
 </div>'''
 
 
@@ -142,5 +142,5 @@ def page(path, title, desc, main, extra_head='', crumbs=None, exit_popup=False, 
     attrs = (' data-exit="1"' if exit_popup else '') + (' ' + body_attrs if body_attrs else '')
     skip = 'Pular para o conteúdo' if lang.startswith('pt') else 'Skip to content'
     return (h + f'<body{attrs}>\n<a href="#conteudo" class="skip-link">{skip}</a>\n' + (nav or NAV)
-            + '\n<main id="conteudo">\n' + main + '\n</main>\n' + (footer or FOOTER) + '\n' + fab()
+            + '\n<main id="conteudo">\n' + main + '\n</main>\n' + (footer or FOOTER) + '\n' + (fab() if lang.startswith('pt') else fab('Hello! I came from the English page of the Nexus EF Business website.', 'Chat on WhatsApp'))
             + '\n<script src="/assets/site.js" defer></script>\n</body>\n</html>\n')

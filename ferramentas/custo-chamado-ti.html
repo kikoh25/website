@@ -6,14 +6,14 @@
   <title>Calculadora: custo de um chamado de TI | Nexus EF Business</title>
   <meta name="description" content="Descubra quanto custa cada chamado de suporte e quanto a sua empresa pode economizar com helpdesk e automação." />
   <meta name="theme-color" content="#1E1B4B" />
-  <link rel="canonical" href="https://nexusefbusiness.com.br/ferramentas/custo-chamado-ti.html" />
+  <link rel="canonical" href="https://nexusefbusiness.com.br/ferramentas/custo-chamado-ti" />
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%231E1B4B'/%3E%3Ctext x='32' y='44' font-family='Georgia,serif' font-size='36' font-weight='700' text-anchor='middle' fill='%23A78BFA'%3EN%3C/text%3E%3C/svg%3E" />
   <meta property="og:type" content="website" />
   <meta property="og:locale" content="pt_BR" />
   <meta property="og:site_name" content="Nexus EF Business" />
   <meta property="og:title" content="Calculadora: custo de um chamado de TI | Nexus EF Business" />
   <meta property="og:description" content="Descubra quanto custa cada chamado de suporte e quanto a sua empresa pode economizar com helpdesk e automação." />
-  <meta property="og:url" content="https://nexusefbusiness.com.br/ferramentas/custo-chamado-ti.html" />
+  <meta property="og:url" content="https://nexusefbusiness.com.br/ferramentas/custo-chamado-ti" />
   <meta property="og:image" content="https://nexusefbusiness.com.br/img/og.jpg" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
@@ -636,7 +636,7 @@
   </a>
   <ul class="nav-links" id="menu-principal">
     <li><a href="/#sobre">Sobre</a></li>
-    <li><a href="/servicos.html">Serviços</a></li>
+    <li><a href="/servicos">Serviços</a></li>
     <li><a href="/#diferenciais">Por que a Nexus</a></li>
     <li><a href="/#produtos">Produtos</a></li>
     <li><a href="/blog/">Blog</a></li>
@@ -665,12 +665,16 @@
   var $=function(i){return document.getElementById(i)};
   var brl=function(n){return n.toLocaleString('pt-BR',{style:'currency',currency:'BRL',maximumFractionDigits:0})};
   var num=function(n){return Math.round(n).toLocaleString('pt-BR')};
+  var brl2=function(n){return n.toLocaleString('pt-BR',{style:'currency',currency:'BRL'})};
+  var dec=function(n){return n.toLocaleString('pt-BR',{maximumFractionDigits:1})};
+  var money=function(n){return n<1000?brl2(n):brl(n)};
+  var hrs=function(n){return (n<10?dec(n):num(n))+' h'};
   var ids=["ch", "mi", "hc", "rp", "ev"];
   function val(i){return +$(i).value}
   function show(){ids.forEach(function(i){var o=$(i+'V'),u=o.getAttribute('data-unit'),v=val(i);o.textContent=u==='R$'?'R$ '+v:v+u})}
-  function run(){show();var c=val('ch'),m=val('mi'),h=val('hc'),r=val('rp')/100,e=val('ev')/100;var hrs=c*m/60,cm=hrs*h,cc=cm/c,eco=c*r*e*cc*12;
-$('o1').textContent=brl(cc);$('o2').textContent=brl(cm);$('o3').textContent=num(hrs)+' h';$('o4').textContent=brl(eco);
-$('cta').href='https://wa.me/5511926461357?text='+encodeURIComponent('Olá! Usei a calculadora de custo de chamado: '+num(c)+' chamados por mês, custo de '+brl(cc)+' cada, economia estimada de '+brl(eco)+' por ano. Quero conversar sobre helpdesk e automação.');}
+  function run(){show();var c=val('ch'),m=val('mi'),h=val('hc'),r=val('rp')/100,e=val('ev')/100;var hh=c*m/60,cm=hh*h,cc=cm/c,eco=c*r*e*cc*12;
+$('o1').textContent=brl2(cc);$('o2').textContent=money(cm);$('o3').textContent=hrs(hh);$('o4').textContent=money(eco);
+$('cta').href='https://wa.me/5511926461357?text='+encodeURIComponent('Olá! Usei a calculadora de custo de chamado: '+num(c)+' chamados por mês, custo de '+brl2(cc)+' cada, economia estimada de '+money(eco)+' por ano. Quero conversar sobre helpdesk e automação.');}
   ids.forEach(function(i){$(i).addEventListener('input',run)});run();
 })();
 </script>
@@ -691,19 +695,19 @@ $('cta').href='https://wa.me/5511926461357?text='+encodeURIComponent('Olá! Usei
   </div>
   <p class="footer-tagline">Soluções · Integrações · Automação</p>
   <ul class="footer-links">
-    <li><a href="/servicos.html">Serviços</a></li>
+    <li><a href="/servicos">Serviços</a></li>
     <li><a href="/#diferenciais">Por que a Nexus</a></li>
     <li><a href="/#produtos">Produtos</a></li>
     <li><a href="/#faq">Perguntas</a></li>
     <li><a href="/#contato">Contato</a></li>
     <li><a href="/blog/">Blog</a></li>
-    <li><a href="/diagnostico.html">Diagnóstico</a></li>
-    <li><a href="/projeto.html">Apresente seu projeto</a></li>
-    <li><a href="/sobre.html">Sobre</a></li>
+    <li><a href="/diagnostico">Diagnóstico</a></li>
+    <li><a href="/projeto">Apresente seu projeto</a></li>
+    <li><a href="/sobre">Sobre</a></li>
     <li><a href="/ferramentas/">Ferramentas</a></li>
-    <li><a href="/status.html">Status</a></li>
+    <li><a href="/status">Status</a></li>
     <li><a href="/en/" hreflang="en" lang="en">English</a></li>
-    <li><a href="/privacidade.html">Privacidade</a></li>
+    <li><a href="/privacidade">Privacidade</a></li>
     <li><a href="https://www.instagram.com/nexusefbusiness" target="_blank" rel="noopener">Instagram</a></li>
   </ul>
   <p class="footer-copy">© 2026 Nexus EF Business · CNPJ 61.488.671/0001-38 · Todos os direitos reservados.</p>
