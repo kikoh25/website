@@ -1,0 +1,13 @@
+<script>
+(function(){
+  var nav=document.querySelector('nav'),btn=document.querySelector('.nav-toggle');
+  if(!nav||!btn)return;
+  function set(o){nav.classList.toggle('open',o);btn.setAttribute('aria-expanded',o?'true':'false');btn.setAttribute('aria-label',o?'Fechar menu':'Abrir menu')}
+  btn.addEventListener('click',function(){set(!nav.classList.contains('open'))});
+  nav.querySelectorAll('.nav-links a').forEach(function(a){a.addEventListener('click',function(){set(false)})});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape'&&nav.classList.contains('open')){set(false);btn.focus()}});
+  document.addEventListener('click',function(e){if(!nav.contains(e.target))set(false)});
+  window.addEventListener('resize',function(){if(window.innerWidth>768)set(false)});
+})();
+</script>
+</body>

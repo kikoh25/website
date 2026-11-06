@@ -606,12 +606,17 @@
       nav.open .nav-links a.nav-cta{display:block;margin-top:1rem;text-align:center;padding:.9rem 1rem;border-bottom:0}
     }
   </style>
+<script>(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||(!t&&window.matchMedia('(prefers-color-scheme: dark)').matches))document.documentElement.setAttribute('data-theme','dark')}catch(e){}})();</script>
+<link rel="stylesheet" href="/assets/site.css" />
+<link rel="manifest" href="/manifest.webmanifest" />
+<link rel="apple-touch-icon" href="/img/icon-192.png" />
+<link rel="alternate" type="application/rss+xml" title="Blog Nexus EF Business" href="/feed.xml" />
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "O que é automação de processos?", "acceptedAnswer": {"@type": "Answer", "text": "É usar software para executar sozinho tarefas repetitivas que hoje alguém faz à mão, como copiar dados entre sistemas, gerar relatórios ou enviar avisos. O time passa a revisar exceções em vez de executar cada passo."}}, {"@type": "Question", "name": "Quais processos podem ser automatizados?", "acceptedAnswer": {"@type": "Answer", "text": "Os que acontecem com frequência, seguem regras claras e envolvem dados digitais. Exemplos comuns: cadastro e atualização de informações entre sistemas, emissão e envio de documentos, relatórios periódicos, avisos de prazo e triagem de chamados."}}, {"@type": "Question", "name": "Preciso trocar os sistemas que já uso?", "acceptedAnswer": {"@type": "Answer", "text": "Na maioria dos casos não. A automação costuma conectar o que você já tem, usando as integrações oficiais de cada sistema. A troca só faz sentido quando uma ferramenta não oferece nenhuma forma de integração."}}, {"@type": "Question", "name": "Automação substitui pessoas?", "acceptedAnswer": {"@type": "Answer", "text": "O objetivo é tirar o trabalho mecânico do time para sobrar tempo para análise, atendimento e decisão. As pessoas continuam responsáveis pelo que exige julgamento."}}, {"@type": "Question", "name": "Qual a diferença entre automação por API e RPA?", "acceptedAnswer": {"@type": "Answer", "text": "O RPA é um robô que imita cliques e digitação na tela de um sistema. A automação por API usa a conexão oficial entre os sistemas, em geral mais estável e rápida. Quando não há API, o RPA pode ser a saída."}}, {"@type": "Question", "name": "É seguro integrar sistemas?", "acceptedAnswer": {"@type": "Answer", "text": "Sim, quando se seguem boas práticas: chaves guardadas em local protegido, permissões mínimas por integração, registro de logs e atenção à LGPD quando há dados pessoais."}}, {"@type": "Question", "name": "Quanto tempo leva para ver resultado?", "acceptedAnswer": {"@type": "Answer", "text": "Depende do tamanho do processo. Trabalhamos em etapas curtas, de modo que a primeira parte já funcione cedo e você valide antes de seguir."}}, {"@type": "Question", "name": "Quanto custa automatizar um processo?", "acceptedAnswer": {"@type": "Answer", "text": "Depende do escopo, do número de sistemas envolvidos e da complexidade das regras. Depois de entender o seu processo, enviamos uma proposta com valor e prazo combinados antes de começar."}}, {"@type": "Question", "name": "Como sei se vale a pena?", "acceptedAnswer": {"@type": "Answer", "text": "Some as horas que o time gasta no processo por mês e multiplique pelo custo da hora. Você pode fazer essa conta no nosso diagnóstico em um minuto."}}, {"@type": "Question", "name": "Como começar?", "acceptedAnswer": {"@type": "Answer", "text": "Conte para nós qual processo mais consome o tempo do seu time. Fazemos um diagnóstico, propomos a solução e entregamos em etapas."}}]}</script>
 </head>
-<body>
+<body data-exit="1">
 <a href="#conteudo" class="skip-link">Pular para o conteúdo</a>
 <nav>
-  <a href="#" class="nav-logo">
+  <a href="/" class="nav-logo">
     <div class="logo-hex">
       <svg viewBox="0 0 40 46" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M20 2L38 12V34L20 44L2 34V12L20 2Z" fill="url(#hg)" stroke="rgba(196,181,253,0.3)" stroke-width="1"/>
@@ -635,19 +640,23 @@
     <li><a href="/#diferenciais">Por que a Nexus</a></li>
     <li><a href="/#produtos">Produtos</a></li>
     <li><a href="/blog/">Blog</a></li>
+    <li><a href="/ferramentas/">Ferramentas</a></li>
+    <li class="nav-tools"><button type="button" class="theme-toggle" aria-label="Mudar para tema escuro" aria-pressed="false"><svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg><svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></button><a class="lang-link" href="/en/" hreflang="en" lang="en" aria-label="English version">EN</a></li>
     <li><a href="/#contato" class="nav-cta">Fale conosco</a></li>
   </ul>
   <button type="button" class="nav-toggle" aria-label="Abrir menu" aria-expanded="false" aria-controls="menu-principal"><span></span><span></span><span></span></button>
 </nav>
 <main id="conteudo">
-<section style="background:linear-gradient(135deg,#1E1B4B,#2D2A6E);padding:9rem 5% 3.5rem;color:#fff">
+<section class="page-hero">
   <div class="section-inner" style="max-width:860px">
+    <div class="crumbs" role="navigation" aria-label="Caminho"><ol><li><a href="/">Início</a></li><li><a href="/blog/">Blog</a></li><li aria-current="page">Perguntas sobre automação</li></ol></div>
     <p class="section-eyebrow" style="color:#C4B5FD">Perguntas frequentes</p>
-    <h1 style="font-family:'Lora',serif;font-size:clamp(1.9rem,4.2vw,3rem);line-height:1.15">Perguntas sobre automação de processos</h1>
-    <p style="margin-top:1rem;color:rgba(255,255,255,.78);line-height:1.8;max-width:680px">As dúvidas mais comuns de quem está pensando em automatizar tarefas e integrar sistemas na empresa.</p>
+    <h1>Perguntas sobre automação de processos</h1>
+    <p class="page-hero-sub">As dúvidas mais comuns de quem está pensando em automatizar tarefas e integrar sistemas na empresa.</p>
+    
   </div>
 </section>
-<section style="background:#fff;padding:3rem 5% 5rem"><div class="section-inner" style="max-width:820px">
+<section class="sec-white" style="padding:3rem 5% 5rem"><div class="section-inner" style="max-width:820px">
 <details class="faq-item"><summary>O que é automação de processos?</summary><p>É usar software para executar sozinho tarefas repetitivas que hoje alguém faz à mão, como copiar dados entre sistemas, gerar relatórios ou enviar avisos. O time passa a revisar exceções em vez de executar cada passo.</p></details>
 <details class="faq-item"><summary>Quais processos podem ser automatizados?</summary><p>Os que acontecem com frequência, seguem regras claras e envolvem dados digitais. Exemplos comuns: cadastro e atualização de informações entre sistemas, emissão e envio de documentos, relatórios periódicos, avisos de prazo e triagem de chamados.</p></details>
 <details class="faq-item"><summary>Preciso trocar os sistemas que já uso?</summary><p>Na maioria dos casos não. A automação costuma conectar o que você já tem, usando as integrações oficiais de cada sistema. A troca só faz sentido quando uma ferramenta não oferece nenhuma forma de integração.</p></details>
@@ -660,10 +669,10 @@
 <details class="faq-item"><summary>Como começar?</summary><p>Conte para nós qual processo mais consome o tempo do seu time. Fazemos um diagnóstico, propomos a solução e entregamos em etapas.</p></details>
 
 <p style="margin-top:2rem;color:var(--gray-600)">Quer fazer a conta do seu caso? Use o <a href="/diagnostico.html" style="color:var(--purple);font-weight:600">diagnóstico de automação</a>.</p>
-<div style="margin-top:2.5rem;padding:1.5rem;border-radius:14px;background:#1E1B4B;color:#fff">
-  <strong style="font-family:'Lora',serif;font-size:1.1rem">Quer aplicar isso na sua empresa?</strong>
-  <p style="font-size:.9rem;color:rgba(255,255,255,.75);margin:.4rem 0 1rem">Conte o seu cenário e a gente analisa com você, sem compromisso.</p>
-  <a href="https://wa.me/5511926461357?text=Olá! Li as perguntas sobre automação e quero conversar sobre o meu processo." target="_blank" rel="noopener" class="btn-primary">Falar no WhatsApp</a>
+<div class="cta-box">
+  <strong>Quer aplicar isso na sua empresa?</strong>
+  <p>Conte o seu cenário e a gente analisa com você, sem compromisso.</p>
+  <a href="https://wa.me/5511926461357?text=Ol%C3%A1%21%20Li%20as%20perguntas%20sobre%20automa%C3%A7%C3%A3o%20e%20quero%20conversar%20sobre%20o%20meu%20processo." target="_blank" rel="noopener" class="btn-primary">Falar no WhatsApp</a>
 </div>
 </div></section>
 </main>
@@ -690,23 +699,16 @@
     <li><a href="/#contato">Contato</a></li>
     <li><a href="/blog/">Blog</a></li>
     <li><a href="/diagnostico.html">Diagnóstico</a></li>
+    <li><a href="/sobre.html">Sobre</a></li>
+    <li><a href="/ferramentas/">Ferramentas</a></li>
+    <li><a href="/status.html">Status</a></li>
+    <li><a href="/en/" hreflang="en" lang="en">English</a></li>
     <li><a href="/privacidade.html">Privacidade</a></li>
     <li><a href="https://www.instagram.com/nexusefbusiness" target="_blank" rel="noopener">Instagram</a></li>
   </ul>
   <p class="footer-copy">© 2026 Nexus EF Business · CNPJ 61.488.671/0001-38 · Todos os direitos reservados.</p>
 </footer>
-<a href="https://wa.me/5511926461357?text=Olá! Vim pelo site da Nexus EF Business." target="_blank" rel="noopener" aria-label="Falar no WhatsApp" class="wa-float"><svg viewBox="0 0 32 32" width="28" height="28" fill="#fff" aria-hidden="true"><path d="M16 3C8.8 3 3 8.8 3 16c0 2.3.6 4.5 1.7 6.4L3 29l6.8-1.8c1.9 1 4 1.6 6.2 1.6 7.2 0 13-5.8 13-13S23.200 3 16 3zm0 23.700c-2 0-3.900-.5-5.500-1.500l-.4-.2-4 1 1.100-3.900-.3-.4A10.700 10.700 0 1 1 16 26.700zm5.900-8c-.3-.2-1.900-.9-2.200-1-.3-.1-.5-.2-.7.200-.2.300-.8 1-1 1.200-.2.200-.4.200-.7.100-.3-.2-1.400-.5-2.600-1.600-1-.9-1.600-1.900-1.800-2.300-.2-.3 0-.5.100-.7l.5-.5c.1-.2.200-.3.300-.5.100-.2 0-.4 0-.5-.1-.2-.7-1.700-1-2.300-.3-.6-.5-.5-.7-.5h-.6c-.2 0-.5.100-.8.400-.3.300-1 1-1 2.500s1.100 2.900 1.200 3.100c.2.200 2.100 3.300 5.200 4.500 3.100 1.300 3.100.9 3.700.8.600-.1 1.900-.8 2.200-1.500.3-.7.300-1.300.2-1.500-.1-.2-.3-.3-.6-.4z"/></svg></a>
-<script>
-(function(){
-  var nav=document.querySelector('nav'),btn=document.querySelector('.nav-toggle');
-  if(!nav||!btn)return;
-  function set(o){nav.classList.toggle('open',o);btn.setAttribute('aria-expanded',o?'true':'false');btn.setAttribute('aria-label',o?'Fechar menu':'Abrir menu')}
-  btn.addEventListener('click',function(){set(!nav.classList.contains('open'))});
-  nav.querySelectorAll('.nav-links a').forEach(function(a){a.addEventListener('click',function(){set(false)})});
-  document.addEventListener('keydown',function(e){if(e.key==='Escape'&&nav.classList.contains('open')){set(false);btn.focus()}});
-  document.addEventListener('click',function(e){if(!nav.contains(e.target))set(false)});
-  window.addEventListener('resize',function(){if(window.innerWidth>768)set(false)});
-})();
-</script>
+<a href="https://wa.me/5511926461357?text=Ol%C3%A1%21%20Vim%20pelo%20site%20da%20Nexus%20EF%20Business." target="_blank" rel="noopener" aria-label="Falar no WhatsApp" class="wa-float"><svg viewBox="0 0 32 32" width="28" height="28" fill="#fff" aria-hidden="true"><path d="M16 3C8.8 3 3 8.8 3 16c0 2.3.6 4.5 1.7 6.4L3 29l6.8-1.8c1.9 1 4 1.6 6.2 1.6 7.2 0 13-5.8 13-13S23.200 3 16 3zm0 23.700c-2 0-3.900-.5-5.500-1.500l-.4-.2-4 1 1.100-3.900-.3-.4A10.700 10.700 0 1 1 16 26.700zm5.900-8c-.3-.2-1.900-.9-2.200-1-.3-.1-.5-.2-.7.200-.2.300-.8 1-1 1.200-.2.200-.4.200-.7.100-.3-.2-1.400-.5-2.600-1.600-1-.9-1.600-1.900-1.800-2.300-.2-.3 0-.5.100-.7l.5-.5c.1-.2.200-.3.300-.5.100-.2 0-.4 0-.5-.1-.2-.7-1.700-1-2.300-.3-.6-.5-.5-.7-.5h-.6c-.2 0-.5.100-.8.400-.3.300-1 1-1 2.500s1.100 2.900 1.200 3.100c.2.200 2.100 3.300 5.200 4.500 3.100 1.300 3.100.9 3.700.8.600-.1 1.900-.8 2.200-1.500.3-.7.300-1.300.2-1.500-.1-.2-.3-.3-.6-.4z"/></svg></a>
+<script src="/assets/site.js" defer></script>
 </body>
 </html>
