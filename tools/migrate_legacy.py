@@ -72,9 +72,9 @@ PUBLICO = '''<!-- PUBLICO -->
     <h2 class="section-title reveal">Soluções pensadas para o seu tipo de operação</h2>
     <p class="section-sub reveal">Cada setor tem as suas dores. Veja como a Nexus ajuda no seu caso.</p>
     <div class="card-grid">
-      <a class="aud-card reveal" href="/solucoes/contabilidade.html"><div class="ico" aria-hidden="true">📊</div><h3>Escritórios contábeis</h3><p>Sistema completo com SEFAZ, NFS-e e apuração, mais automações para o dia a dia da carteira.</p><span class="go">Ver como ajudamos →</span></a>
+      <a class="aud-card reveal" href="/solucoes/contabilidade.html"><div class="ico" aria-hidden="true">📊</div><h3>Escritórios contábeis</h3><p>Sistema de gestão com consulta SEFAZ e apoio à apuração, mais automações para o dia a dia da carteira.</p><span class="go">Ver como ajudamos →</span></a>
       <a class="aud-card reveal" href="/para/empresas-de-eventos.html"><div class="ico" aria-hidden="true">🎤</div><h3>Empresas de eventos</h3><p>Captura de leads e automação antes, durante e depois do evento, com voz e IA em desenvolvimento.</p><span class="go">Ver como ajudamos →</span></a>
-      <a class="aud-card reveal" href="/para/times-de-ti.html"><div class="ico" aria-hidden="true">🖥️</div><h3>Times de TI</h3><p>Helpdesk com SLA, inventário de ativos e integração com Slack, Teams e n8n.</p><span class="go">Ver como ajudamos →</span></a>
+      <a class="aud-card reveal" href="/para/times-de-ti.html"><div class="ico" aria-hidden="true">🖥️</div><h3>Times de TI</h3><p>Helpdesk com SLA e inventário de ativos. Integrações com ferramentas de chat e automação estão previstas para a nova versão.</p><span class="go">Ver como ajudamos →</span></a>
     </div>
   </div>
 </section>
@@ -127,16 +127,16 @@ if '/sobre.html" class="inline-link"' not in s:
 
 # hreflang
 if 'hreflang="en"' not in s.split('</head>')[0]:
-    s = s.replace('</head>', '<link rel="alternate" hreflang="pt-BR" href="https://nexusefbusiness.com.br/" />\n'
-                  '<link rel="alternate" hreflang="en" href="https://nexusefbusiness.com.br/en/" />\n'
-                  '<link rel="alternate" hreflang="x-default" href="https://nexusefbusiness.com.br/" />\n</head>', 1)
+    s = s.replace('</head>', '<link rel="alternate" hreflang="pt-BR" href="https://www.nexusefbusiness.com.br/" />\n'
+                  '<link rel="alternate" hreflang="en" href="https://www.nexusefbusiness.com.br/en/" />\n'
+                  '<link rel="alternate" hreflang="x-default" href="https://www.nexusefbusiness.com.br/" />\n</head>', 1)
 wr('index.html', s)
 print('migrate ok')
 
 # ---------- dados estruturados extras (sem preço, avaliação ou disponibilidade) ----------
 import json
 def ld(o): return '<script type="application/ld+json">' + json.dumps(o, ensure_ascii=False) + '</script>\n'
-SITE_ = 'https://nexusefbusiness.com.br'
+SITE_ = 'https://www.nexusefbusiness.com.br'
 EXTRA = {
  'index.html': ('"WebSite"', ld({"@context": "https://schema.org", "@type": "WebSite", "name": "Nexus EF Business", "url": SITE_ + "/", "inLanguage": "pt-BR"})),
  'nexus-contabil.html': ('"SoftwareApplication"', ld({"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Nexus Contábil",

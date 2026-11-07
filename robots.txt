@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://nexusefbusiness.com.br/sitemap.xml
+Sitemap: https://www.nexusefbusiness.com.br/sitemap.xml

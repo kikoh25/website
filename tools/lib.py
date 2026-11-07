@@ -9,7 +9,7 @@ from pathlib import Path
 from urllib.parse import quote
 
 ROOT = Path(__file__).resolve().parent.parent
-SITE = 'https://nexusefbusiness.com.br'
+SITE = 'https://www.nexusefbusiness.com.br'
 PHONE = '5511926461357'
 WA = 'https://wa.me/5511926461357?text='  # compatibilidade com textos antigos
 

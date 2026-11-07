@@ -11,7 +11,7 @@ n = 0
 for p in R.rglob('*'):
     if p.suffix not in ('.html', '.xml', '.txt', '.webmanifest', '.py') or any(x in p.parts for x in ('node_modules', '.git', '.wrangler')):
         continue
-    if p.suffix == '.py' and p.name not in ('lib.py', 'migrate_legacy.py'):
+    if p.suffix == '.py' and 'tools' not in p.parts:
         continue
     s = p.read_text(encoding='utf-8'); t = old_pat.sub(new, s)
     if t != s:

@@ -213,7 +213,7 @@ audience('times-de-ti', 'Times de TI', 'Para times de TI', 'Chamados, ativos e S
    ('Inventário desatualizado', 'Equipamentos e licenças em planilhas que ninguém confia.'),
    ('Sem prova de resultado', 'Difícil mostrar à diretoria o volume e a qualidade do atendimento.')],
   [('Nexus Platform', 'Helpdesk com SLA, CSAT, inventário de ativos, base de conhecimento e relatórios.'),
-   ('Integrações', 'Slack, Teams, n8n e outras, para abrir e acompanhar chamados onde o time já está.'),
+   ('Integrações previstas', 'Slack, Teams, n8n e outras estão previstas para a nova versão. A disponibilidade será confirmada na liberação.'),
    ('Demonstração com dados fictícios', 'Veja as telas do produto antes de falar com a gente.'),
    ('Automação de rotina', 'Senhas, acessos e respostas comuns resolvidas por fluxo.')],
   'O Nexus Platform está em nova versão, com acesso antecipado. Pergunte pela disponibilidade e pelos planos.',
@@ -225,7 +225,7 @@ TL = [('Infraestrutura de TI', 'Estruturação da TI de um grupo com 6 empresas:
       ('ERP financeiro', 'Sistema financeiro com ecossistema de bots no Slack para aprovações e avisos.'),
       ('Nexus Platform', 'Plataforma de helpdesk e inventário, com SLA, CSAT, base de conhecimento e integrações.'),
       ('LeadNow, em desenvolvimento', 'Captura de leads em eventos com voz e IA. Ainda não lançado.'),
-      ('Nexus Contábil', 'Sistema de gestão contábil com mais de 40 telas e integrações fiscais, em nova versão.'),
+      ('Nexus Contábil', 'Sistema de gestão contábil com mais de 40 telas, em nova versão.'),
       ('Agora', 'Colocando os produtos em nova versão e atendendo projetos sob medida.')]
 tl = ''.join(f'<li><span class="when">{"Etapa " + str(i+1) if t != "Agora" else "Agora"}</span><h3>{t}</h3><p>{d}</p></li>' for i, (t, d) in enumerate(TL))
 VAL = [('Entrega real', 'Prometemos só o que o produto faz hoje e dizemos quando algo ainda está em desenvolvimento.'),

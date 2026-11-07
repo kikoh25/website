@@ -2,71 +2,71 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
 <channel>
   <title>Blog Nexus EF Business</title>
-  <link>https://nexusefbusiness.com.br/blog/</link>
-  <atom:link href="https://nexusefbusiness.com.br/feed.xml" rel="self" type="application/rss+xml" />
+  <link>https://www.nexusefbusiness.com.br/blog/</link>
+  <atom:link href="https://www.nexusefbusiness.com.br/feed.xml" rel="self" type="application/rss+xml" />
   <description>Automação, integração e TI na prática.</description>
   <language>pt-BR</language>
   <lastBuildDate>Wed, 04 Nov 2026 12:00:00 -0300</lastBuildDate>
   <item>
     <title>Como saber se vale a pena automatizar um processo</title>
-    <link>https://nexusefbusiness.com.br/blog/como-saber-se-vale-a-pena-automatizar-um-processo</link>
-    <guid isPermaLink="true">https://nexusefbusiness.com.br/blog/como-saber-se-vale-a-pena-automatizar-um-processo</guid>
+    <link>https://www.nexusefbusiness.com.br/blog/como-saber-se-vale-a-pena-automatizar-um-processo</link>
+    <guid isPermaLink="true">https://www.nexusefbusiness.com.br/blog/como-saber-se-vale-a-pena-automatizar-um-processo</guid>
     <pubDate>Wed, 04 Nov 2026 12:00:00 -0300</pubDate>
     <category>Automação</category>
     <description>Quatro sinais, uma conta simples e os casos em que é melhor não automatizar. Um guia prático para decidir por onde começar.</description>
   </item>
   <item>
     <title>O que é integração de sistemas e quando sua empresa precisa</title>
-    <link>https://nexusefbusiness.com.br/blog/o-que-e-integracao-de-sistemas</link>
-    <guid isPermaLink="true">https://nexusefbusiness.com.br/blog/o-que-e-integracao-de-sistemas</guid>
+    <link>https://www.nexusefbusiness.com.br/blog/o-que-e-integracao-de-sistemas</link>
+    <guid isPermaLink="true">https://www.nexusefbusiness.com.br/blog/o-que-e-integracao-de-sistemas</guid>
     <pubDate>Wed, 04 Nov 2026 12:00:00 -0300</pubDate>
     <category>Integração</category>
     <description>Entenda como sistemas conversam entre si, quais problemas a integração resolve e como saber se chegou a hora.</description>
   </item>
   <item>
     <title>SLA no helpdesk de TI: como definir prazos que funcionam</title>
-    <link>https://nexusefbusiness.com.br/blog/sla-no-helpdesk-de-ti-como-definir-prazos</link>
-    <guid isPermaLink="true">https://nexusefbusiness.com.br/blog/sla-no-helpdesk-de-ti-como-definir-prazos</guid>
+    <link>https://www.nexusefbusiness.com.br/blog/sla-no-helpdesk-de-ti-como-definir-prazos</link>
+    <guid isPermaLink="true">https://www.nexusefbusiness.com.br/blog/sla-no-helpdesk-de-ti-como-definir-prazos</guid>
     <pubDate>Wed, 04 Nov 2026 12:00:00 -0300</pubDate>
     <category>TI e helpdesk</category>
     <description>O que é SLA, como definir prazos por prioridade e quais indicadores acompanhar para o time de TI mostrar resultado.</description>
   </item>
   <item>
     <title>Controle de ativos de TI: planilha ou sistema?</title>
-    <link>https://nexusefbusiness.com.br/blog/controle-de-ativos-de-ti-planilha-ou-sistema</link>
-    <guid isPermaLink="true">https://nexusefbusiness.com.br/blog/controle-de-ativos-de-ti-planilha-ou-sistema</guid>
+    <link>https://www.nexusefbusiness.com.br/blog/controle-de-ativos-de-ti-planilha-ou-sistema</link>
+    <guid isPermaLink="true">https://www.nexusefbusiness.com.br/blog/controle-de-ativos-de-ti-planilha-ou-sistema</guid>
     <pubDate>Wed, 04 Nov 2026 12:00:00 -0300</pubDate>
     <category>TI e helpdesk</category>
     <description>A planilha resolve no começo, mas tem limite. Veja quando o inventário de TI precisa de um sistema e o que ele deve controlar.</description>
   </item>
   <item>
     <title>Planilha, ERP ou sistema sob medida: como escolher</title>
-    <link>https://nexusefbusiness.com.br/blog/planilha-erp-ou-sistema-sob-medida-como-escolher</link>
-    <guid isPermaLink="true">https://nexusefbusiness.com.br/blog/planilha-erp-ou-sistema-sob-medida-como-escolher</guid>
+    <link>https://www.nexusefbusiness.com.br/blog/planilha-erp-ou-sistema-sob-medida-como-escolher</link>
+    <guid isPermaLink="true">https://www.nexusefbusiness.com.br/blog/planilha-erp-ou-sistema-sob-medida-como-escolher</guid>
     <pubDate>Wed, 04 Nov 2026 12:00:00 -0300</pubDate>
     <category>Gestão</category>
     <description>Uma comparação direta entre as três opções, com perguntas que ajudam a decidir sem gastar à toa.</description>
   </item>
   <item>
     <title>Webhook, API ou n8n: qual usar para integrar sistemas</title>
-    <link>https://nexusefbusiness.com.br/blog/webhook-api-ou-n8n-qual-usar-para-integrar-sistemas</link>
-    <guid isPermaLink="true">https://nexusefbusiness.com.br/blog/webhook-api-ou-n8n-qual-usar-para-integrar-sistemas</guid>
+    <link>https://www.nexusefbusiness.com.br/blog/webhook-api-ou-n8n-qual-usar-para-integrar-sistemas</link>
+    <guid isPermaLink="true">https://www.nexusefbusiness.com.br/blog/webhook-api-ou-n8n-qual-usar-para-integrar-sistemas</guid>
     <pubDate>Wed, 04 Nov 2026 12:00:00 -0300</pubDate>
     <category>Integração</category>
     <description>Entenda a diferença entre as formas mais comuns de integração e quando cada uma é a melhor escolha.</description>
   </item>
   <item>
     <title>Seis hábitos para reduzir chamados repetitivos de TI</title>
-    <link>https://nexusefbusiness.com.br/blog/seis-habitos-para-reduzir-chamados-repetitivos-de-ti</link>
-    <guid isPermaLink="true">https://nexusefbusiness.com.br/blog/seis-habitos-para-reduzir-chamados-repetitivos-de-ti</guid>
+    <link>https://www.nexusefbusiness.com.br/blog/seis-habitos-para-reduzir-chamados-repetitivos-de-ti</link>
+    <guid isPermaLink="true">https://www.nexusefbusiness.com.br/blog/seis-habitos-para-reduzir-chamados-repetitivos-de-ti</guid>
     <pubDate>Wed, 04 Nov 2026 12:00:00 -0300</pubDate>
     <category>TI e helpdesk</category>
     <description>Práticas simples que diminuem o volume de pedidos iguais e liberam o time de TI para o que importa.</description>
   </item>
   <item>
     <title>Segurança básica ao integrar sistemas: chaves, permissões e logs</title>
-    <link>https://nexusefbusiness.com.br/blog/seguranca-basica-ao-integrar-sistemas</link>
-    <guid isPermaLink="true">https://nexusefbusiness.com.br/blog/seguranca-basica-ao-integrar-sistemas</guid>
+    <link>https://www.nexusefbusiness.com.br/blog/seguranca-basica-ao-integrar-sistemas</link>
+    <guid isPermaLink="true">https://www.nexusefbusiness.com.br/blog/seguranca-basica-ao-integrar-sistemas</guid>
     <pubDate>Wed, 04 Nov 2026 12:00:00 -0300</pubDate>
     <category>Integração</category>
     <description>Cuidados simples que evitam vazamento de dados e dor de cabeça quando um sistema conversa com outro.</description>

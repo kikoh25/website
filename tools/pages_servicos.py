@@ -15,7 +15,7 @@ SV10 = [
  ('integracao', '🔗', 'Integração de sistemas e APIs', 'O mesmo dado digitado em três sistemas diferentes.',
   'Ligamos os sistemas pelas integrações oficiais de cada um (APIs, webhooks, arquivos). Você cadastra uma vez e a informação aparece onde precisa, com registro do que foi enviado.',
   'ERP com CRM, vendas com financeiro, planilha com sistema de gestão, avisos no Slack ou Teams.', 'Menos digitação, menos erro e informação sempre atualizada.',
-  'Entregue: consulta de notas na SEFAZ com certificado digital no Nexus Contábil, em validação; integrações de chamados com Slack e n8n no Nexus Platform, em nova versão.', 'Olá! Quero conversar sobre integração entre os sistemas da minha empresa.'),
+  'Entregue: consulta de notas na SEFAZ com certificado digital no Nexus Contábil, em validação; integração de GLPI, Slack e n8n na TI de um grupo com 6 empresas.', 'Olá! Quero conversar sobre integração entre os sistemas da minha empresa.'),
  ('automacao', '⚙️', 'Automação de processos', 'Tarefas repetitivas que consomem horas do time todo mês.',
   'Escolhemos o processo que mais pesa, desenhamos o fluxo e automatizamos as etapas mecânicas, mantendo uma pessoa responsável pelas decisões e aprovações.',
   'Cobrança de documentos, relatórios periódicos, aprovações, avisos por mensagem.', 'Tempo livre para análise e atendimento, com trilha de auditoria.',
