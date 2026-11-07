@@ -120,7 +120,7 @@ for marker, block, key in [('<!-- SERVICOS -->', NUMEROS, 'id="numeros"'), ('<!-
         s = s.replace(marker, block + marker, 1)
 
 # link para a página sobre
-if '/sobre.html" class="inline-link"' not in s:
+if 'Conheça a trajetória do fundador' not in s:
     a = 'sem intermediários.</p>'
     assert s.count(a) == 1
     s = s.replace(a, a + '\n        <p style="margin-top:.8rem"><a href="/sobre.html" class="inline-link" style="color:var(--purple);font-weight:600;text-decoration:none;font-size:.88rem">Conheça a trajetória do fundador →</a></p>', 1)
